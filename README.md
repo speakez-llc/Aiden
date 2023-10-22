@@ -15,6 +15,6 @@ Even though this is simply a proof of concept, we plan to showcase how we build 
 
 Aside from our current focus in .NET, it should be noted that Semantic Kernel *also* has support for python and java. More can be learned in the documentation [here](https://learn.microsoft.com/en-us/semantic-kernel/overview/). 
 
-## Our commitment to open source
+## Our commitment to open source 🤝
 
 All of the tools in this project are open-source.  Rower holds that the transparency and collaboration inherent to open-source initiatives fosters trustworthiness in both product and process. Through our leveraging of, contributing to and supporting open-source tools, we maintain our commitment to building robust, reliable and sustainable systems with our clients. 
