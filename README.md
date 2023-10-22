@@ -1,9 +1,9 @@
 # Aiden - The AI Admin 🤖
 This project is a showcase for "taming complexity" using *adaptive* machine learning. It simulates a real-world use case from a project in our portfolio. In full, it demonstrates our view of how analytic and operational systems are melding. 
 
-<div style="text-align: center;">
+<p align="center">
     <img src='img/Aiden_logo.jpg' width=50%>
-</div>
+</p>
 
 Everyone *talks* about AI, but Rower is putting forward a working example of what we view as a cohesive new class of software. These applications forge-weld together what previously was thought of as the distinct domains of "analytics" and "operational" systems into a new form centered on intelligent tooling and human-centered design.
 
