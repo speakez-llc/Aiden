@@ -1,5 +1,5 @@
 # Aiden - The AI Admin 🤖
-This project is a showcase for "taming complexity" using *adaptive* machine learning. It simulates a real-world use case from a project in our portfolio. In full, it demonstrates our view of how analytic and operational systems are melding. 
+This project is a showcase for "taming complexity" using *adaptive* machine learning. It is an adaptation (and abstraction) of a real-world use case from our portfolio. In full, it demonstrates our view of how analytic and operational systems are melding various working models as "AI" continues to proliferate in the marketplace of ideas. 
 
 <p align="center">
     <img src='img/Aiden_logo.jpg' width=50%>
