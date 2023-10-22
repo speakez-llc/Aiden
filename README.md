@@ -17,4 +17,4 @@ Aside from our current focus in .NET, it should be noted that Semantic Kernel *a
 
 ## Our commitment to open source 🤝
 
-All of the tools in this project are open-source.  Rower holds that the transparency and collaboration inherent to open-source initiatives fosters trustworthiness in both product and process. Through our leveraging of, contributing to and supporting open-source tools, we maintain our commitment to building robust, reliable and sustainable systems with our clients. 
+All of the tools in this project are open-source.  Rower holds that the transparency and collaboration inherent to open-source initiatives fosters trustworthiness in both product and process. Through our leveraging of, contributing to and supporting open-source tools, we maintain our commitment to building robust, reliable, secure and sustainable systems with our clients. 
