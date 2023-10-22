@@ -5,7 +5,7 @@ This project is a showcase for "taming complexity" using *adaptive* machine lear
     <img src='img/Aiden_logo.jpg' width=50%>
 </p>
 
-Everyone *talks* about AI, but Rower is putting forward a working example of what we view as a cohesive new class of software. These applications forge-weld together what previously was thought of as the distinct domains of "analytics" and "operational" systems into a new form centered on intelligent tooling and human-centered design.
+Everyone *talks* about AI, but Rower is putting forward a working example of what we see emerging as a cohesive new class of software. These applications forge-weld together what previously was thought of as the distinct domains of "analytics" and "operational" systems into a new form centered on intelligent tooling and human-centered design.
 
 ## Summary 📰
 "Aiden" is a focused proof-of-concept - a structured set of algorithms that performs analysis of network telemetry that assists a systems admin in a mission-critical role. It reviews an enriched 'funnel' of suspicious open-web traffic and discovers threat-actor patterns. With its ability to analyze data "in flight" it is able to rapidly offer responses that prompt the human operator to review findings and confirm/enact the mitigation strategy from the same user interface. 
