@@ -38,6 +38,10 @@ RUN git clone https://$GITHUB_PAT@github.com/pgvector/pgvector.git /tmp/pgvector
 # Specify the extensions in the PostgreSQL configuration
 RUN echo "shared_preload_libraries = 'timescaledb,cstore_fdw,vector'" >> /usr/share/postgresql/postgresql.custom.conf
 
+# Add pgcrypto to PostgreSQL configuration
+RUN echo "local_preload_libraries = 'pgcrypto'" >> /usr/share/postgresql/postgresql.custom.conf
+
+
 # Create a custom PostgreSQL configuration file
 COPY postgresql.custom.conf /etc/postgresql/postgresql.conf
 
