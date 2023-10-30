@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-# Start PostgreSQL
-/etc/init.d/postgresql start
+# Start PostgreSQL as an unprivileged user
+gosu postgres /usr/local/bin/docker-entrypoint.sh postgres
 
 # Wait for PostgreSQL to become ready
 until pg_isready -h localhost -p 5432 -U postgres
@@ -12,12 +12,12 @@ do
 done
 
 # Create a database
-su - postgres -c "createdb aiden-db"
+gosu postgres createdb aiden-db
 
 # Connect to the database and add extensions
-su - postgres -c "psql -d aiden-db -c 'CREATE EXTENSION IF NOT EXISTS timescaledb;'"
-su - postgres -c "psql -d aiden-db -c 'CREATE EXTENSION IF NOT EXISTS cstore_fdw;'"
-su - postgres -c "psql -d aiden-db -c 'CREATE EXTENSION IF NOT EXISTS pgvector;'"
+gosu postgres psql -d aiden-db -c 'CREATE EXTENSION IF NOT EXISTS timescaledb;'
+gosu postgres psql -d aiden-db -c 'CREATE EXTENSION IF NOT EXISTS cstore_fdw;'
+gosu postgres psql -d aiden-db -c 'CREATE EXTENSION IF NOT EXISTS vector;'
 
 # Keep PostgreSQL running
 exec "$@"

@@ -2,8 +2,6 @@
 FROM postgres:13
 
 # Perform all server setup first before putting on Postgres
-# Check for pg_config and its version
-RUN pg_config --version
 
 # Install build-essential tools and required packages
 RUN apt-get update && \
@@ -34,8 +32,13 @@ RUN cd /tmp/timescaledb && \
     cmake .. && \
     make && make install
 
+# Clone pgvector source code from GitHub
+RUN git clone https://$GITHUB_PAT@github.com/pgvector/pgvector.git /tmp/pgvector && \
+    cd /tmp/pgvector && \
+    make && make install INSTALLDIR=/usr/share/postgresql/13/extension
+
 # Specify the extensions in the PostgreSQL configuration
-RUN echo "shared_preload_libraries = 'timescaledb,cstore_fdw,pgvector'" >> /usr/share/postgresql/postgresql.conf.sample
+RUN echo "shared_preload_libraries = 'timescaledb,cstore_fdw,vector'" >> /usr/share/postgresql/postgresql.conf.sample
 
 # Create a custom PostgreSQL configuration file
 COPY postgresql.custom.conf /etc/postgresql/postgresql.conf
@@ -56,7 +59,6 @@ RUN chmod +x /usr/local/bin/init-db.sh
 
 # Set the script as the entrypoint
 ENTRYPOINT ["init-db.sh"]
-
 
 # Start PostgreSQL cluster
 CMD ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
