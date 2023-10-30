@@ -1,8 +1,6 @@
 # Use a Debian-based Postgres image as the base
 FROM postgres:13
 
-# Perform all server setup first before putting on Postgres
-
 # Install build-essential tools and required packages
 RUN apt-get update && \
     apt-get install -y build-essential wget git jq cmake protobuf-c-compiler libprotobuf-c-dev postgresql-server-dev-13 libkrb5-dev && \
@@ -38,27 +36,21 @@ RUN git clone https://$GITHUB_PAT@github.com/pgvector/pgvector.git /tmp/pgvector
     make && make install INSTALLDIR=/usr/share/postgresql/13/extension
 
 # Specify the extensions in the PostgreSQL configuration
-RUN echo "shared_preload_libraries = 'timescaledb,cstore_fdw,vector'" >> /usr/share/postgresql/postgresql.conf.sample
+RUN echo "shared_preload_libraries = 'timescaledb,cstore_fdw,vector'" >> /usr/share/postgresql/postgresql.custom.conf
 
 # Create a custom PostgreSQL configuration file
 COPY postgresql.custom.conf /etc/postgresql/postgresql.conf
-
-# Ensure that the custom configuration is loaded
-RUN echo "include '/etc/postgresql/postgresql.conf'" >> /usr/share/postgresql/postgresql.conf.sample
 
 # Initialize a PostgreSQL cluster
 RUN /etc/init.d/postgresql start && \
     su - postgres -c "pg_createcluster 13 main" && \
     /etc/init.d/postgresql stop
 
-# Copy the init-db.sh script to the container
-COPY init-db.sh /usr/local/bin/
-
-# Make the script executable
-RUN chmod +x /usr/local/bin/init-db.sh
+# Copy the SQL script to the initialization directory
+COPY create_db.sql /docker-entrypoint-initdb.d/
 
 # Set the script as the entrypoint
-ENTRYPOINT ["init-db.sh"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # Start PostgreSQL cluster
 CMD ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
