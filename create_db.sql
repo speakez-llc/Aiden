@@ -31,35 +31,4 @@ CREATE TABLE IF NOT EXISTS events (
 -- Create the hypertable for events based on the "event_time" column
 SELECT create_hypertable('events', 'event_time');
 
--- Debugging: Check if the hypertable creation was successful
-DO $$ 
-BEGIN
-   IF EXISTS (SELECT 1 FROM _timescaledb_catalog.hypertable WHERE schema_name = 'public' AND table_name = 'events') THEN
-      RAISE NOTICE 'Hypertable "events" creation successful.';
-   ELSE
-      RAISE NOTICE 'Hypertable "events" creation failed.';
-   END IF;
-END $$;
 
-DO $$ 
-DECLARE
-   sql_statement TEXT;
-BEGIN
-   sql_statement := 'CREATE FOREIGN TABLE events_cstore'
-        || ' PARTITION OF events'
-        || ' FOR VALUES FROM (''' || (CURRENT_DATE - INTERVAL '31 days') || ''') TO (''' || CURRENT_DATE || ''')'
-        || ' SERVER cstore_server;';
-   RAISE NOTICE 'SQL Statement: %', sql_statement;
-   EXECUTE sql_statement;
-EXCEPTION
-   WHEN others THEN
-      RAISE NOTICE 'Error: %', SQLERRM;
-END $$;
-
-
-
--- Create the continuous aggregate policy
-SELECT create_continuous_aggs_policy('events', start_offset => INTERVAL '1 day', end_offset => INTERVAL '1 day');
-
--- Create the vector index
-CREATE INDEX events_vector_index ON events USING vector(vector);
