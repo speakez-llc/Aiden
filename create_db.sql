@@ -8,6 +8,7 @@ CREATE DATABASE aidendb;
 CREATE EXTENSION timescaledb;
 CREATE EXTENSION cstore_fdw;
 CREATE EXTENSION vector;
+CREATE EXTENSION pg_trgm;
 CREATE EXTENSION pgcrypto;
 CREATE EXTENSION "uuid-ossp";
 
