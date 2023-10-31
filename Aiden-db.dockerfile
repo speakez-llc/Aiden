@@ -21,7 +21,7 @@ RUN git clone https://$GITHUB_PAT@github.com/citusdata/cstore_fdw.git /tmp/cstor
 # Clone TimescaleDB source code from GitHub
 RUN git clone https://github.com/timescale/timescaledb.git /tmp/timescaledb && \
     cd /tmp/timescaledb && \
-    git checkout 2.5.0
+    git checkout 2.12.2
 
 # Build and install TimescaleDB
 RUN cd /tmp/timescaledb && \
