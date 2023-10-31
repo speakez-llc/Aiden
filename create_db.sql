@@ -9,8 +9,13 @@ CREATE EXTENSION timescaledb;
 CREATE EXTENSION cstore_fdw;
 CREATE EXTENSION vector;
 CREATE EXTENSION pg_trgm;
+CREATE EXTENSION cube;
 CREATE EXTENSION pgcrypto;
+CREATE EXTENSION pg_prewarm;
 CREATE EXTENSION "uuid-ossp";
+CREATE EXTENSION amcheck;
+CREATE EXTENSION pg_stat_statements;
+CREATE EXTENSION plpgsql;
 
 -- Create the events table with the same columns
 CREATE TABLE IF NOT EXISTS events (
