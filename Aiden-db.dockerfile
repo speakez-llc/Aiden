@@ -1,9 +1,9 @@
 # Use a Debian-based Postgres image as the base
-FROM postgres:13
+FROM postgres:15
 
 # Install build-essential tools and required packages
 RUN apt-get update && \
-    apt-get install -y build-essential wget git jq cmake protobuf-c-compiler libprotobuf-c-dev postgresql-server-dev-13 libkrb5-dev && \
+    apt-get install -y build-essential curl wget git jq cmake gnupg postgresql-common apt-transport-https lsb-release protobuf-c-compiler libprotobuf-c-dev postgresql-server-dev-15 libkrb5-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy the settings.json file from the Docker build context to the image
@@ -13,30 +13,26 @@ COPY settings.json /tmp/settings.json
 RUN export GITHUB_PAT=$(jq -r .token /tmp/settings.json)
 
 # Clone and build Citus Columnstore extension
-RUN git clone https://$GITHUB_PAT@github.com/citusdata/cstore_fdw.git /tmp/cstore_fdw && \
-    cd /tmp/cstore_fdw && \
-    PATH=/usr/local/pgsql/bin/:$PATH make && \
-    PATH=/usr/local/pgsql/bin/:$PATH make install
+RUN curl https://install.citusdata.com/community/deb.sh > add-citus-repo.sh && \
+    bash add-citus-repo.sh && \
+    apt-get -y install postgresql-15-citus-12.1
 
-# Clone TimescaleDB source code from GitHub
-RUN git clone https://github.com/timescale/timescaledb.git /tmp/timescaledb && \
-    cd /tmp/timescaledb && \
-    git checkout 2.12.2
+# Clone timescaledb source code from GitHub
+RUN git clone https://github.com/timescale/timescaledb && \
+    cd timescaledb && \
+    git checkout 2.12.2 && \
+    ./bootstrap && \
+    cd build && make && \
+    make install
 
-# Build and install TimescaleDB
-RUN cd /tmp/timescaledb && \
-    ./bootstrap -DREGRESS_CHECKS=OFF && \
-    cd build && \
-    cmake .. && \
-    make && make install
-
-# Clone pgvector source code from GitHub
-RUN git clone https://$GITHUB_PAT@github.com/pgvector/pgvector.git /tmp/pgvector && \
-    cd /tmp/pgvector && \
-    make && make install INSTALLDIR=/usr/share/postgresql/13/extension
+RUN cd /tmp && \
+    git clone --branch v0.5.1 https://github.com/pgvector/pgvector.git && \
+    cd pgvector && \
+    make && \
+    make install
 
 # Specify the extensions in the PostgreSQL configuration
-RUN echo "shared_preload_libraries = 'timescaledb,cstore_fdw,vector'" >> /usr/share/postgresql/postgresql.custom.conf
+RUN echo "shared_preload_libraries = 'timescaledb,citus,vector'" >> /usr/share/postgresql/postgresql.custom.conf
 
 # Add pgcrypto to PostgreSQL configuration
 RUN echo "local_preload_libraries = 'pgcrypto'" >> /usr/share/postgresql/postgresql.custom.conf
@@ -47,7 +43,7 @@ COPY postgresql.custom.conf /etc/postgresql/postgresql.conf
 
 # Initialize a PostgreSQL cluster
 RUN /etc/init.d/postgresql start && \
-    su - postgres -c "pg_createcluster 13 main" && \
+    su - postgres -c "pg_createcluster 15 main" && \
     /etc/init.d/postgresql stop
 
 # Copy the SQL script to the initialization directory

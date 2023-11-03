@@ -6,7 +6,7 @@ CREATE DATABASE aidendb;
 
 -- Create extensions
 CREATE EXTENSION timescaledb;
-CREATE EXTENSION cstore_fdw;
+CREATE EXTENSION citus;
 CREATE EXTENSION vector;
 CREATE EXTENSION pg_trgm;
 CREATE EXTENSION cube;
@@ -15,12 +15,11 @@ CREATE EXTENSION pg_prewarm;
 CREATE EXTENSION "uuid-ossp";
 CREATE EXTENSION amcheck;
 CREATE EXTENSION pg_stat_statements;
-CREATE EXTENSION plpgsql;
 
 -- Create the events table with the same columns
-CREATE TABLE IF NOT EXISTS events (
+CREATE TABLE events (
     event_time TIMESTAMPTZ NOT NULL,
-    event_id UUID DEFAULT CAST(REPLACE(CAST(uuid_generate_v4() AS TEXT), '-', '') AS UUID),
+    event_id UUID DEFAULT uuid_generate_v4(),
     cst_id UUID,
     src_ip INET,
     src_port INT,
@@ -34,7 +33,4 @@ CREATE TABLE IF NOT EXISTS events (
     vector VECTOR
 );
 
--- Create the hypertable for events based on the "event_time" column
-SELECT create_hypertable('events', 'event_time');
-
-
+SELECT create_hypertable('events', 'event_time')
