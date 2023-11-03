@@ -14,4 +14,4 @@ DROP TABLE events;
 
 SELECT * FROM timescaledb_information.chunks WHERE hypertable_name = 'events_hourly';
 
-
+SELECT COUNT(*) FROM events_hourly;
