@@ -15,6 +15,9 @@ CREATE EXTENSION pg_prewarm;
 CREATE EXTENSION "uuid-ossp";
 CREATE EXTENSION amcheck;
 CREATE EXTENSION pg_stat_statements;
+CREATE EXTENSION tsm_system_rows;
+CREATE EXTENSION tsm_system_time;
+CREATE EXTENSION tcn;
 
 -- Create the events table with the same columns
 CREATE TABLE events (
