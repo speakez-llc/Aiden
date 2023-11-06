@@ -6,7 +6,7 @@ CREATE DATABASE aidendb;
 
 -- Create extensions
 CREATE EXTENSION timescaledb;
--- CREATE EXTENSION citus;
+CREATE EXTENSION IF NOT EXISTS btree_gist;
 CREATE EXTENSION vector;
 CREATE EXTENSION pg_trgm;
 CREATE EXTENSION cube;
