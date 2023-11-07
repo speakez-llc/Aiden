@@ -21,8 +21,8 @@
 
             </StackPanel>
             <lvc:PieChart Grid.Row="1" 
-                          Height="200"
-                          Width="200"
+                          Height="300"
+                          Width="300"
                           Series="{Binding Series}" />
         </Grid>
         <DataGrid ItemsSource="{Binding Actions}" AutoGenerateColumns="True" Height="100    ">

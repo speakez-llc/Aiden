@@ -7,6 +7,7 @@
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
         <Compile Include="Services\Services.fs" />
+        <Compile Include="Services\Data.fs" />
         <AvaloniaXaml Remove="Models\**" />
         <EmbeddedResource Remove="Models\**" />
         <None Remove=".gitignore" />
@@ -34,10 +35,14 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Akkling" Version="0.13.0" />
         <PackageReference Include="Avalonia" Version="11.0.5" />
         <PackageReference Include="Elmish" Version="4.1.0" />
         <PackageReference Include="Elmish.Avalonia" Version="1.1.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-preview.5.23280.8" />
+        <PackageReference Include="Npgsql.FSharp" Version="5.7.0" />
         <PackageReference Include="System.Reactive.Core" Version="6.0.0" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
         <PackageReference Include="Avalonia.Desktop" Version="11.0.5" />
@@ -49,6 +54,10 @@
         <PackageReference Include="LiveChartsCore.SkiaSharpView" Version="2.0.0-beta.802" />
         <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-beta.802-11.0.0-rc1.1" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="settings.json" />
     </ItemGroup>
 
     <!--<ItemGroup>
