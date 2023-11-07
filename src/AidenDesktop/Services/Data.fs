@@ -1,4 +1,4 @@
-﻿module Aiden.Services.Data
+﻿module Data
 
 open System
 open System.Data
@@ -78,7 +78,7 @@ let childActor (dbConnection: NpgsqlConnection) (mailbox: Actor<_>) =
     }
     loop ()
 
-let databaseParentActor (system: ActorSystem) =
+let databaseParentActor(system: ActorSystem) : ICancelable * IActorRef<ChildMessage> =
     let connectionString = configuration.GetConnectionString("ConnectionString")
     let dbConnection = ensureDbConnection connectionString
     
@@ -86,7 +86,9 @@ let databaseParentActor (system: ActorSystem) =
     let childActorInstance = childActor dbConnection
 
     // Use actorOf to spawn the child actor
-    let child = system.ActorOf(Props.Create childActorInstance, "vpn_pie_child")
+    let childProps = Props.Create(fun () -> childActorInstance)
+    let child = system.ActorOf(childProps, "child")
+    
 
     // Define the message to send
     let messageToSend = FetchData
@@ -97,10 +99,12 @@ let databaseParentActor (system: ActorSystem) =
     let sender: IActorRef = system.DeadLetters
 
     // Use the Akkling idiomatic way of scheduling messages
-    let schedule = system.Scheduler.ScheduleTellRepeatedlyCancelable(initialDelay, interval, child, messageToSend, sender)
+    let schedule = system.Scheduler.ScheduleTellRepeatedlyCancelable(initialDelay, interval, child :> ICanTell, messageToSend, sender)
     
-    // Keep a reference to the schedule if you need to cancel it later
-    schedule
+    let typedChild = child :?> IActorRef<ChildMessage>
+    
+    // Return both the schedule and the child actor reference correctly
+    (schedule, typedChild)
 
 
 

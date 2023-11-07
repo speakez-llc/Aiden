@@ -1,46 +1,36 @@
 ﻿module Aiden.ViewModels.DoughnutViewModel
 
 open System
-open Akka.Actor
-open System.Collections.Generic
 open System.Collections.ObjectModel
-open Aiden.Services
-open Elmish
 open Elmish.Avalonia
-open LiveChartsCore
-open LiveChartsCore.Kernel.Sketches
-open LiveChartsCore.SkiaSharpView
-open LiveChartsCore.Defaults
-open Messaging
+open Akkling
 open Data
+open LiveChartsCore
+open LiveChartsCore.SkiaSharpView
+open Messaging
 
 type ViewModel() as self =
-    // Instantiate the actor system
-    let system = ActorSystem.Create("mySystem")
+    // Reference to the actor from Data.fs
+    let schedule, actorRef = databaseParentActor system
 
-    // A method to initialize the actors
-    let initializeActors() =
-        // ... create your actors here ...
+    // Method to send a message to start the data fetching
+    let startDataFetch() =
+        actorRef <! FetchData
 
-    // A method to shut down the actor system
-    let terminateActorSystem() =
-        async {
-            do! system.Terminate() |> Async.AwaitTask
-            return ()
-        } |> Async.RunSynchronously
+    // Method to stop the data fetching and terminate the actor system
+    let stopDataFetch() =
+        schedule.Cancel() // Cancel the scheduled messages
+        actorRef <! Terminate
+        system.Terminate() |> Async.AwaitTask |> Async.RunSynchronously
 
     do
-        initializeActors()
+        // Start data fetching when ViewModel is created
+        startDataFetch()
 
-    // Implement IDisposable if not already implemented
     interface IDisposable with
         member _.Dispose() =
-            terminateActorSystem()
-
-    // If there is a view unload event you can listen to
-    member this.OnViewUnloaded() =
-        terminateActorSystem()
-
+            // Stop data fetching when ViewModel is disposed
+            stopDataFetch()
 
 type Model = 
     {
@@ -63,20 +53,8 @@ type Msg =
     | NewChartData of ObservableCollection<ISeries>
     | Terminate
     
-let mailboxProcessor = MailboxProcessor.Start(fun inbox -> 
-    let rec loop (model: Model) = async {
-        let! msg = inbox.Receive()
-        match msg with
-        | NewChartData series ->
-            // Dispatch to Elmish update function
-            // Note: You'll need to ensure this is done on the UI thread if required
-            Program.dispatch (UpdateChart series) // Assuming `UpdateChart` is a new message in Elmish that you handle to update the series
-        | _ -> return! loop model
-    }
-    loop initialModel
-)
-
 let init() =
+    
     let staticData =
         [ 2.0; 4.0; 1.0; 4.0; 3.0 ] // Static values for the chart
 
@@ -90,7 +68,19 @@ let init() =
         Actions = [ { Description = "Initialized Chart"; Timestamp = DateTime.Now } ]
         IsFrozen = false
     }
-
+let initialModel = init()
+let mailboxProcessor = MailboxProcessor.Start(fun inbox -> 
+    let rec loop (model: Model) = async {
+        let! msg = inbox.Receive()
+        match msg with
+        | NewChartData series ->
+            // Dispatch to Elmish update function
+            // Note: You'll need to ensure this is done on the UI thread if required
+            ()
+        | _ -> return! loop model
+    }
+    loop initialModel
+)
 let update (msg: Msg) (model: Model) =
     match msg with
     | Update ->
@@ -125,10 +115,6 @@ let bindings ()  : Binding<Model, Msg> list = [
 ]
 
 let designVM = ViewModel.designInstance (init()) (bindings())
-
-open System.Timers
-
-
 
 let vm = 
     AvaloniaProgram.mkSimple init update bindings
