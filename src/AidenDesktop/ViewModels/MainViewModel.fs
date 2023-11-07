@@ -11,13 +11,13 @@ type Model =
 type Msg = 
     | ShowChart
     | ShowCounter
+    | ShowDoughnut
     | ShowAbout
-    | ShowFilePicker
     | Terminate
 
 let init() = 
     { 
-        ContentVM = CounterViewModel.vm
+        ContentVM = DoughnutViewModel.vm
     }
 
 let update (msg: Msg) (model: Model) = 
@@ -26,10 +26,10 @@ let update (msg: Msg) (model: Model) =
         { model with ContentVM = CounterViewModel.vm }
     | ShowChart -> 
         { model with ContentVM = ChartViewModel.vm }  
+    | ShowDoughnut -> 
+        { model with ContentVM = DoughnutViewModel.vm }  
     | ShowAbout ->
         { model with ContentVM = AboutViewModel.vm }
-    | ShowFilePicker ->
-        { model with ContentVM = FilePickerViewModel.vm () }
     | Terminate ->
         model
 
@@ -38,8 +38,8 @@ let bindings() : Binding<Model, Msg> list = [
     "ContentVM" |> Binding.oneWay (fun m -> m.ContentVM)
     "ShowCounter" |> Binding.cmd ShowCounter
     "ShowChart" |> Binding.cmd ShowChart
+    "ShowDoughnut" |> Binding.cmd ShowDoughnut
     "ShowAbout" |> Binding.cmd ShowAbout
-    "ShowFilePicker" |> Binding.cmd ShowFilePicker
 ]
 
 let designVM = ViewModel.designInstance (init()) (bindings())

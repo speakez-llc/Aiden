@@ -1,10 +1,10 @@
-namespace Aiden.Views
+﻿namespace Aiden.Views
 
 open Avalonia
 open Avalonia.Controls
 open Avalonia.Markup.Xaml
 
-type FilePickerView () as this = 
+type DoughnutView () as this = 
     inherit UserControl ()
 
     do this.InitializeComponent()
