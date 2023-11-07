@@ -5,22 +5,22 @@ CREATE DATABASE aidendb;
 \c aidendb;
 
 -- Create extensions
-CREATE EXTENSION timescaledb;
+CREATE EXTENSION IF NOT EXISTS timescaledb;
 CREATE EXTENSION IF NOT EXISTS btree_gist;
-CREATE EXTENSION vector;
-CREATE EXTENSION pg_trgm;
-CREATE EXTENSION cube;
-CREATE EXTENSION pgcrypto;
-CREATE EXTENSION pg_prewarm;
-CREATE EXTENSION "uuid-ossp";
-CREATE EXTENSION amcheck;
-CREATE EXTENSION pg_stat_statements;
-CREATE EXTENSION tsm_system_rows;
-CREATE EXTENSION tsm_system_time;
-CREATE EXTENSION tcn;
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS cube;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS pg_prewarm;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS amcheck;
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+CREATE EXTENSION IF NOT EXISTS tsm_system_rows;
+CREATE EXTENSION IF NOT EXISTS tsm_system_time;
+CREATE EXTENSION IF NOT EXISTS tcn;
 
 -- Create the events table with the same columns
-CREATE TABLE events (
+CREATE TABLE IF NOT EXISTS events (
     event_time TIMESTAMPTZ NOT NULL,
     event_id UUID DEFAULT uuid_generate_v4(),
     cst_id UUID,
@@ -37,3 +37,4 @@ CREATE TABLE events (
 );
 
 SELECT create_hypertable('events', 'event_time')
+
