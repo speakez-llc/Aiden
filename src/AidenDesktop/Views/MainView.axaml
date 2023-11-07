@@ -5,10 +5,10 @@
         mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
         Width="700" Height="650"
         x:Class="Aiden.Views.MainView"        
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/Rower_icon_2.ico"
         xmlns:vm="using:Aiden.ViewModels"
         Design.DataContext="{Binding Source={x:Static vm:MainViewModel.designVM}}"
-        Title="Aiden">
+        Title="Aiden - the AI Admin">
 
 	<Window.Styles>
 
@@ -64,7 +64,7 @@
 		<StackPanel Classes="nav" Orientation="Horizontal" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
 			<Button Classes="tab" Content="Counter" Command="{Binding ShowCounter}" />
 			<Button Classes="tab" Content="Chart" Command="{Binding ShowChart}" />
-			<Button Classes="tab" Content="File Picker" Command="{Binding ShowFilePicker}" />
+			<Button Classes="tab" Content="Doughnut" Command="{Binding ShowDoughnut}" />
 		    <Button Classes="tab" Content="About" Command="{Binding ShowAbout}" />
 		</StackPanel>
 		
