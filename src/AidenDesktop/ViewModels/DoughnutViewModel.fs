@@ -1,8 +1,10 @@
 ﻿module Aiden.ViewModels.DoughnutViewModel
 
 open System
+open Akka.Actor
 open System.Collections.Generic
 open System.Collections.ObjectModel
+open Aiden.Services
 open Elmish
 open Elmish.Avalonia
 open LiveChartsCore
@@ -10,6 +12,35 @@ open LiveChartsCore.Kernel.Sketches
 open LiveChartsCore.SkiaSharpView
 open LiveChartsCore.Defaults
 open Messaging
+open Data
+
+type ViewModel() as self =
+    // Instantiate the actor system
+    let system = ActorSystem.Create("mySystem")
+
+    // A method to initialize the actors
+    let initializeActors() =
+        // ... create your actors here ...
+
+    // A method to shut down the actor system
+    let terminateActorSystem() =
+        async {
+            do! system.Terminate() |> Async.AwaitTask
+            return ()
+        } |> Async.RunSynchronously
+
+    do
+        initializeActors()
+
+    // Implement IDisposable if not already implemented
+    interface IDisposable with
+        member _.Dispose() =
+            terminateActorSystem()
+
+    // If there is a view unload event you can listen to
+    member this.OnViewUnloaded() =
+        terminateActorSystem()
+
 
 type Model = 
     {
@@ -28,8 +59,22 @@ type Msg =
     | Update
     | Reset
     | SetIsFreezeChecked of bool
-    | Terminate
     | Ok
+    | NewChartData of ObservableCollection<ISeries>
+    | Terminate
+    
+let mailboxProcessor = MailboxProcessor.Start(fun inbox -> 
+    let rec loop (model: Model) = async {
+        let! msg = inbox.Receive()
+        match msg with
+        | NewChartData series ->
+            // Dispatch to Elmish update function
+            // Note: You'll need to ensure this is done on the UI thread if required
+            Program.dispatch (UpdateChart series) // Assuming `UpdateChart` is a new message in Elmish that you handle to update the series
+        | _ -> return! loop model
+    }
+    loop initialModel
+)
 
 let init() =
     let staticData =
@@ -47,7 +92,6 @@ let init() =
     }
 
 let update (msg: Msg) (model: Model) =
-    let values = model.Series[0].Values :?> ObservableCollection<DateTimePoint>
     match msg with
     | Update ->
         { model with 
