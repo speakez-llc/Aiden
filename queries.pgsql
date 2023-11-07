@@ -61,7 +61,7 @@ GROUP BY
     pxy_part;
 
 SELECT
-    UNNEST(string_to_array(vpn, ':')) AS vpn_part,
+    UNNEST(string_to_array(vpn, ';')) AS vpn_part,
     COUNT(*) AS count
 FROM
     events_hourly
