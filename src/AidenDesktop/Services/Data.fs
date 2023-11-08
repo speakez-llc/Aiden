@@ -8,25 +8,24 @@ open Akkling
 open Npgsql
 open Microsoft.Extensions.Configuration
 
-type ChildMessage =
-    | FetchData
-    | GetData of AsyncReplyChannel<string>
-    | Terminate  
+type DataReply = 
+    | Data of (string * int64) list
+    | NoData
+    | Error of string
 
-// Singleton for the database connection
+type ChildMessage =
+    | GetData of AsyncReplyChannel<DataReply>
+    | Terminate  
 let mutable singletonDbConnection: NpgsqlConnection option = None
 
-// Load configuration from settings.json file
 let configuration = 
     (ConfigurationBuilder()
         .SetBasePath(Directory.GetCurrentDirectory())
         .AddJsonFile("settings.json", optional = true, reloadOnChange = true)
         .Build())
 
-// Read the connection string from the configuration
 let connectionString = configuration.GetConnectionString("ConnectionString")
 
-// Function to ensure a singleton database connection
 let ensureDbConnection connectionString =
     match singletonDbConnection with
     | Some conn when conn.State <> System.Data.ConnectionState.Closed 
@@ -44,30 +43,36 @@ let ensureDbConnection connectionString =
         newConn.Open()
         singletonDbConnection <- Some newConn
         newConn
-
 let system = System.create "AidenActors" <| Configuration.defaultConfig()
-
 let childActor (dbConnection: NpgsqlConnection) (mailbox: Actor<_>) =
+            
     let query = 
-        @"SELECT UNNEST(string_to_array(vpn, ';')) AS vpn_part, COUNT(*) AS count
+        @"SELECT UNNEST(string_to_array(vpn, ':')) AS vpn_part, COUNT(*) AS count
           FROM events_hourly
           WHERE event_time >= now() AT TIME ZONE 'UTC' - INTERVAL '1 minute'
           GROUP BY vpn_part;"
-
+    
     let rec loop () = actor {
         let! msg = mailbox.Receive()
         match msg with
-        | FetchData ->
-            // Execute the command and process results
-            use cmd = new NpgsqlCommand(query, dbConnection)
-            // (Add logic for executing command and processing results)
-            ()
         | GetData replyChannel ->
-            // Execute the command and process results
-            use cmd = new NpgsqlCommand(query, dbConnection)
-            // (Add logic for executing command and processing results)
-            replyChannel.Reply "Some results"
-            ()
+            try
+                // Execute the command and process results
+                use cmd = new NpgsqlCommand(query, dbConnection)
+                use reader = cmd.ExecuteReader()
+                // Read results into a list of tuples (label, count)
+                let results = 
+                    [ while reader.Read() do
+                        yield (
+                            reader.GetString(reader.GetOrdinal("vpn_part")),
+                            reader.GetInt64(reader.GetOrdinal("count"))
+                        ) ]
+                replyChannel.Reply (Data results)
+                ()
+            with
+            | ex -> 
+                replyChannel.Reply (Error ex.Message)
+                ()
         | Terminate ->
             // Close the database connection if it's open
             if dbConnection.State = ConnectionState.Open then
@@ -81,31 +86,15 @@ let childActor (dbConnection: NpgsqlConnection) (mailbox: Actor<_>) =
 let databaseParentActor(system: ActorSystem) : ICancelable * IActorRef<ChildMessage> =
     let connectionString = configuration.GetConnectionString("ConnectionString")
     let dbConnection = ensureDbConnection connectionString
-    
-    // Define the function to create a child actor instance
     let childActorInstance = childActor dbConnection
-
-    // Use actorOf to spawn the child actor
     let childProps = Props.Create(fun () -> childActorInstance)
-    let child = system.ActorOf(childProps, "child")
-    
+    let child = system.ActorOf(childProps, "vpn_child")
+    let messageToSend = GetData
 
-    // Define the message to send
-    let messageToSend = FetchData
-
-    // Define scheduling parameters
     let initialDelay: TimeSpan = TimeSpan.Zero
     let interval: TimeSpan = TimeSpan.FromSeconds(2.0)
     let sender: IActorRef = system.DeadLetters
-
-    // Use the Akkling idiomatic way of scheduling messages
     let schedule = system.Scheduler.ScheduleTellRepeatedlyCancelable(initialDelay, interval, child :> ICanTell, messageToSend, sender)
-    
     let typedChild = child :?> IActorRef<ChildMessage>
-    
-    // Return both the schedule and the child actor reference correctly
+
     (schedule, typedChild)
-
-
-
-
