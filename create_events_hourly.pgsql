@@ -21,7 +21,7 @@ CREATE INDEX IF NOT EXISTS idx_trgm_events_proxy ON events_hourly USING gin (pro
 CREATE INDEX IF NOT EXISTS idx_btree_mal ON events_hourly (malware);
 
 -- Drop the original table which isn't needed any more
-DROP TABLE events;
+TRUNCATE TABLE events;
 
 
 
