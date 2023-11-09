@@ -78,11 +78,11 @@ let childActor (dbConnection: NpgsqlConnection) (mailbox: Actor<_>) =
     loop ()
 
 let databaseParentActor(system: ActorSystem) : ICancelable * IActorRef =
-    let connectionString = configuration.GetConnectionString("connectionString")
+    let connectionString = "Host=localhost;Username=postgres;Password=yomo;Database=aidendb"
     let dbConnection = ensureDbConnection connectionString
     let childActorInstance = childActor dbConnection
     let childProps = Props.Create(fun () -> childActorInstance)
-    let child = system.ActorOf(childProps)
+    let child = system.ActorOf(childProps, "child")
     let messageToSend = GetData
     let initialDelay: TimeSpan = TimeSpan.Zero
     let interval: TimeSpan = TimeSpan.FromSeconds(2.0)

@@ -2,6 +2,7 @@
 
 open System
 open System.Collections.ObjectModel
+open System.ComponentModel.DataAnnotations.Schema
 open Akkling
 open Akka.Actor
 open Elmish.Avalonia
@@ -29,43 +30,6 @@ type Msg =
     | SetIsFreezeChecked of bool
     | Ok
     | Terminate
-type ViewModel() as self =
-    // Hold onto the schedule and actorRef so we can use them later
-    let mutable databaseSchedule = None : ICancelable option
-    let mutable databaseActorRef = None : IActorRef option
-
-    let startDataFetch =
-        let (schedule, childActorRefGeneric) = databaseParentActor(system)
-        let childActorRef = childActorRefGeneric
-        databaseSchedule <- Some schedule
-        databaseActorRef <- Some childActorRef
-
-    let stopDataFetch =
-        match databaseSchedule with
-        | Some schedule -> schedule.Cancel()
-        | None -> () 
-
-        match databaseActorRef with
-        | Some actorRef -> actorRef.Tell(Stop)
-        | None -> () 
-
-        system.Terminate() |> Async.AwaitTask |> Async.RunSynchronously
-
-    do
-        let mailboxProcessor = MailboxProcessor.Start(fun inbox ->
-            let rec messageLoop () = async {
-                let! msg = inbox.Receive()
-                // Handle the DatabaseResponse message
-                // ... (processing logic goes here)
-                return! messageLoop ()
-            }
-            messageLoop ()
-        )
-        startDataFetch
-
-    interface IDisposable with
-        member _.Dispose() =
-            stopDataFetch
 
 let system = ActorSystem.Create("Aiden")
 let schedule, actorRef = databaseParentActor system    
@@ -108,6 +72,45 @@ let update (msg: Msg) (model: Model) =
         { model with IsFrozen = false }
     | Terminate ->
         model
+        
+type ViewModel() as self =
+    let mutable databaseSchedule = None : ICancelable option
+    let mutable databaseActorRef = None : IActorRef option
+    
+    let mailboxProcessor = MailboxProcessor.Start(fun inbox ->
+        let rec messageLoop () = async {
+            let! msg = inbox.Receive()
+            // Dispatch the message directly to the update function
+            let updatedModel = update (UpdateChartData msg) initialModel
+            return! messageLoop ()
+        }
+        messageLoop()
+    )
+
+    let startDataFetch(mailboxProcessor: MailboxProcessor<(string * int64) list>) =
+        let (schedule, childActorRefGeneric) = databaseParentActor(system)
+        let childActorRef = childActorRefGeneric
+        databaseSchedule <- Some schedule
+        databaseActorRef <- Some childActorRef
+        mailboxProcessor.Start()
+
+    let stopDataFetch() =
+        match databaseSchedule with
+        | Some schedule -> schedule.Cancel()
+        | None -> () 
+        match databaseActorRef with
+        | Some actorRef -> actorRef.Tell(Stop)
+        | None -> () 
+        system.Terminate() |> Async.AwaitTask |> Async.RunSynchronously
+
+    do
+
+        startDataFetch(mailboxProcessor)
+
+    interface IDisposable with
+        member _.Dispose() =
+            stopDataFetch()
+
 
 let bindings ()  : Binding<Model, Msg> list = [
     "Actions" |> Binding.oneWay (fun m -> List.rev m.Actions)
