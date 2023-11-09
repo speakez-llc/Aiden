@@ -8,37 +8,35 @@ open Akkling
 open Npgsql
 open Microsoft.Extensions.Configuration
 
-type DataReply = 
-    | Data of (string * int64) list
-    | NoData
+type DatabaseResponse =
+    | Results of (string * int64) list
     | Error of string
 
 type ChildMessage =
-    | GetData of AsyncReplyChannel<DataReply>
-    | Terminate  
+    | GetData of AsyncReplyChannel<DatabaseResponse>
+    | Terminate
+    
 let mutable singletonDbConnection: NpgsqlConnection option = None
 
 let configuration = 
-    (ConfigurationBuilder()
-        .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("settings.json", optional = true, reloadOnChange = true)
-        .Build())
-
-let connectionString = configuration.GetConnectionString("ConnectionString")
+    let builder = new ConfigurationBuilder()
+    builder.SetBasePath(Directory.GetCurrentDirectory()) |> ignore
+    builder.AddJsonFile("appsettings.json", optional = false, reloadOnChange = true) |> ignore
+    builder.Build()
+let connectionString = configuration.GetConnectionString("connectionString")
+printfn "connectionString: %s" connectionString
 
 let ensureDbConnection connectionString =
     match singletonDbConnection with
-    | Some conn when conn.State <> System.Data.ConnectionState.Closed 
-                   && conn.State <> System.Data.ConnectionState.Broken -> conn
+    | Some conn when conn.State <> ConnectionState.Closed 
+                   && conn.State <> ConnectionState.Broken -> conn
     | _ ->
-        // Close previous connection if any
         match singletonDbConnection with
         | Some oldConn -> 
-            if oldConn.State <> System.Data.ConnectionState.Closed then
+            if oldConn.State <> ConnectionState.Closed then
                 oldConn.Close()
         | None -> ()
-        
-        // Create a new connection and assign it to the singleton
+
         let newConn = new NpgsqlConnection(connectionString)
         newConn.Open()
         singletonDbConnection <- Some newConn
@@ -57,44 +55,38 @@ let childActor (dbConnection: NpgsqlConnection) (mailbox: Actor<_>) =
         match msg with
         | GetData replyChannel ->
             try
-                // Execute the command and process results
                 use cmd = new NpgsqlCommand(query, dbConnection)
                 use reader = cmd.ExecuteReader()
-                // Read results into a list of tuples (label, count)
                 let results = 
                     [ while reader.Read() do
                         yield (
                             reader.GetString(reader.GetOrdinal("vpn_part")),
                             reader.GetInt64(reader.GetOrdinal("count"))
                         ) ]
-                replyChannel.Reply (Data results)
+                replyChannel.Reply (Results results)
                 ()
             with
             | ex -> 
                 replyChannel.Reply (Error ex.Message)
                 ()
         | Terminate ->
-            // Close the database connection if it's open
             if dbConnection.State = ConnectionState.Open then
                 dbConnection.Close()
-            // Stop the actor
             Stop
         return! loop ()
     }
     loop ()
 
-let databaseParentActor(system: ActorSystem) : ICancelable * IActorRef<ChildMessage> =
-    let connectionString = configuration.GetConnectionString("ConnectionString")
+let databaseParentActor(system: ActorSystem) : ICancelable * IActorRef =
+    let connectionString = configuration.GetConnectionString("connectionString")
     let dbConnection = ensureDbConnection connectionString
     let childActorInstance = childActor dbConnection
     let childProps = Props.Create(fun () -> childActorInstance)
-    let child = system.ActorOf(childProps, "vpn_child")
+    let child = system.ActorOf(childProps)
     let messageToSend = GetData
-
     let initialDelay: TimeSpan = TimeSpan.Zero
     let interval: TimeSpan = TimeSpan.FromSeconds(2.0)
-    let sender: IActorRef = system.DeadLetters
-    let schedule = system.Scheduler.ScheduleTellRepeatedlyCancelable(initialDelay, interval, child :> ICanTell, messageToSend, sender)
-    let typedChild = child :?> IActorRef<ChildMessage>
-
+    let sender = child
+    let schedule = system.Scheduler.ScheduleTellRepeatedlyCancelable(initialDelay, interval, child, messageToSend, sender)
+    let typedChild = child
     (schedule, typedChild)

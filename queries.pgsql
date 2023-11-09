@@ -110,3 +110,5 @@ LIMIT 1;
 -- This returns the number of seconds from now to the latest record in the DB
 SELECT EXTRACT(EPOCH FROM now() AT TIME ZONE 'UTC') - EXTRACT(EPOCH FROM MAX(event_time)) AS seconds_past
 FROM events_hourly;
+
+TRUNCATE TABLE events;

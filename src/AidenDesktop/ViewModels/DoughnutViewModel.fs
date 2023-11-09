@@ -2,35 +2,13 @@
 
 open System
 open System.Collections.ObjectModel
-open Elmish.Avalonia
 open Akkling
+open Akka.Actor
+open Elmish.Avalonia
 open Data
 open LiveChartsCore
 open LiveChartsCore.SkiaSharpView
 open Messaging
-
-type ViewModel() as self =
-    // Reference to the actor from Data.fs
-    let schedule, actorRef = databaseParentActor system
-
-    // Method to send a message to start the data fetching
-    let startDataFetch() =
-        actorRef <! FetchData
-
-    // Method to stop the data fetching and terminate the actor system
-    let stopDataFetch() =
-        schedule.Cancel() // Cancel the scheduled messages
-        actorRef <! Terminate
-        system.Terminate() |> Async.AwaitTask |> Async.RunSynchronously
-
-    do
-        // Start data fetching when ViewModel is created
-        startDataFetch()
-
-    interface IDisposable with
-        member _.Dispose() =
-            // Stop data fetching when ViewModel is disposed
-            stopDataFetch()
 
 type Model = 
     {
@@ -46,46 +24,71 @@ and Action =
     }
 
 type Msg = 
-    | Update
+    | UpdateChartData of (string * int64) list 
     | Reset
     | SetIsFreezeChecked of bool
     | Ok
-    | NewChartData of ObservableCollection<ISeries>
     | Terminate
-    
-let init() =
-    
-    let staticData =
-        [ 2.0; 4.0; 1.0; 4.0; 3.0 ] // Static values for the chart
+type ViewModel() as self =
+    // Hold onto the schedule and actorRef so we can use them later
+    let mutable databaseSchedule = None : ICancelable option
+    let mutable databaseActorRef = None : IActorRef option
 
-    let pieSeries =
-        staticData
-        |> Seq.mapi (fun index value -> 
-            PieSeries<int>(Values = [int value], InnerRadius = 50.0)
-            :> ISeries)
+    let startDataFetch =
+        let (schedule, childActorRefGeneric) = databaseParentActor(system)
+        let childActorRef = childActorRefGeneric
+        databaseSchedule <- Some schedule
+        databaseActorRef <- Some childActorRef
+
+    let stopDataFetch =
+        match databaseSchedule with
+        | Some schedule -> schedule.Cancel()
+        | None -> () 
+
+        match databaseActorRef with
+        | Some actorRef -> actorRef.Tell(Stop)
+        | None -> () 
+
+        system.Terminate() |> Async.AwaitTask |> Async.RunSynchronously
+
+    do
+        let mailboxProcessor = MailboxProcessor.Start(fun inbox ->
+            let rec messageLoop () = async {
+                let! msg = inbox.Receive()
+                // Handle the DatabaseResponse message
+                // ... (processing logic goes here)
+                return! messageLoop ()
+            }
+            messageLoop ()
+        )
+        startDataFetch
+
+    interface IDisposable with
+        member _.Dispose() =
+            stopDataFetch
+
+let system = ActorSystem.Create("Aiden")
+let schedule, actorRef = databaseParentActor system    
+let init() =
     {
-        Series = ObservableCollection<ISeries>(pieSeries) 
+        Series = ObservableCollection<ISeries>() 
         Actions = [ { Description = "Initialized Chart"; Timestamp = DateTime.Now } ]
         IsFrozen = false
     }
 let initialModel = init()
-let mailboxProcessor = MailboxProcessor.Start(fun inbox -> 
-    let rec loop (model: Model) = async {
-        let! msg = inbox.Receive()
-        match msg with
-        | NewChartData series ->
-            // Dispatch to Elmish update function
-            // Note: You'll need to ensure this is done on the UI thread if required
-            ()
-        | _ -> return! loop model
-    }
-    loop initialModel
-)
+
 let update (msg: Msg) (model: Model) =
     match msg with
-    | Update ->
-        { model with 
-            Actions = model.Actions @ [ { Description = $"Updated Item:"; Timestamp = DateTime.Now } ]            
+    | UpdateChartData chartData ->
+        let series = chartData |> List.map (fun (vpnPart, count) ->
+            PieSeries<int64>(
+                Values = ObservableCollection<_>([| count |]),
+                Name = vpnPart       
+            ) :> ISeries
+        )
+        { model with
+            Series = ObservableCollection<ISeries>(series)
+            Actions = model.Actions @ [{ Description = "Chart data updated"; Timestamp = DateTime.Now }] 
         }
     | Reset ->
         // insert new Series - send the current series length to the newSeries function
