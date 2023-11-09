@@ -2,20 +2,26 @@
 
 open System
 open System.Collections.ObjectModel
-open System.ComponentModel.DataAnnotations.Schema
-open Akkling
-open Akka.Actor
+open System.Configuration
+open System.Timers
+open Elmish
 open Elmish.Avalonia
-open Data
 open LiveChartsCore
 open LiveChartsCore.SkiaSharpView
+open Npgsql
 open Messaging
 
+// gets connection string from settings.json
+let connectionString = "Host=localhost;Username=postgres;Password=yomo;Database=aidendb"
+    // let settings = ConfigurationManager.AppSettings
+    // settings.Get("ConnectionString")
+printfn $"Connection String: %s{connectionString}"
+    
 type Model = 
     {
-        Series: ObservableCollection<ISeries>
-        Actions: Action list
+        VPN_Series: ObservableCollection<ISeries>
         IsFrozen: bool
+        Margin: LiveChartsCore.Measure.Margin
     }
     
 and Action = 
@@ -24,105 +30,111 @@ and Action =
         Timestamp: DateTime
     }
 
-type Msg = 
-    | UpdateChartData of (string * int64) list 
-    | Reset
+type Msg =
+    | FetchData of (string * int) list 
+    | UpdateChartData of (string * int) list 
     | SetIsFreezeChecked of bool
     | Ok
     | Terminate
+    
+let fetchDataAsync () =
+    async {
+        // Connect to the database and execute the query
+        use connection = new NpgsqlConnection(connectionString)
+        do! connection.OpenAsync() |> Async.AwaitTask
+        let query = 
+            @"SELECT UNNEST(string_to_array(vpn, ':')) AS vpn_part, COUNT(*) AS count
+              FROM events_hourly
+              WHERE event_time >= now() AT TIME ZONE 'UTC' - INTERVAL '1 minute'
+              GROUP BY vpn_part;"
 
-let system = ActorSystem.Create("Aiden")
-let schedule, actorRef = databaseParentActor system    
+        use cmd = new NpgsqlCommand(query, connection)
+        use! reader = cmd.ExecuteReaderAsync() |> Async.AwaitTask
+        let results = 
+            [ while reader.Read() do
+                yield (
+                    reader.GetString(reader.GetOrdinal("vpn_part")),
+                    reader.GetInt32(reader.GetOrdinal("count"))
+                ) ]
+        return results
+    }
+    
+let fetchDataForChart (dispatch: Msg -> unit) =
+    let timer = new Timer(2000) // Fetch data every 2 seconds
+    let disposable =
+        timer.Elapsed.Subscribe(fun _ -> 
+            async {
+                let! fetchedData = fetchDataAsync()
+                dispatch (UpdateChartData fetchedData)
+            } |> Async.Start
+        )
+    timer.Start()
+    disposable
+    
 let init() =
     {
-        Series = ObservableCollection<ISeries>() 
-        Actions = [ { Description = "Initialized Chart"; Timestamp = DateTime.Now } ]
+        VPN_Series = ObservableCollection<ISeries>() 
         IsFrozen = false
+        Margin = LiveChartsCore.Measure.Margin(50f, 50f, 50f, 50f)
     }
-let initialModel = init()
 
 let update (msg: Msg) (model: Model) =
     match msg with
+    | FetchData chartData ->
+        model
     | UpdateChartData chartData ->
-        let series = chartData |> List.map (fun (vpnPart, count) ->
-            PieSeries<int64>(
-                Values = ObservableCollection<_>([| count |]),
-                Name = vpnPart       
-            ) :> ISeries
+        let seriesMap = 
+            model.VPN_Series |> Seq.map (fun s -> (s :?> PieSeries<int>).Name, s) |> Map.ofSeq
+
+        chartData |> List.iter (fun (name, value) ->
+            match seriesMap.TryFind(name) with
+            | Some series ->
+                let pieSeries = series :?> PieSeries<int>
+                pieSeries.Values <- ObservableCollection<_>([| value |]) // Assign a new collection
+            | None ->
+                // Add new series
+                let newSeries = PieSeries<int>(Values = ObservableCollection<_>([| value |]), InnerRadius = 40.0, Name = name) :> ISeries
+                model.VPN_Series.Add(newSeries)
         )
-        { model with
-            Series = ObservableCollection<ISeries>(series)
-            Actions = model.Actions @ [{ Description = "Chart data updated"; Timestamp = DateTime.Now }] 
-        }
-    | Reset ->
-        // insert new Series - send the current series length to the newSeries function
-        
-        { model with
-            // deactivate the AutoUpdate ToggleButton in the UI
-            IsFrozen = false 
-            Actions = [ { Description = "Reset Chart"; Timestamp = DateTime.Now } ]
-        }
+
+        // Remove series not present in chartData
+        let currentNames = chartData |> List.map fst |> Set.ofList
+        model.VPN_Series
+        |> Seq.toArray
+        |> Array.iter (fun series ->
+            let pieSeries = series :?> PieSeries<int>
+            if not (Set.contains pieSeries.Name currentNames) then
+                model.VPN_Series.Remove(series) |> ignore
+        )
+        // Update Actions
+        model
+
     | SetIsFreezeChecked isChecked ->
         { model with 
             IsFrozen = isChecked
-            Actions = model.Actions @ [ { Description = $"Is Freeze Checked: {isChecked}"; Timestamp = DateTime.Now } ]
         }
     | Ok -> 
         bus.OnNext(GlobalMsg.GoHome)
         { model with IsFrozen = false }
     | Terminate ->
         model
-        
-type ViewModel() as self =
-    let mutable databaseSchedule = None : ICancelable option
-    let mutable databaseActorRef = None : IActorRef option
-    
-    let mailboxProcessor = MailboxProcessor.Start(fun inbox ->
-        let rec messageLoop () = async {
-            let! msg = inbox.Receive()
-            // Dispatch the message directly to the update function
-            let updatedModel = update (UpdateChartData msg) initialModel
-            return! messageLoop ()
-        }
-        messageLoop()
-    )
-
-    let startDataFetch(mailboxProcessor: MailboxProcessor<(string * int64) list>) =
-        let (schedule, childActorRefGeneric) = databaseParentActor(system)
-        let childActorRef = childActorRefGeneric
-        databaseSchedule <- Some schedule
-        databaseActorRef <- Some childActorRef
-        mailboxProcessor.Start()
-
-    let stopDataFetch() =
-        match databaseSchedule with
-        | Some schedule -> schedule.Cancel()
-        | None -> () 
-        match databaseActorRef with
-        | Some actorRef -> actorRef.Tell(Stop)
-        | None -> () 
-        system.Terminate() |> Async.AwaitTask |> Async.RunSynchronously
-
-    do
-
-        startDataFetch(mailboxProcessor)
-
-    interface IDisposable with
-        member _.Dispose() =
-            stopDataFetch()
-
 
 let bindings ()  : Binding<Model, Msg> list = [
-    "Actions" |> Binding.oneWay (fun m -> List.rev m.Actions)
-    "Reset" |> Binding.cmd Reset
     "IsFrozen" |> Binding.twoWay ((fun m -> m.IsFrozen), SetIsFreezeChecked)
-    "Series" |> Binding.oneWayLazy ((fun m -> m.Series), (fun _ _ -> true), id)
+    "VPN_Series" |> Binding.oneWayLazy ((fun m -> m.VPN_Series), (fun _ _ -> true), id)
+    "Margin" |> Binding.oneWay (fun m -> m.Margin)
     "Ok" |> Binding.cmd Ok
 ]
 
 let designVM = ViewModel.designInstance (init()) (bindings())
 
+let subscriptions (model: Model) : Sub<Msg> =
+    [
+        [ nameof fetchDataForChart], fetchDataForChart
+    ] 
+
 let vm = 
     AvaloniaProgram.mkSimple init update bindings
+    |> AvaloniaProgram.withSubscription subscriptions
     |> ElmishViewModel.create
     |> ElmishViewModel.terminateOnViewUnloaded Terminate
