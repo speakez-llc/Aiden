@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="325"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:vm="using:Aiden.ViewModels"
              xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
@@ -14,20 +14,30 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="50" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="50" />
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" >
                 <Button Margin="6" Command="{Binding Freeze}">Freeze</Button>
                 <Button Margin="6" Command="{Binding Reset}">Reset All</Button>
 
             </StackPanel>
-            <lvc:PieChart Grid.Row="1" 
-                          Height="300"
-                          Width="300"
-                          Series="{Binding Series}" />
+            <Grid Grid.Row="1">
+                <lvc:PieChart  
+                              Height="300"
+                              Width="300"
+                              DrawMargin="{Binding Margin}"
+                              Series="{Binding VPN_Series}" />
+                <TextBlock Text="VPN"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="Black" />
+            </Grid>
+            <DataGrid Grid.Row="2" ItemsSource="{Binding Actions}" AutoGenerateColumns="True" Height="200    ">
+            </DataGrid>
+            <Button Grid.Row="3" Content="Ok" Command="{Binding Ok}" HorizontalAlignment="Center" />  
         </Grid>
-        <DataGrid ItemsSource="{Binding Actions}" AutoGenerateColumns="True" Height="100    ">
-        </DataGrid>
-        <Button Content="Ok" Command="{Binding Ok}" HorizontalAlignment="Center" />  
-       
     </StackPanel>
 </UserControl>
