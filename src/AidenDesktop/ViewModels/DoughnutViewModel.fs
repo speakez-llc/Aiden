@@ -12,7 +12,7 @@ open Npgsql
 open Messaging
 
 // gets connection string from settings.json
-let connectionString = "Host=localhost;Username=postgres;Password=yomo;Database=aidendb"
+let connectionString = ()
     // let settings = ConfigurationManager.AppSettings
     // settings.Get("ConnectionString")
 printfn $"Connection String: %s{connectionString}"
