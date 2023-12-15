@@ -1,64 +1,27 @@
-﻿module Aiden.ViewModels.MainViewModel
+﻿namespace AidenDesktop.ViewModels
 
-open Elmish.Avalonia
-open Elmish
+open ReactiveElmish
+open ReactiveElmish.Avalonia
+open App
 
-type Model = 
-    {
-        ContentVM: IElmishViewModel
-    }
+type MainViewModel(root: CompositionRoot) =
+    inherit ReactiveElmishViewModel()
+    
+    member this.ChatView = root.GetView<ChatViewModel>() 
+    member this.ContentView = 
+        this.BindOnChanged (app, _.View, fun m -> 
+            match m.View with
+            | CounterView -> root.GetView<CounterViewModel>()
+            | DoughnutView -> root.GetView<DoughnutViewModel>()
+            | ChartView -> root.GetView<ChartViewModel>()
+            | FilePickerView -> root.GetView<FilePickerViewModel>()
+            | AboutView -> root.GetView<AboutViewModel>()
+        )
 
-type Msg = 
-    | ShowChart
-    | ShowCounter
-    | ShowDoughnut
-    | ShowAbout
-    | Terminate
+    member this.ShowChart() = app.Dispatch (SetView ChartView)
+    member this.ShowDoughnut() = app.Dispatch (SetView DoughnutView)
+    member this.ShowCounter() = app.Dispatch (SetView CounterView)
+    member this.ShowAbout() = app.Dispatch (SetView AboutView)
+    member this.ShowFilePicker() = app.Dispatch (SetView FilePickerView)
 
-let init() = 
-    { 
-        ContentVM = DoughnutViewModel.vm
-    }
-
-let update (msg: Msg) (model: Model) = 
-    match msg with
-    | ShowCounter -> 
-        { model with ContentVM = CounterViewModel.vm }
-    | ShowChart -> 
-        { model with ContentVM = ChartViewModel.vm }  
-    | ShowDoughnut -> 
-        { model with ContentVM = DoughnutViewModel.vm }  
-    | ShowAbout ->
-        { model with ContentVM = AboutViewModel.vm }
-    | Terminate ->
-        model
-
-let bindings() : Binding<Model, Msg> list = [   
-    // Properties
-    "ContentVM" |> Binding.oneWay (fun m -> m.ContentVM)
-    "ShowCounter" |> Binding.cmd ShowCounter
-    "ShowChart" |> Binding.cmd ShowChart
-    "ShowDoughnut" |> Binding.cmd ShowDoughnut
-    "ShowAbout" |> Binding.cmd ShowAbout
-]
-
-let designVM = ViewModel.designInstance (init()) (bindings())
-
-let vm : IElmishViewModel = 
-    let subscriptions (model: Model) : Sub<Msg> =
-        let messageBusSub (dispatch: Msg -> unit) = 
-            Messaging.bus.Subscribe(fun msg -> 
-                match msg with
-                | Messaging.GlobalMsg.GoHome -> 
-                    dispatch ShowCounter
-            )
-
-        [ 
-            [ nameof messageBusSub ], messageBusSub
-        ]
-
-    AvaloniaProgram.mkSimple init update bindings
-    |> AvaloniaProgram.withSubscription subscriptions
-    |> ElmishViewModel.create
-    //|> ElmishViewModel.terminateOnUnloaded Terminate
-    :> IElmishViewModel
+    static member DesignVM = new MainViewModel(Design.stub)

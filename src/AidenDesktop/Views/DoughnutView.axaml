@@ -2,42 +2,122 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="325"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="850"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
-             xmlns:vm="using:Aiden.ViewModels"
+             xmlns:vm="using:AidenDesktop.ViewModels"
              xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
-             Design.DataContext="{Binding Source={x:Static vm:DoughnutViewModel.designVM}}"
-             x:Class="Aiden.Views.DoughnutView">
+             Design.DataContext="{Binding Source={x:Static vm:DoughnutViewModel.DesignVM}}"
+             x:DataType="vm:DoughnutViewModel"
+             x:Class="AidenDesktop.Views.DoughnutView">
     
     <StackPanel HorizontalAlignment="Center" Margin="10">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="50" />
+                <RowDefinition Height="*" /> 
+                <RowDefinition Height="50" /> 
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" >
-                <Button Margin="6" Command="{Binding Freeze}">Freeze</Button>
-                <Button Margin="6" Command="{Binding Reset}">Reset All</Button>
-
-            </StackPanel>
-            <Grid Grid.Row="1">
-                <lvc:PieChart  
-                              Height="300"
-                              Width="300"
-                              DrawMargin="{Binding Margin}"
-                              Series="{Binding VPN_Series}" />
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" /> 
+                    <ColumnDefinition Width="*" /> 
+                    <ColumnDefinition Width="*" /> 
+                    <ColumnDefinition Width="*" /> 
+                    <ColumnDefinition Width="*" /> 
+                </Grid.ColumnDefinitions>
                 <TextBlock Text="VPN"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"
                            FontSize="20"
                            FontWeight="Bold"
-                           Foreground="Black" />
+                           Foreground="Black" 
+                           Grid.Column="0" />
+                <lvc:PieChart  
+                    Height="300"
+                    Width="300"
+                    DrawMargin="{Binding Margin}"
+                    Series="{Binding VPN_Series}" 
+                    Grid.Column="0" />
+                <TextBlock Text="PXY"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="Black"
+                           Grid.Column="1" />
+                <lvc:PieChart  
+                    Height="300"
+                    Width="300"
+                    DrawMargin="{Binding Margin}"
+                    Series="{Binding PXY_Series}"
+                    Grid.Column="1" /> 
+                <TextBlock Text="TOR"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="Black" 
+                           Grid.Column="2" />
+                <lvc:PieChart  
+                    Height="300"
+                    Width="300"
+                    DrawMargin="{Binding Margin}"
+                    Series="{Binding TOR_Series}" 
+                    Grid.Column="2" />
+                <TextBlock Text="MAL"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="Black" 
+                           Grid.Column="3"/>
+                <lvc:PieChart  
+                    Height="300"
+                    Width="300"
+                    DrawMargin="{Binding Margin}"
+                    Series="{Binding MAL_Series}" 
+                    Grid.Column="3"/>
+                <TextBlock Text="COO"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="Black" 
+                           Grid.Column="4"/>
+                <lvc:PieChart
+                    Height="300"
+                    Width="300"
+                    DrawMargin="{Binding Margin}"
+                    Series="{Binding COO_PieSeries}" 
+                    Grid.Column="4"/>
             </Grid>
-            <DataGrid Grid.Row="2" ItemsSource="{Binding Actions}" AutoGenerateColumns="True" Height="200    ">
-            </DataGrid>
-            <Button Grid.Row="3" Content="Ok" Command="{Binding Ok}" HorizontalAlignment="Center" />  
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <DataGrid Grid.Column="1" ItemsSource="{Binding COO_GridData}" HorizontalAlignment="Right">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Country" Binding="{Binding Name}" />
+                        <DataGridTextColumn Header="Count" Binding="{Binding Count}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <Border Grid.Column="2" CornerRadius="10"
+                        Background="LightBlue"
+                        Padding="20">
+                    <lvc:GeoMap  
+                        HorizontalAlignment="Center"
+                        Height="400"
+                        Width="900"
+                        Series="{Binding COO_MapSeries}"
+                        MapProjection="Default"
+                        Grid.Column="2" />
+                </Border>
+                
+            </Grid>
+            <Button Grid.Row="2" Content="Ok"  Command="{Binding Ok}" HorizontalAlignment="Center" />
         </Grid>
     </StackPanel>
+        
 </UserControl>

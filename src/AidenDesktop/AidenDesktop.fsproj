@@ -1,29 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
+		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+		<LangVersion>8.0</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
-        <Compile Include="Services\Services.fs" />
+        <Compile Include="Services\FileService.fs" />
         <AvaloniaXaml Remove="Models\**" />
         <EmbeddedResource Remove="Models\**" />
         <None Remove=".gitignore" />
     </ItemGroup>
 
-    <ItemGroup>        
-        <Compile Include="ViewModels\Messaging.fs" />        
-        <Compile Include="ViewModels\AboutViewModel.fs" />        
-        <Compile Include="ViewModels\CounterViewModel.fs" />        
-        <Compile Include="ViewModels\ChartViewModel.fs" />        
-        <Compile Include="ViewModels\DoughnutViewModel.fs" />        
-        <Compile Include="ViewModels\MainViewModel.fs" />        
-        <Compile Include="Views\AboutView.axaml.fs" />        
-        <Compile Include="Views\CounterView.axaml.fs" />        
+    <ItemGroup>
+        <Compile Include="ViewModels\App.fs" />
+        <Compile Include="ViewModels\ChatViewModel.fs" />
+        <Compile Include="ViewModels\AboutViewModel.fs" />
+        <Compile Include="ViewModels\CounterViewModel.fs" />
+        <Compile Include="ViewModels\ChartViewModel.fs" />
+        <Compile Include="ViewModels\DoughnutViewModel.fs" />
+        <Compile Include="ViewModels\FilePickerViewModel.fs" />
+        <Compile Include="ViewModels\MainViewModel.fs" />
+        <Compile Include="Views\AboutView.axaml.fs" />
+        <Compile Include="Views\ChatView.axaml.fs" />
         <Compile Include="Views\ChartView.axaml.fs" />
-        <Compile Include="Views\MainView.axaml.fs" />
         <Compile Include="Views\DoughnutView.axaml.fs" />
+        <Compile Include="Views\CounterView.axaml.fs" />        
+        <Compile Include="Views\FilePickerView.axaml.fs" />        
+        <Compile Include="Views\MainView.axaml.fs" />
+        <Compile Include="AppCompositionRoot.fs" />
         <Compile Include="ViewLocator.fs" />
         <Compile Include="App.axaml.fs" />
         <Compile Include="Program.fs" />
@@ -34,28 +41,27 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Akkling" Version="0.13.0" />
-        <PackageReference Include="Avalonia" Version="11.0.5" />
-        <PackageReference Include="Elmish" Version="4.1.0" />
-        <PackageReference Include="Elmish.Avalonia" Version="1.1.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-preview.5.23280.8" />
-        <PackageReference Include="Npgsql.FSharp" Version="5.7.0" />
-        <PackageReference Include="System.Reactive.Core" Version="6.0.0" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
         <PackageReference Include="Avalonia.Desktop" Version="11.0.5" />
         <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.5" />
         <PackageReference Include="Avalonia.Controls.TreeDataGrid" Version="11.0.1" />
         <PackageReference Include="Avalonia.Diagnostics" Version="11.0.5" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.5" />
-        <PackageReference Include="LiveChartsCore" Version="2.0.0-beta.802" />
-        <PackageReference Include="LiveChartsCore.SkiaSharpView" Version="2.0.0-beta.802" />
-        <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-beta.802-11.0.0-rc1.1" />
+        <PackageReference Include="LiveChartsCore" Version="2.0.0-rc2" />
+        <PackageReference Include="LiveChartsCore.SkiaSharpView" Version="2.0.0-rc2" />
+        <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-rc2" />
+        <PackageReference Include="Npgsql" Version="8.0.1" />
+        <PackageReference Include="Projektanker.Icons.Avalonia.FontAwesome" Version="8.3.0" />
+        <PackageReference Include="Projektanker.Icons.Avalonia.MaterialDesign" Version="8.3.0" />
+        <PackageReference Include="ReactiveElmish" Version="1.0.0-beta.1" />
+        <PackageReference Include="ReactiveElmish.Avalonia" Version="1.0.0" />
+
+        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     </ItemGroup>
+
     <ItemGroup>
-      <Content Include="appsettings.dev.json">
+      <None Include="appsettings.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+      </None>
     </ItemGroup>
 </Project>

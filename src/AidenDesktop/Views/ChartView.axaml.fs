@@ -1,4 +1,4 @@
-namespace Aiden.Views
+namespace AidenDesktop.Views
 
 open Avalonia
 open Avalonia.Controls
