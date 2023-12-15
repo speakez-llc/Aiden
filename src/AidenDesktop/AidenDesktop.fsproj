@@ -9,6 +9,7 @@
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
         <Compile Include="Services\FileService.fs" />
+        <Compile Include="Controls\RadialSlider.axaml.fs" />
         <AvaloniaXaml Remove="Models\**" />
         <EmbeddedResource Remove="Models\**" />
         <None Remove=".gitignore" />

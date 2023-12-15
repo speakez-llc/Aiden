@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:AidenDesktop.Controls;assembly=AidenDesktop"
              mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
              xmlns:vm="using:AidenDesktop.ViewModels"
              Design.DataContext="{Binding Source={x:Static vm:CounterViewModel.DesignVM}}"
@@ -23,6 +24,14 @@
         
         <DataGrid ItemsSource="{Binding Actions}" AutoGenerateColumns="True" Height="200" HorizontalAlignment="Center">
         </DataGrid>
-        
+        <controls:RadialSlider RingColor="Yellow" 
+                               Value="42" 
+                               ArcStart="-90" 
+                               ArcSize="180" 
+                               RingWidth="30"
+                               SliderSize="200"
+                               HandleWidth="30.0" 
+                               HandleHeight="30"
+                               ValueFontSize="34"/>
     </StackPanel>
 </UserControl>

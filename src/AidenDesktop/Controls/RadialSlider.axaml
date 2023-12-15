@@ -1,0 +1,117 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:AidenDesktop.Controls"
+        >
+  <Design.PreviewWith>
+    <controls:RadialSlider />
+  </Design.PreviewWith>
+
+  <Style Selector="controls|RadialSlider">
+    <!-- Control Template -->
+    <!-- NOTE: RadialGradientBrush does not seem to function here... ;( -->
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Canvas Name="SliderCanvas" 
+                Width="{Binding SliderSize, RelativeSource={RelativeSource TemplatedParent}}" 
+                Height="{Binding SliderSize, RelativeSource={RelativeSource TemplatedParent}}" 
+                Background="Transparent"> 
+          <Canvas.RenderTransform>
+            <RotateTransform Angle="{Binding ArcStart, RelativeSource={RelativeSource TemplatedParent}}" CenterX="0.5" CenterY="0.5" />
+          </Canvas.RenderTransform>
+
+          <!-- Slider Value : TODO: Add optional rotating graphic in the center -->
+          <Grid Width="{Binding SliderSize, RelativeSource={RelativeSource TemplatedParent}}" 
+                Height="{Binding SliderSize, RelativeSource={RelativeSource TemplatedParent}}" 
+                VerticalAlignment="Center" 
+                HorizontalAlignment="Center"
+                ZIndex="1">
+            <!-- Rotate Text Area so it's always upright -->
+            <Grid.RenderTransform>
+              <RotateTransform Angle="{Binding TextAngle, RelativeSource={RelativeSource TemplatedParent}}" CenterX="0.5" CenterY="0.5" />
+            </Grid.RenderTransform>
+            <TextBlock Text="{Binding Value, RelativeSource={RelativeSource TemplatedParent}}" 
+                       VerticalAlignment="Center" 
+                       TextAlignment="Center"
+                       FontSize="{Binding ValueFontSize, RelativeSource={RelativeSource TemplatedParent}}"
+                       TextTrimming="None" />
+          </Grid>
+
+          <!-- Slider Ring -->        
+          <Ellipse Name="Ring" 
+                   Width="{Binding RingSize, RelativeSource={RelativeSource TemplatedParent}}" 
+                   Height="{Binding RingSize, RelativeSource={RelativeSource TemplatedParent}}" 
+                   Canvas.Left="{Binding SliderMargin, RelativeSource={RelativeSource TemplatedParent}}" 
+                   Canvas.Top="{Binding SliderMargin, RelativeSource={RelativeSource TemplatedParent}}">
+              <Ellipse.Fill>
+                <ConicGradientBrush SpreadMethod="Repeat" >
+                      <GradientStops>
+                        <GradientStop Color="Transparent" Offset="0.0" />
+                          <GradientStop Color="{Binding RingColor, RelativeSource={RelativeSource TemplatedParent}}" 
+                                        Offset="0.01" />
+                          <GradientStop Color="{Binding RingColor, RelativeSource={RelativeSource TemplatedParent}}" 
+                                        Offset="{Binding HandlePercent, RelativeSource={RelativeSource TemplatedParent}}" />
+                          <GradientStop Color="Transparent" Offset="{Binding RingStop, RelativeSource={RelativeSource TemplatedParent}}" />
+                          <GradientStop Color="Transparent" Offset="1"/>
+                      </GradientStops>
+                  </ConicGradientBrush>
+              </Ellipse.Fill>
+              <Ellipse.Clip>
+                <!-- NOTE: Weird clipping behavior was treating a single ellipse like a viewport instead of a clip region, hence  
+                            this odd workaround -->
+                <CombinedGeometry GeometryCombineMode="Exclude">
+                  <!-- The outer circle behaves like a viewport, sort of -->
+                  <CombinedGeometry.Geometry1>                    
+                    <EllipseGeometry Center="{Binding CenterPoint, RelativeSource={RelativeSource TemplatedParent}}"  
+                                     RadiusX="{Binding RingOuterRadius, RelativeSource={RelativeSource TemplatedParent}}" 
+                                     RadiusY="{Binding RingOuterRadius, RelativeSource={RelativeSource TemplatedParent}}" />
+                  </CombinedGeometry.Geometry1>
+                  <!-- and somehow lets the second be a clip region ?? -->                 
+                  <CombinedGeometry.Geometry2>
+                    <EllipseGeometry Center="{Binding CenterPoint, RelativeSource={RelativeSource TemplatedParent}}" 
+                                     RadiusX="{Binding RingInnerRadius, RelativeSource={RelativeSource TemplatedParent}}" 
+                                     RadiusY="{Binding RingInnerRadius, RelativeSource={RelativeSource TemplatedParent}}" />
+                  </CombinedGeometry.Geometry2>
+                </CombinedGeometry>
+              </Ellipse.Clip>
+          </Ellipse>
+        
+          <!-- Slider Handle -->
+          <Canvas Name="Handle" 
+                  Width="{Binding HandleWidth, RelativeSource={RelativeSource TemplatedParent}}" 
+                  Height="{Binding HandleHeight, RelativeSource={RelativeSource TemplatedParent}}" 
+                  Canvas.Left="{Binding HandlePosition.X, RelativeSource={RelativeSource TemplatedParent}}" 
+                  Canvas.Top="{Binding HandlePosition.Y, RelativeSource={RelativeSource TemplatedParent}}">
+            <!-- Rotate Handle Canvas so highlights remain constant -->
+            <Canvas.RenderTransform>
+              <RotateTransform Angle="{Binding TextAngle, RelativeSource={RelativeSource TemplatedParent}}" CenterX="0.5" CenterY="0.5" />
+            </Canvas.RenderTransform>
+            <Ellipse Width="{Binding HandleWidth, RelativeSource={RelativeSource TemplatedParent}}" 
+                     Height="{Binding HandleHeight, RelativeSource={RelativeSource TemplatedParent}}">
+              <Ellipse.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="{Binding HandleSize, RelativeSource={RelativeSource TemplatedParent}}">
+                  <GradientStop Color="{Binding HandleHighlightColor, RelativeSource={RelativeSource TemplatedParent}}" Offset="0.1" />
+
+                  <GradientStop Color="{Binding HandleBaseColor, RelativeSource={RelativeSource TemplatedParent}}" Offset="1.0" />
+                </LinearGradientBrush>
+              </Ellipse.Fill>
+            </Ellipse>
+            <Ellipse Width="{Binding SmallHandleX, RelativeSource={RelativeSource TemplatedParent}}" 
+                     Height="{Binding SmallHandleY, RelativeSource={RelativeSource TemplatedParent}}" 
+                     Canvas.Left="0" 
+                     Canvas.Top="0">
+              <Ellipse.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="{Binding HandleSize, RelativeSource={RelativeSource TemplatedParent}}">
+                  <GradientStop Color="{Binding HandleBaseColor, RelativeSource={RelativeSource TemplatedParent}}" Offset="0.1" />
+                
+                  <GradientStop Color="{Binding HandleHighlightColor, RelativeSource={RelativeSource TemplatedParent}}" Offset="1.0" />
+                </LinearGradientBrush>
+
+              </Ellipse.Fill>
+            </Ellipse>
+          </Canvas>
+           
+        </Canvas>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+</Styles>
