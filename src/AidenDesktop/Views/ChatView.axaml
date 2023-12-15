@@ -1,0 +1,62 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
+             xmlns:vm="using:AidenDesktop.ViewModels"
+             Design.DataContext="{x:Static vm:ChatViewModel.DesignVM}"
+             x:DataType="vm:ChatViewModel"
+             x:Class="AidenDesktop.Views.ChatView">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="9*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- ListBox -->
+        <ListBox x:Name="ChatWindow" ItemsSource="{Binding MessagesView}"
+                 CornerRadius="10"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 Grid.Row="0">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <Border CornerRadius="10" Background="{Binding Color}" 
+                                Padding="10" 
+                                BorderBrush="{Binding BorderColor}"
+                                BorderThickness="2"
+                                Margin="{Binding Alignment, 
+                                Converter={StaticResource StringToMarginConverter}}" >
+                            <StackPanel>
+                                <TextBlock FontWeight="Bold" Text="{Binding User}" />
+                                <TextBlock TextWrapping="Wrap" Text="{Binding Text}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        
+        <!-- Text input and button -->
+        <Grid DockPanel.Dock="Bottom" Grid.Row="1" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBox Grid.Column="0" MinHeight="40" AcceptsReturn="True" BorderBrush="MidnightBlue"
+                     BorderThickness="3" Background="White" CornerRadius="10" Margin="10, 10, 0, 10"
+                     Text="" Watermark="Type your message here..." />
+
+            <Button Grid.Column="1" Width="45" Margin="2,0,5,0"  CornerRadius="10" VerticalAlignment="Center">
+                <Image Source="avares://AidenDesktop/Assets/SpeakEZ.ico" VerticalAlignment="Center" />
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>
