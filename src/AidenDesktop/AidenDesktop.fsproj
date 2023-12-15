@@ -67,9 +67,4 @@
       </None>
     </ItemGroup>
 
-    <ItemGroup>
-      <Reference Include="ReactiveElmish">
-        <HintPath>..\..\..\..\ReactiveElmish.Avalonia\src\ReactiveElmish\bin\Debug\net6.0\ReactiveElmish.dll</HintPath>
-      </Reference>
-    </ItemGroup>
 </Project>
