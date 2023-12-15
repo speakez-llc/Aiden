@@ -10,12 +10,10 @@ open System
 module Chat =
     type Message = { User: string; Text: string; Alignment: string; Color: string; BorderColor: string }
 
-    type Model = { Messages: SourceList<Message>; NewMessage: string }
+    type Model = { Messages: SourceList<Message> }
 
     type Msg =
         | SendMessage of string
-        | UpdateNewMessage of string
-
 
     let init() =
         let initialMessages =
@@ -31,18 +29,16 @@ module Chat =
                 { User = "Aiden"; Text = "Thank you. I will continue to scan for news and monitor and notify on any DDoS activity."
                   Alignment = "Left"; Color = "WhiteSmoke"; BorderColor = "Gray"  }
             ]
-        { Messages = SourceList.createFrom initialMessages; NewMessage = ""}
+        { Messages = SourceList.createFrom initialMessages}
 
     let update (msg: Msg) (model: Model) =
         match msg with
         | SendMessage text ->
-            model.Messages |> SourceList.add { User = "Me"; Text = text; Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue" }
-            { model with NewMessage = "" }
-        | UpdateNewMessage text -> { model with NewMessage = text }
+            {
+                Messages = model.Messages |> SourceList.add { User = "Me"; Text = text; Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue"  }
+            }
 
-        
 open Chat
-open ReactiveUI
 
 type ChatViewModel() as this =
     inherit ReactiveElmishViewModel()
@@ -56,13 +52,8 @@ type ChatViewModel() as this =
     member x.LastMessage
         with get() = Seq.last x.MessagesView
     member this.MessagesView: ObservableCollection<Message> = messages
-
-    member this.NewMessage
-        with get() = local.Model.NewMessage
-        and set(value) = local.Dispatch (UpdateNewMessage value)
     
-    member this.SendMessage() =
-        local.Dispatch (SendMessage this.NewMessage)
-        printfn "Sending message: %A" this.NewMessage
+    member this.SendMessage(message: string) =
+        local.Dispatch (SendMessage message)
 
     static member DesignVM = new ChatViewModel()
