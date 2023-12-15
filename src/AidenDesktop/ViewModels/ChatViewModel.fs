@@ -55,7 +55,7 @@ type ChatViewModel() as this =
         Program.mkAvaloniaSimple init update
         |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
         |> Program.mkStore
-    let messages = ObservableCollection<Message>(Seq.toList(this.BindSourceList(local.Model.Messages)))
+    let messages = ObservableCollection<Message>(this.BindSourceList(local.Model.Messages))
 
     member x.LastMessage 
         with get() = Seq.last x.MessagesView

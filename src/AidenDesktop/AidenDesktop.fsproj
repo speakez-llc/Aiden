@@ -41,20 +41,22 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.6" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.0.5" />
-        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.5" />
-        <PackageReference Include="Avalonia.Controls.TreeDataGrid" Version="11.0.1" />
-        <PackageReference Include="Avalonia.Diagnostics" Version="11.0.5" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.5" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.0.6" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.6" />
+        <PackageReference Include="Avalonia.Controls.TreeDataGrid" Version="11.0.2" />
+        <PackageReference Include="Avalonia.Diagnostics" Version="11.0.6" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.6" />
         <PackageReference Include="LiveChartsCore" Version="2.0.0-rc2" />
         <PackageReference Include="LiveChartsCore.SkiaSharpView" Version="2.0.0-rc2" />
         <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-rc2" />
         <PackageReference Include="Npgsql" Version="8.0.1" />
         <PackageReference Include="Projektanker.Icons.Avalonia.FontAwesome" Version="8.3.0" />
         <PackageReference Include="Projektanker.Icons.Avalonia.MaterialDesign" Version="8.3.0" />
-        <PackageReference Include="ReactiveElmish" Version="1.0.0-beta.1" />
         <PackageReference Include="ReactiveElmish.Avalonia" Version="1.0.0" />
+        <PackageReference Include="ReactiveUI" Version="19.5.1" />
+        <PackageReference Include="System.Reactive" Version="6.0.1-preview.1" />
 
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     </ItemGroup>
@@ -63,5 +65,11 @@
       <None Include="appsettings.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="ReactiveElmish">
+        <HintPath>..\..\..\..\ReactiveElmish.Avalonia\src\ReactiveElmish\bin\Debug\net6.0\ReactiveElmish.dll</HintPath>
+      </Reference>
     </ItemGroup>
 </Project>

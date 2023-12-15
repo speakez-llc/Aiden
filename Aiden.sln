@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D4BC96A2-AE1B-4332-8D95-AB579E30421F}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AidenDesktop", "src\AidenDesktop\AidenDesktop.fsproj", "{CBBFF8C0-FA2E-48A9-BAE6-89425E662326}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CBBFF8C0-FA2E-48A9-BAE6-89425E662326}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBBFF8C0-FA2E-48A9-BAE6-89425E662326}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBBFF8C0-FA2E-48A9-BAE6-89425E662326}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBBFF8C0-FA2E-48A9-BAE6-89425E662326}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CBBFF8C0-FA2E-48A9-BAE6-89425E662326} = {D4BC96A2-AE1B-4332-8D95-AB579E30421F}
+	EndGlobalSection
+EndGlobal
