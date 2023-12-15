@@ -42,6 +42,7 @@ module Chat =
 
         
 open Chat
+open ReactiveUI
 
 type ChatViewModel() as this =
     inherit ReactiveElmishViewModel()
@@ -56,7 +57,9 @@ type ChatViewModel() as this =
         with get() = Seq.last x.MessagesView
     member this.MessagesView: ObservableCollection<Message> = messages
 
-    member this.NewMessage = this.Bind (local, _.NewMessage)
+    member this.NewMessage
+        with get() = local.Model.NewMessage
+        and set(value) = local.Dispatch (UpdateNewMessage value)
     
     member this.SendMessage() =
         local.Dispatch (SendMessage this.NewMessage)
