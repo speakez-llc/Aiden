@@ -1,10 +1,10 @@
-namespace AidenDesktop.Views
+﻿namespace AidenDesktop.Views
 
 open Avalonia
 open Avalonia.Controls
 open Avalonia.Markup.Xaml
 
-type CounterView () as this = 
+type DoughnutView () as this = 
     inherit UserControl ()
 
     do this.InitializeComponent()

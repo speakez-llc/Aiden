@@ -3,9 +3,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
-			 xmlns:vm="using:Aiden.ViewModels"
-			 Design.DataContext="{Binding Source={x:Static vm:FilePickerViewModel.designVM}}"
-             x:Class="Aiden.Views.FilePickerView">
+			 xmlns:vm="using:AidenDesktop.ViewModels"
+			 Design.DataContext="{Binding Source={x:Static vm:FilePickerViewModel.DesignVM}}"
+			 x:DataType="vm:FilePickerViewModel"
+             x:Class="AidenDesktop.Views.FilePickerView">
 	<StackPanel HorizontalAlignment="Center" Margin="10">
 		<StackPanel Orientation="Horizontal" Margin="10" Spacing="6">
 			<TextBlock Text="File Path:" />

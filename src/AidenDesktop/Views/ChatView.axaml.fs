@@ -1,12 +1,11 @@
-namespace AidenDesktop.Views
+﻿namespace AidenDesktop.Views
 
-open Avalonia
 open Avalonia.Controls
 open Avalonia.Markup.Xaml
 
-type CounterView () as this = 
+type ChatView() as this =
     inherit UserControl ()
-
+    
     do this.InitializeComponent()
 
     member private this.InitializeComponent() =

@@ -4,10 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
-             xmlns:vm="using:Aiden.ViewModels"
+             xmlns:vm="using:AidenDesktop.ViewModels"
              xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
-             Design.DataContext="{Binding Source={x:Static vm:ChartViewModel.designVM}}"
-             x:Class="Aiden.Views.ChartView">
+             Design.DataContext="{Binding Source={x:Static vm:ChartViewModel.DesignVM}}"
+			 x:DataType="vm:ChartViewModel"
+             x:Class="AidenDesktop.Views.ChartView">
     <StackPanel HorizontalAlignment="Center" Margin="10">
         <Grid>
             <Grid.RowDefinitions>

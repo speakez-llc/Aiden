@@ -2,13 +2,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"        
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
-        Width="700" Height="650"
-        x:Class="Aiden.Views.MainView"        
-        Icon="/Assets/avalonia-logo.ico"
-        xmlns:vm="using:Aiden.ViewModels"
-        Design.DataContext="{Binding Source={x:Static vm:MainViewModel.designVM}}"
-        Title="Aiden">
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="850"
+        Width="1200" Height="850"
+        x:Class="AidenDesktop.Views.MainView"        
+        Icon="/Assets/SpeakEZ.ico"
+        xmlns:vm="using:AidenDesktop.ViewModels"
+        Design.DataContext="{Binding Source={x:Static vm:MainViewModel.DesignVM}}"
+		x:DataType="vm:MainViewModel"
+        Title="SpeakEZ.ai :: Aiden Prototype">
 
 	<Window.Styles>
 
@@ -16,36 +17,36 @@
 			<Setter Property="Height" Value="120"/>
 			<Setter Property="VerticalContentAlignment" Value="Center" />
 		</Style>
-		<Style Selector="StackPanel.nav">
-			<Setter Property="Background" Value="#2B579A"/>
+		<Style Selector="Grid.nav">
+			<Setter Property="Background" Value="#12327a"/>
 		</Style>
 		<Style Selector="Button.tab">
 			<Setter Property="FontSize" Value="16"/>
 			<Setter Property="Height" Value="34"/>
 			<Setter Property="VerticalAlignment" Value="Center"/>
-			<Setter Property="Background" Value="#2B579A"/>
+			<Setter Property="Background" Value="#12327a"/>
 			<Setter Property="Foreground" Value="White"/>
 			<Setter Property="Margin" Value="0 0 0 0"/>
 			<Setter Property="Padding" Value="10 0"/>
 		</Style>
 		<Style Selector="Button.tab:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-			<Setter Property="Background" Value="#4C90CD"/>
+			<Setter Property="Background" Value="#4066C4"/>
 			<Setter Property="Foreground" Value="White"/>
 		</Style>
 
 		<Style Selector="Button.tab:focus">
-			<Setter Property="Background" Value="#4C90CD"/>
+			<Setter Property="Background" Value="#4066C4"/>
 			<Setter Property="Foreground" Value="White"/>
 			<Setter Property="Margin" Value="0 0 0 0"/>
 			<Setter Property="Padding" Value="10 0"/>
 		</Style>
 		<Style Selector="Button.tab:focus /template/ ContentPresenter#PART_ContentPresenter">
-			<Setter Property="Background" Value="#4C90CD"/>
+			<Setter Property="Background" Value="#4066C4"/>
 			<Setter Property="Foreground" Value="White"/>
 		</Style>
 
 		<Style Selector="Button.tab:selected">
-			<Setter Property="Background" Value="#4C90CD"/>
+			<Setter Property="Background" Value="#4066C4"/>
 			<Setter Property="Foreground" Value="White"/>
 			<Setter Property="Margin" Value="0 0 0 0"/>
 			<Setter Property="Padding" Value="10 0"/>
@@ -53,22 +54,59 @@
 		<Style Selector="Button.tab:selected /template/ ContentPresenter#PART_ContentPresenter">
 			<Setter Property="Background" Value="White"/>
 		</Style>
+		<Style Selector="ToggleButton">
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="Background" Value="#12327a"/>
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+		<Style Selector="ToggleButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#12327a"/>
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+		<Style Selector="ToggleButton:focus">
+			<Setter Property="Background" Value="DarkOrange"/>
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+		<Style Selector="ToggleButton:focus /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#12327a"/>
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+		<Style Selector="ToggleButton:checked">
+			<Setter Property="Background" Value="#12327a"/>
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
 		<Style Selector="ToggleButton:checked /template/ ContentPresenter#PART_ContentPresenter">
-			<Setter Property="Background" Value="#2B579A" />
+			<Setter Property="Background" Value="DarkOrange"/>
 		</Style>
 	</Window.Styles>
 
 
 	<DockPanel LastChildFill="true">
+		<Grid DockPanel.Dock="Top" Classes="nav">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="Auto"/>
+			</Grid.ColumnDefinitions>
 
-		<StackPanel Classes="nav" Orientation="Horizontal" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
-			<Button Classes="tab" Content="Counter" Command="{Binding ShowCounter}" />
-			<Button Classes="tab" Content="Chart" Command="{Binding ShowChart}" />
-			<Button Classes="tab" Content="File Picker" Command="{Binding ShowFilePicker}" />
-		    <Button Classes="tab" Content="About" Command="{Binding ShowAbout}" />
-		</StackPanel>
+			<StackPanel Orientation="Horizontal" Grid.Column="0">
+				<Button Classes="tab" Content="Basic Counter" Command="{Binding ShowCounter}" />
+				<Button Classes="tab" Content="Time Series" Command="{Binding ShowChart}" />
+				<Button Classes="tab" Content="Map Dashboard" Command="{Binding ShowDoughnut}" />
+				<Button Classes="tab" Content="File Picker" Command="{Binding ShowFilePicker}" />
+				<Button Classes="tab" Content="About" Command="{Binding ShowAbout}" />
+			</StackPanel>
+
+			<ToggleButton x:Name="SplitViewToggle" Content="Chat" Grid.Column="1" />
+		</Grid>
 		
-		<ContentControl Content="{Binding ContentVM}" />
+		<SplitView IsPaneOpen="{Binding IsChecked, ElementName=SplitViewToggle}" DisplayMode="Overlay" DockPanel.Dock="Right" PaneBackground="#EEE" PanePlacement="Right" >
+			<SplitView.Content>
+				<ContentControl Content="{Binding ContentView}" />
+			</SplitView.Content>
+			<SplitView.Pane>
+				<ContentControl Content="{Binding ChatView}" />
+			</SplitView.Pane>
+		</SplitView>
 		
 	</DockPanel>
 	
