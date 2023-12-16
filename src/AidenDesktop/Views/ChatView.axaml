@@ -3,11 +3,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
+             xmlns:local="clr-namespace:AidenDesktop"
              xmlns:vm="using:AidenDesktop.ViewModels"
              Design.DataContext="{x:Static vm:ChatViewModel.DesignVM}"
              x:DataType="vm:ChatViewModel"
              x:Class="AidenDesktop.Views.ChatView">
-    
+    <UserControl.Resources>
+        <local:StringToMarginConverter x:Key="StringToMarginConverter" />
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="9*"/>
@@ -31,8 +34,7 @@
                                 Padding="10" 
                                 BorderBrush="{Binding BorderColor}"
                                 BorderThickness="2"
-                                Margin="{Binding Alignment, 
-                                Converter={StaticResource StringToMarginConverter}}" >
+                                Margin="{Binding Alignment, Converter={StaticResource StringToMarginConverter}}" >
                             <StackPanel>
                                 <TextBlock FontWeight="Bold" Text="{Binding User}" />
                                 <TextBlock TextWrapping="Wrap" Text="{Binding Text}" />

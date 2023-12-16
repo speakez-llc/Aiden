@@ -2,13 +2,11 @@
 
 open Avalonia.Controls
 open Avalonia.Markup.Xaml
-open AidenDesktop.ViewModels
 
-type ChatView() as self =
+type ChatView() as this =
     inherit UserControl ()
+    
+    do this.InitializeComponent()
 
-    let vm = new ChatViewModel()
-
-    do
-        AvaloniaXamlLoader.Load self
-        self.DataContext <- vm
+    member private this.InitializeComponent() =
+        AvaloniaXamlLoader.Load(this)

@@ -43,9 +43,8 @@ type ChatViewModel() as this =
         Program.mkAvaloniaSimple init update
         |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
         |> Program.mkStore
-    
-    let messages = ObservableCollection<Message>(this.BindSourceList(local.Model.Messages))
-    member this.MessagesView: ObservableCollection<Message> = messages
+
+    member this.MessagesView = this.BindSourceList(local.Model.Messages)
     
     member this.SendMessage(message: string) =
         local.Dispatch (SendMessage message)
