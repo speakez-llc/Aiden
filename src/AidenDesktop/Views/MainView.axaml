@@ -92,6 +92,7 @@
 				<Button Classes="tab" Content="Basic Counter" Command="{Binding ShowCounter}" />
 				<Button Classes="tab" Content="Time Series" Command="{Binding ShowChart}" />
 				<Button Classes="tab" Content="Map Dashboard" Command="{Binding ShowDoughnut}" />
+				<Button Classes="tab" Content="Dashboard" Command="{Binding ShowDashboard}" />
 				<Button Classes="tab" Content="File Picker" Command="{Binding ShowFilePicker}" />
 				<Button Classes="tab" Content="About" Command="{Binding ShowAbout}" />
 			</StackPanel>

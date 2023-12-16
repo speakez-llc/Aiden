@@ -17,6 +17,7 @@ and View =
     | DoughnutView
     | AboutView
     | FilePickerView
+    | DashboardView
 
 type Msg = 
     | SetView of View

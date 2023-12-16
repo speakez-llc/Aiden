@@ -15,11 +15,13 @@ type MainViewModel(root: CompositionRoot) =
             | DoughnutView -> root.GetView<DoughnutViewModel>()
             | ChartView -> root.GetView<ChartViewModel>()
             | FilePickerView -> root.GetView<FilePickerViewModel>()
+            | DashboardView -> root.GetView<DashboardViewModel>()
             | AboutView -> root.GetView<AboutViewModel>()
         )
 
     member this.ShowChart() = app.Dispatch (SetView ChartView)
     member this.ShowDoughnut() = app.Dispatch (SetView DoughnutView)
+    member this.ShowDashboard() = app.Dispatch (SetView DashboardView)
     member this.ShowCounter() = app.Dispatch (SetView CounterView)
     member this.ShowAbout() = app.Dispatch (SetView AboutView)
     member this.ShowFilePicker() = app.Dispatch (SetView FilePickerView)
