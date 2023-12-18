@@ -11,6 +11,7 @@
         <AvaloniaResource Include="Assets\**" />    
         <Compile Include="Controls\RadialSlider.axaml.fs" />
         <Compile Include="Models\BaseTypes.fs" />
+        <Compile Include="Converters\SeriesBoxConverters.fs" />
         <Compile Include="Controls\SeriesBox.axaml.fs" />
         <Compile Include="Controls\EZPie.axaml.fs"/>
         <Compile Include="Services\FileService.fs" />

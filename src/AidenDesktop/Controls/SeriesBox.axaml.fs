@@ -39,6 +39,12 @@ type SeriesBox () =
             for item in this.SeriesList do
                 printfn $"{item.Name} : {item.Count} : {item.Geography}"
 
+    member this.BackEndX
+        with get() = this.Width / 2.0
+    
+    member this.BackEndY
+        with get() = this.Height / 2.0
+
     member private this.NotifyPropertyChanged(propertyName : string) =
         printfn $"SeriesBox NotifyPropertyChanged: {propertyName}"
         propertyChanged.Trigger(this, PropertyChangedEventArgs(propertyName))
