@@ -3,13 +3,20 @@
 open ReactiveElmish
 open ReactiveElmish.Avalonia
 open App
+open FluentAvalonia.UI.Controls
+open ReactiveUI
+open System.Threading.Tasks
 
-type MainViewModel(root: CompositionRoot) =
+type MainViewModel(root: CompositionRoot) as self =
     inherit ReactiveElmishViewModel()
     
-    member this.ChatView = root.GetView<ChatViewModel>() 
-    member this.ContentView = 
-        this.BindOnChanged (app, _.View, fun m -> 
+    let itemInvokedCommand : ReactiveCommand<NavigationViewItem, System.Reactive.Unit> =
+        ReactiveCommand.CreateFromTask<NavigationViewItem>(self.Show)
+    member self.ItemInvokedCommand with get() = itemInvokedCommand
+
+    member self.ChatView = root.GetView<ChatViewModel>()
+    member self.ContentView =
+        self.BindOnChanged (app, _.View, fun m ->
             match m.View with
             | CounterView -> root.GetView<CounterViewModel>()
             | DoughnutView -> root.GetView<DoughnutViewModel>()
@@ -18,10 +25,26 @@ type MainViewModel(root: CompositionRoot) =
             | AboutView -> root.GetView<AboutViewModel>()
         )
 
-    member this.ShowChart() = app.Dispatch (SetView ChartView)
-    member this.ShowDoughnut() = app.Dispatch (SetView DoughnutView)
-    member this.ShowCounter() = app.Dispatch (SetView CounterView)
-    member this.ShowAbout() = app.Dispatch (SetView AboutView)
-    member this.ShowFilePicker() = app.Dispatch (SetView FilePickerView)
+    member self.NavigationViewItems =
+        [
+            NavigationViewItem(Content = "Basic Counter", Tag = "CounterViewModel" )
+            NavigationViewItem(Content = "Time Series", Tag = "ChartViewModel")
+            NavigationViewItem(Content = "Map Dashboard", Tag = "DoughnutViewModel")
+            NavigationViewItem(Content = "File Picker", Tag = "FilePickerViewModel")
+            NavigationViewItem(Content = "About", Tag = "AboutViewModel")
+        ]
+
+    member self.Show(item: NavigationViewItem) =
+        match item.Tag with
+        | :? string as tag ->
+            match tag with
+            | "CounterViewModel" -> app.Dispatch (SetView CounterView)
+            | "ChartViewModel" -> app.Dispatch (SetView ChartView)
+            | "DoughnutViewModel" -> app.Dispatch (SetView DoughnutView)
+            | "FilePickerViewModel" -> app.Dispatch (SetView FilePickerView)
+            | "AboutViewModel" -> app.Dispatch (SetView AboutView)
+            | _ -> ()
+        | _ -> ()
+        Task.CompletedTask
 
     static member DesignVM = new MainViewModel(Design.stub)
