@@ -24,7 +24,7 @@
                             MenuItemsSource="{Binding TestList}"
                             SelectedItem="{Binding SelectedNavItem}">
 
-        </con:NavigationView>
+        
         <Panel>
             <SplitView IsPaneOpen="True"  DockPanel.Dock="Right" PanePlacement="Right" PaneBackground="Aqua" >
                 <SplitView.Content>
@@ -35,6 +35,7 @@
                 </SplitView.Pane>
             </SplitView>
         </Panel>
+        </con:NavigationView>
     </DockPanel>
 
 </Window>
