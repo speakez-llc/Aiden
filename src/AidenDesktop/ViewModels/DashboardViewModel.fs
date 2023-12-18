@@ -22,12 +22,16 @@ module Dashboard =
             TORSeries : ObservableCollection<SeriesData>
             PRXSeries : ObservableCollection<SeriesData>
             COOSeries : ObservableCollection<SeriesData>
+
+            IsDragging : bool
+
         }
     
     type Msg =
         | OpenPanel of String
         | ClosePanel of int
         | SetPanelSeries
+        | DragStart of bool
 
     let setPanelSeries (model : Model) =        
         printfn "setPanelSeries Called..."
@@ -80,6 +84,8 @@ module Dashboard =
                     {Name = "RUS"; Count = 5; Geography = "World"}
                     {Name = "CAN"; Count = 3; Geography = "World"}
                 ]
+            
+            IsDragging = false
         },
         Cmd.ofEffect (fun dispatch ->
             printfn "Dashboard init"
@@ -102,6 +108,8 @@ module Dashboard =
                     printfn $"{item.Name} : {item.Count} : {item.Geography}"
             
             model, Cmd.none
+        | DragStart bDragging ->
+            { model with IsDragging = bDragging }, Cmd.none
 
 
 
@@ -134,6 +142,10 @@ type DashboardViewModel() =
     member this.COOSeries
         with get() = this.Bind(local, _.COOSeries)
     
+
+    member this.IsDragging
+        with get() = this.Bind(local, _.IsDragging)
+        and set(value) = local.Dispatch (DragStart value)
 
     static member DesignVM =
         new DashboardViewModel()

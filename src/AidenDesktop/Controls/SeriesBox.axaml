@@ -14,15 +14,22 @@
     <Style Selector="controls|SeriesBox">
         <Setter Property="Template">
             <ControlTemplate>
-
-                <Grid >
-                    <Grid.Background>
-                        <LinearGradientBrush StartPoint="0%,0%" 
-                                             EndPoint="0%,100%">
+                <Border CornerRadius="10" BorderThickness="4">
+                    <Border.BorderBrush>
+                        <ConicGradientBrush>
+                            <GradientStop Color="#333333" Offset="0" />
+                            <GradientStop Color="#dddddd" Offset="0.5" />
+                            <GradientStop Color="#333333" Offset="1" />
+                        </ConicGradientBrush>
+                    </Border.BorderBrush>
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
                             <GradientStop Color="#dddddd" Offset="0" />
                             <GradientStop Color="#333333" Offset="1" />
                         </LinearGradientBrush>
-                    </Grid.Background> 
+                    </Border.Background>
+                <Grid >
+                    
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
@@ -33,17 +40,42 @@
                     </Grid.ColumnDefinitions>
                     
                 
-                    <Border Background="Gray" 
-                            Grid.Row="0" 
+                    <Border Grid.Row="0" 
                             Grid.Column="0"
                             Grid.ColumnSpan="2" 
                             HorizontalAlignment="Stretch" 
-                            VerticalAlignment="Stretch">
+                            VerticalAlignment="Stretch"
+                            CornerRadius="5"
+                            BorderThickness="1"
+                            BorderBrush="Black">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+                                <GradientStop Color="#12327a" Offset="0" />
+                                <GradientStop Color="#dddddd" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
                         
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Button i:Attached.Icon="fa fa-cogs" Grid.Column="0" Foreground="#dddddd"/>
+                            <Button i:Attached.Icon="fa-solid fa-chart-pie" Grid.Column="1" Foreground="#dddddd" />
 
-                        <TextBlock Text="{Binding SeriesName, RelativeSource={RelativeSource TemplatedParent}}"
-                                   HorizontalAlignment="Center" 
-                                   VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding SeriesName, RelativeSource={RelativeSource TemplatedParent}}"
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"
+                                       FontSize="24" 
+                                       FontWeight="Bold"/>
+                            
+                            <Button i:Attached.Icon="fa fa-eye" Grid.Column="3" Foreground="#dddddd" />
+                            <Button i:Attached.Icon="fa fa-eye-slash" Grid.Column="4" Foreground="#dddddd" />
+                        </Grid>
                     </Border>
 
                     <Viewbox Grid.Row="1" Grid.Column="0" >
@@ -65,8 +97,7 @@
                                         <ColumnDefinition Width="4*" />
                                         <ColumnDefinition Width="1*" />
                                     </Grid.ColumnDefinitions>
-                                    <Button i:Attached.Icon="fa fa-eye" Grid.Column="0" />
-                                    <!-- <i:Icon Value="fa fa-eye" FontSize="18" /> -->
+                                    
                                     <TextBlock Text="{Binding Name}" Grid.Column="1"/>
                                     <TextBlock Text="{Binding Count}" Grid.Column="2" />
                                 </Grid>
@@ -75,6 +106,7 @@
                     </ItemsControl>
 
                 </Grid>
+                </Border>
             </ControlTemplate>
         </Setter>
     </Style>
