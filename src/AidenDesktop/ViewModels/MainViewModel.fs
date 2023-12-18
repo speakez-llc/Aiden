@@ -7,8 +7,15 @@ open FluentAvalonia.UI.Controls
 open ReactiveUI
 open System.Threading.Tasks
 
+type NavItem =
+    {
+        Name: string
+    }
+
 type MainViewModel(root: CompositionRoot) as self =
     inherit ReactiveElmishViewModel()
+    
+    let mutable _selectedNavItem : string = "Home"
     
     let itemInvokedCommand : ReactiveCommand<NavigationViewItem, System.Reactive.Unit> =
         ReactiveCommand.CreateFromTask<NavigationViewItem>(self.Show)
@@ -25,6 +32,22 @@ type MainViewModel(root: CompositionRoot) as self =
             | AboutView -> root.GetView<AboutViewModel>()
         )
 
+    member this.SelectedNavItem
+        with get() = _selectedNavItem
+        and set(value) =
+            _selectedNavItem <- value
+            match value with
+            | "Home" -> app.Dispatch (SetView CounterView)
+            | "Counter" -> app.Dispatch (SetView CounterView)
+            | "Chart" -> app.Dispatch (SetView ChartView)
+            | "Doughnut" -> app.Dispatch (SetView DoughnutView)
+            | "File Picker" -> app.Dispatch (SetView FilePickerView)
+            | "About" -> app.Dispatch (SetView AboutView)
+            | _ -> ()
+            
+    member this.TestList = [ "Home";"Counter";"Chart";"Doughnut";"File Picker";"About" ]
+
+  
     member self.NavigationViewItems =
         [
             NavigationViewItem(Content = "Basic Counter", Tag = "CounterViewModel" )
@@ -46,5 +69,9 @@ type MainViewModel(root: CompositionRoot) as self =
             | _ -> ()
         | _ -> ()
         Task.CompletedTask
+
+    member this.ShowAbout() = 
+        printfn "Show About Called"
+        app.Dispatch (SetView AboutView)
 
     static member DesignVM = new MainViewModel(Design.stub)

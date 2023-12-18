@@ -2,5 +2,6 @@
     "cSpell.words": [
         "Aiden",
         "Avalonia"
-    ]
+    ],
+    "editor.inlayHints.enabled": "offUnlessPressed"
 }
