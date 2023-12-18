@@ -7,17 +7,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <AvaloniaResource Include="Assets\**" />
-        <Compile Include="Services\FileService.fs" />
+        <Folder Include="Models\" />
+        <AvaloniaResource Include="Assets\**" />    
         <Compile Include="Controls\RadialSlider.axaml.fs" />
-        <AvaloniaXaml Remove="Models\**" />
-        <EmbeddedResource Remove="Models\**" />
+        <Compile Include="Models\BaseTypes.fs" />
+        <Compile Include="Controls\SeriesBox.axaml.fs" />
+        <Compile Include="Controls\EZPie.axaml.fs"/>
+        <Compile Include="Services\FileService.fs" />
         <None Remove=".gitignore" />
     </ItemGroup>
 
     <ItemGroup>
+        
         <Compile Include="ViewModels\App.fs" />
-        <Compile Include="ViewModels\BaseTypes.fs" />
         <Compile Include="ViewModels\ChatViewModel.fs" />
         <Compile Include="ViewModels\AboutViewModel.fs" />
         <Compile Include="ViewModels\CounterViewModel.fs" />
@@ -35,6 +37,7 @@
         <Compile Include="Views\DashboardView.axaml.fs" />       
         <Compile Include="Views\MainView.axaml.fs" />
         <Compile Include="AppCompositionRoot.fs" />
+        
         <Compile Include="ViewLocator.fs" />
         <Compile Include="App.axaml.fs" />
         <Compile Include="Program.fs" />

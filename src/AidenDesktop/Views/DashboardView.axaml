@@ -10,11 +10,37 @@
              xmlns:controls="clr-namespace:AidenDesktop.Controls;assembly=AidenDesktop"
 			 Design.DataContext="{Binding Source={x:Static vm:DashboardViewModel.DesignVM}}"
 			 x:DataType="vm:DashboardViewModel"
-			 x:CompileBindings="True"
+			 x:CompileBindings="False"
              x:Class="AidenDesktop.Views.DashboardView">
 
-    <Grid>
-        <TextBlock Text="Dashboard" />
+    <Grid Name="DragZone" >
+        <ItemsControl ItemsSource="{Binding Panels}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.Styles>
+                <Style Selector="ItemsControl > ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding PosX}" />
+                    <Setter Property="Canvas.Top" Value="{Binding PosY}" />
+                </Style>
+            </ItemsControl.Styles>
+            
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <controls:SeriesBox SeriesName="{Binding SeriesName}"
+                                            SeriesList="{Binding SeriesList}" 
+                                            Width="{Binding Width}" 
+                                            Height="{Binding Height}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
     </Grid>
+
 
 </UserControl>

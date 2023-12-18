@@ -11,7 +11,6 @@ type Model =
     }
 
 and View = 
-    | TodoListView
     | CounterView
     | ChartView
     | DoughnutView
