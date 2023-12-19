@@ -7,7 +7,6 @@
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
-
     <Application.Styles>
         <sty:FluentAvaloniaTheme PreferUserAccentColor="True" />
     </Application.Styles>

@@ -41,7 +41,7 @@ type MainViewModel(root: CompositionRoot) as self =
             | "Home" -> app.Dispatch (SetView CounterView)
             | "Counter" -> app.Dispatch (SetView CounterView)
             | "Chart" -> app.Dispatch (SetView ChartView)
-            | "Doughnut" -> app.Dispatch (SetView DoughnutView)
+            | "Dashboard" -> app.Dispatch (SetView DoughnutView)
             | "File Picker" -> app.Dispatch (SetView FilePickerView)
             | "About" -> app.Dispatch (SetView AboutView)
             | _ -> ()
@@ -50,16 +50,16 @@ type MainViewModel(root: CompositionRoot) as self =
         { Name = "Home"; Icon="Home" }
         { Name = "Counter"; Icon="Calculator" }
         { Name = "Chart"; Icon="Document" }
-        { Name = "Doughnut"; Icon="Globe"}
+        { Name = "Dashboard"; Icon="Globe"}
         { Name = "File Picker"; Icon="Folder"}
-        { Name = "About"; Icon="Star" }
+        { Name = "About"; Icon="Library" }
     ]
   
     member self.NavigationViewItems =
         [
             NavigationViewItem(Content = "Basic Counter", Tag = "CounterViewModel" )
             NavigationViewItem(Content = "Time Series", Tag = "ChartViewModel")
-            NavigationViewItem(Content = "Map Dashboard", Tag = "DoughnutViewModel")
+            NavigationViewItem(Content = "Dashboard", Tag = "DoughnutViewModel")
             NavigationViewItem(Content = "File Picker", Tag = "FilePickerViewModel")
             NavigationViewItem(Content = "About", Tag = "AboutViewModel")
         ]

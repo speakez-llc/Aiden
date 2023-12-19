@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:con="using:FluentAvalonia.UI.Controls"
+        xmlns:icons="using:FluentAvalonia.FluentIcons"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="850"
         Width="1200" Height="850"
         x:Class="AidenDesktop.Views.MainView"
@@ -29,15 +30,30 @@
                 </DataTemplate>
             </con:NavigationView.MenuItemTemplate>
             <con:NavigationView.Content>
-                <SplitView DisplayMode="CompactOverlay" IsPaneOpen="True"  DockPanel.Dock="Right" PanePlacement="Right" >
+                <SplitView x:Name="MySplitView" DisplayMode="CompactInline" IsPaneOpen="False"  DockPanel.Dock="Right" PanePlacement="Right" >
                     <SplitView.Content>
                         <ContentControl Content="{Binding ContentView}" />
                     </SplitView.Content>
                     <SplitView.Pane>
-                        <ContentControl Content="{Binding ChatView}" />
+                        <StackPanel>
+                            <ToggleButton x:Name="SlideButton" IsChecked="{Binding IsPaneOpen, ElementName=MySplitView}" Margin="5">
+                                <ToggleButton.Styles>
+                                    <Style Selector="ToggleButton[IsChecked=True]">
+                                        <Setter Property="Content" Value="&gt;" />
+                                    </Style>
+                                    <Style Selector="ToggleButton[IsChecked=False]">
+                                        <Setter Property="Content" Value="&lt;" />
+                                    </Style>
+                                </ToggleButton.Styles>
+                            </ToggleButton>
+                            <ContentControl Content="{Binding ChatView}" />
+                        </StackPanel>
                     </SplitView.Pane>
                 </SplitView>
             </con:NavigationView.Content>
+            <con:NavigationView.FooterMenuItems>
+                <con:NavigationViewItem Content="Chat" />
+            </con:NavigationView.FooterMenuItems>
         </con:NavigationView>
     </DockPanel>
 </Window>
