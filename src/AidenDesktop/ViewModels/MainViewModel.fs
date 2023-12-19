@@ -49,10 +49,10 @@ type MainViewModel(root: CompositionRoot) as self =
     member this.TestList = [ //"Home";"Counter";"Chart";"Doughnut";"File Picker";"About" ]
         { Name = "Home"; Icon="Home" }
         { Name = "Counter"; Icon="Calculator" }
-        { Name = "Chart"; Icon="Document" }
-        { Name = "Dashboard"; Icon="Globe"}
+        { Name = "Chart"; Icon="CalendarDay" }
+        { Name = "Dashboard"; Icon="EarthFilled"}
         { Name = "File Picker"; Icon="Folder"}
-        { Name = "About"; Icon="Library" }
+        { Name = "About"; Icon="Help" }
     ]
   
     member self.NavigationViewItems =
