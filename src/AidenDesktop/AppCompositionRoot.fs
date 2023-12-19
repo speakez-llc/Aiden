@@ -1,24 +1,10 @@
 ﻿namespace AidenDesktop
 
-open Avalonia
-open System.Globalization
 open Microsoft.Extensions.DependencyInjection
 open AidenDesktop.ViewModels
 open AidenDesktop.Views
 open ReactiveElmish.Avalonia
-open Avalonia.Data.Converters
 
-type StringToMarginConverter() =
-    interface IValueConverter with
-        member _.Convert(value : obj, targetType : System.Type, parameter : obj, culture : CultureInfo) : obj =
-            match value with
-            | :? string as alignment ->
-                if alignment = "Left" then new Thickness(10.0, 5.0, 50.0, 5.0)
-                else new Thickness(50.0, 5.0, 10.0, 5.0)
-            | _ -> new Thickness(0.0)
-        member _.ConvertBack(value : obj, targetType : System.Type, parameter : obj, culture : CultureInfo) : obj =
-            null
-            
 
 type AppCompositionRoot() =
     inherit CompositionRoot()

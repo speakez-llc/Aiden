@@ -2,26 +2,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
+             mc:Ignorable="d" d:DesignWidth="325" d:DesignHeight="650"
              xmlns:local="clr-namespace:AidenDesktop"
              xmlns:vm="using:AidenDesktop.ViewModels"
              Design.DataContext="{x:Static vm:ChatViewModel.DesignVM}"
              x:DataType="vm:ChatViewModel"
              x:Class="AidenDesktop.Views.ChatView">
-    <UserControl.Resources>
-        <local:StringToMarginConverter x:Key="StringToMarginConverter" />
-    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="9*"/>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="9*" />
+            <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        
         <!-- ListBox -->
-        <ListBox x:Name="ChatWindow" ItemsSource="{Binding MessagesView}"
+        <ListBox Grid.Row="0" x:Name="ChatWindow" ItemsSource="{Binding MessagesView}"
                  CornerRadius="10"
                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                 Grid.Row="0">
+                 DockPanel.Dock="Top">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel/>
@@ -30,11 +27,22 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel HorizontalAlignment="Stretch">
-                        <Border CornerRadius="10" Background="{Binding Color}" 
+                        <StackPanel.Styles>
+                            <Style Selector="Border">
+                                <Setter Property="Margin" Value="10,5,50,5" />
+                                <Setter Property="BorderBrush" Value="Orange" />
+                                <Setter Property="Background" />
+                            </Style>
+                            <Style Selector="Border.isMe">
+                                <Setter Property="Margin" Value="50,5,10,5" />
+                                <Setter Property="BorderBrush" Value="MidnightBlue" />
+                                <Setter Property="Background" />
+                            </Style>							
+                        </StackPanel.Styles>
+                        <Border CornerRadius="10"
                                 Padding="10" 
-                                BorderBrush="{Binding BorderColor}"
                                 BorderThickness="2"
-                                Margin="{Binding Alignment, Converter={StaticResource StringToMarginConverter}}" >
+                                Classes.isMe="{Binding IsMe}">
                             <StackPanel>
                                 <TextBlock FontWeight="Bold" Text="{Binding User}" />
                                 <TextBlock TextWrapping="Wrap" Text="{Binding Text}" />
@@ -44,20 +52,17 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        
-        <!-- Text input and button -->
-        <Grid DockPanel.Dock="Bottom" Grid.Row="1" VerticalAlignment="Center">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
 
-            <TextBox x:Name="MessageTextBox" Grid.Column="0" MinHeight="40" AcceptsReturn="True" BorderBrush="MidnightBlue"
+        <!-- Text input and button -->
+        <DockPanel Grid.Row="1" DockPanel.Dock="Bottom">
+            <TextBox x:Name="MessageTextBox" MinHeight="40" AcceptsReturn="True" BorderBrush="MidnightBlue"
                      BorderThickness="3" CornerRadius="10" Margin="10, 10, 0, 10"
+                     HorizontalAlignment="Stretch"
+                     Width="250"
                      Watermark="Type your message here...">
             </TextBox>
 
-            <Button Grid.Column="1" Width="45"
+            <Button Width="45"
                     Margin="2,0,5,0"
                     CornerRadius="10"
                     VerticalAlignment="Center"
@@ -65,6 +70,6 @@
                     CommandParameter="{Binding Text, ElementName=MessageTextBox}">
                 <Image Source="avares://AidenDesktop/Assets/SpeakEZ.ico" VerticalAlignment="Center" />
             </Button>
-        </Grid>
+        </DockPanel>
     </Grid>
 </UserControl>

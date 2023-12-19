@@ -8,7 +8,7 @@ open System.Collections.ObjectModel
 open System
 
 module Chat =
-    type Message = { User: string; Text: string; Alignment: string; Color: string; BorderColor: string }
+    type Message = { User: string; Text: string; Alignment: string; Color: string; BorderColor: string; IsMe: bool }
 
     type Model = { Messages: SourceList<Message> }
 
@@ -19,16 +19,16 @@ module Chat =
         let initialMessages =
             [
                 { User = "Aiden"; Text = "Anomaly detected in in-bound data. It mirrors a previous probe attack that has preceded a DDoS cycle by 20 minutes."
-                  Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange"  }
+                  Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
                 { User = "Me"; Text = "Thanks I see it. Clear the alarm. Is there any news on the wire that this is hitting more than us?"
-                  Alignment = "Right"; Color = "Charcoal"; BorderColor = "MidnightBlue"  }
+                  Alignment = "Right"; Color = "Charcoal"; BorderColor = "MidnightBlue" ; IsMe = true }
             ]
         { Messages = SourceList.createFrom initialMessages}
 
     let update (msg: Msg) (model: Model) =
         match msg with
         | SendMessage text ->
-            let msg = { User = "Me"; Text = text; Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue"  }
+            let msg = { User = "Me"; Text = text; Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue" ; IsMe  = true }
             printfn "Message: %A" msg
             {
                 Messages = model.Messages |> SourceList.add msg

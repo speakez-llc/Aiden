@@ -10,7 +10,4 @@
     <Application.Styles>
         <sty:FluentAvaloniaTheme PreferUserAccentColor="True" />
     </Application.Styles>
-    <Application.Resources>
-        <local:StringToMarginConverter x:Key="StringToMarginConverter"/>
-    </Application.Resources>
 </Application>
