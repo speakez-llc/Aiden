@@ -36,7 +36,7 @@ module Chat =
 
 open Chat
 
-type ChatViewModel() as this =
+type ChatViewModel() =
     inherit ReactiveElmishViewModel()
 
     let newMessageEvent = new Event<_>()

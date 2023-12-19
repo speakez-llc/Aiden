@@ -40,10 +40,10 @@
                             <ToggleButton DockPanel.Dock="Top" x:Name="SlideButton" IsChecked="{Binding IsPaneOpen, ElementName=MySplitView}" Margin="5">
                                 <ToggleButton.Styles>
                                     <Style Selector="ToggleButton[IsChecked=True]">
-                                        <Setter Property="Content" Value="&gt;" />
+                                        <Setter Property="Content" Value="►"/>
                                     </Style>
                                     <Style Selector="ToggleButton[IsChecked=False]">
-                                        <Setter Property="Content" Value="&lt;" />
+                                        <Setter Property="Content" Value="◄" />
                                     </Style>
                                 </ToggleButton.Styles>
                             </ToggleButton>
