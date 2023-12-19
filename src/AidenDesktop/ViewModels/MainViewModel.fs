@@ -47,7 +47,7 @@ type MainViewModel(root: CompositionRoot) as self =
             | _ -> ()
             
     member this.TestList = [ //"Home";"Counter";"Chart";"Doughnut";"File Picker";"About" ]
-        { Name = "Home"; Icon="Home" }
+        { Name = "Home"; Icon="HomeFilled" }
         { Name = "Counter"; Icon="Calculator" }
         { Name = "Chart"; Icon="Document" }
         { Name = "Dashboard"; Icon="Globe"}
