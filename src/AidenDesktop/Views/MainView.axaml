@@ -47,7 +47,7 @@
                                     </Style>
                                 </ToggleButton.Styles>
                             </ToggleButton>
-                            <ContentControl Content="{Binding ChatView}" />
+                            <ContentControl Content="{Binding ChatView}" IsVisible="{Binding IsPaneOpen, ElementName=MySplitView}" />
                         </StackPanel>
                     </SplitView.Pane>
                 </SplitView>
