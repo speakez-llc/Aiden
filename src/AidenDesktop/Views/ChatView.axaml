@@ -53,7 +53,7 @@
             </Grid.ColumnDefinitions>
 
             <TextBox x:Name="MessageTextBox" Grid.Column="0" MinHeight="40" AcceptsReturn="True" BorderBrush="MidnightBlue"
-                     BorderThickness="3" Background="White" CornerRadius="10" Margin="10, 10, 0, 10"
+                     BorderThickness="3" CornerRadius="10" Margin="10, 10, 0, 10"
                      Watermark="Type your message here...">
             </TextBox>
 

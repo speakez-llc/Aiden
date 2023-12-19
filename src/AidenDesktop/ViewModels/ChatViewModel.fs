@@ -19,9 +19,9 @@ module Chat =
         let initialMessages =
             [
                 { User = "Aiden"; Text = "Anomaly detected in in-bound data. It mirrors a previous probe attack that has preceded a DDoS cycle by 20 minutes."
-                  Alignment = "Left"; Color = "WhiteSmoke"; BorderColor = "Orange"  }
+                  Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange"  }
                 { User = "Me"; Text = "Thanks I see it. Clear the alarm. Is there any news on the wire that this is hitting more than us?"
-                  Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue"  }
+                  Alignment = "Right"; Color = "Charcoal"; BorderColor = "MidnightBlue"  }
             ]
         { Messages = SourceList.createFrom initialMessages}
 

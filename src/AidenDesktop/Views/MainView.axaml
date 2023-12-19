@@ -16,17 +16,17 @@
     <DockPanel LastChildFill="true">
         <Grid DockPanel.Dock="Top" Classes="nav">
         </Grid>
-        <con:NavigationView AlwaysShowHeader="True"
+        <con:NavigationView AlwaysShowHeader="False"
+                            Width="150"
                             PaneDisplayMode="Left"
                             Name="NavView"
-                            IsSettingsVisible="False"
+                            IsSettingsVisible="True"
                             IsBackEnabled="False"
                             MenuItemsSource="{Binding TestList}"
-                            SelectedItem="{Binding SelectedNavItem}">
-
-        
+                            SelectedItem="{Binding SelectedNavItem}"
+                            CompactModeThresholdWidth="100"/>
         <Panel>
-            <SplitView IsPaneOpen="True"  DockPanel.Dock="Right" PanePlacement="Right" PaneBackground="Aqua" >
+            <SplitView DisplayMode="CompactOverlay" IsPaneOpen="True"  DockPanel.Dock="Right" PanePlacement="Right" >
                 <SplitView.Content>
                     <ContentControl Content="{Binding ContentView}" />
                 </SplitView.Content>
@@ -35,7 +35,7 @@
                 </SplitView.Pane>
             </SplitView>
         </Panel>
-        </con:NavigationView>
+
     </DockPanel>
 
 </Window>
