@@ -3,7 +3,7 @@
              xmlns:local="using:AidenDesktop"
              xmlns:sty="using:FluentAvalonia.Styling"
              x:Class="AidenDesktop.App"
-             RequestedThemeVariant="Dark">
+             RequestedThemeVariant="Light">
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
