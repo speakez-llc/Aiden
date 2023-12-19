@@ -17,6 +17,7 @@
         <con:NavigationView AlwaysShowHeader="False"
                             OpenPaneLength="150"
                             PaneDisplayMode="Left"
+                            IsPaneOpen="False"
                             Name="NavView"
                             IsSettingsVisible="True"
                             IsBackEnabled="False"
