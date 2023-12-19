@@ -36,6 +36,7 @@
         <DockPanel>
             <ListBox x:Name="ChatWindow" ItemsSource="{Binding MessagesView}"
                      CornerRadius="10"
+                     ScrollViewer.BringIntoViewOnFocusChange="True"
                      ScrollViewer.AllowAutoHide="True"
                      ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <ListBox.ItemsPanel>
