@@ -12,30 +12,26 @@
         x:DataType="vm:MainViewModel"
         x:CompileBindings="True"
         Title="SpeakEZ.ai :: Aiden Prototype">
-
     <DockPanel LastChildFill="true">
-        <Grid DockPanel.Dock="Top" Classes="nav">
-        </Grid>
         <con:NavigationView AlwaysShowHeader="False"
-                            Width="150"
+                            OpenPaneLength="150"
                             PaneDisplayMode="Left"
                             Name="NavView"
                             IsSettingsVisible="True"
                             IsBackEnabled="False"
                             MenuItemsSource="{Binding TestList}"
                             SelectedItem="{Binding SelectedNavItem}"
-                            CompactModeThresholdWidth="100"/>
-        <Panel>
-            <SplitView DisplayMode="CompactOverlay" IsPaneOpen="True"  DockPanel.Dock="Right" PanePlacement="Right" >
-                <SplitView.Content>
-                    <ContentControl Content="{Binding ContentView}" />
-                </SplitView.Content>
-                <SplitView.Pane>
-                    <ContentControl Content="{Binding ChatView}" />
-                </SplitView.Pane>
-            </SplitView>
-        </Panel>
-
+                            CompactModeThresholdWidth="100">
+            <con:NavigationView.Content>
+                <SplitView DisplayMode="CompactOverlay" IsPaneOpen="True"  DockPanel.Dock="Right" PanePlacement="Right" >
+                    <SplitView.Content>
+                        <ContentControl Content="{Binding ContentView}" />
+                    </SplitView.Content>
+                    <SplitView.Pane>
+                        <ContentControl Content="{Binding ChatView}" />
+                    </SplitView.Pane>
+                </SplitView>
+            </con:NavigationView.Content>
+        </con:NavigationView>
     </DockPanel>
-
 </Window>
