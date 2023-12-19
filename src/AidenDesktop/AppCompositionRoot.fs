@@ -5,12 +5,11 @@ open AidenDesktop.ViewModels
 open AidenDesktop.Views
 open ReactiveElmish.Avalonia
 
-
 type AppCompositionRoot() =
     inherit CompositionRoot()
 
     let mainView = MainView()
-
+    
     override this.RegisterServices services = 
         base.RegisterServices(services)
             .AddSingleton<FileService>(FileService(mainView))

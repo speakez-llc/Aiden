@@ -36,8 +36,8 @@
                         <ContentControl Content="{Binding ContentView}" />
                     </SplitView.Content>
                     <SplitView.Pane>
-                        <StackPanel>
-                            <ToggleButton x:Name="SlideButton" IsChecked="{Binding IsPaneOpen, ElementName=MySplitView}" Margin="5">
+                        <DockPanel LastChildFill="True">
+                            <ToggleButton DockPanel.Dock="Top" x:Name="SlideButton" IsChecked="{Binding IsPaneOpen, ElementName=MySplitView}" Margin="5">
                                 <ToggleButton.Styles>
                                     <Style Selector="ToggleButton[IsChecked=True]">
                                         <Setter Property="Content" Value="&gt;" />
@@ -47,8 +47,8 @@
                                     </Style>
                                 </ToggleButton.Styles>
                             </ToggleButton>
-                            <ContentControl Content="{Binding ChatView}" IsVisible="{Binding IsPaneOpen, ElementName=MySplitView}" />
-                        </StackPanel>
+                            <ContentControl Content="{Binding ChatView}" IsVisible="{Binding IsPaneOpen, ElementName=MySplitView}" VerticalContentAlignment="Stretch" />
+                        </DockPanel>
                     </SplitView.Pane>
                 </SplitView>
             </con:NavigationView.Content>

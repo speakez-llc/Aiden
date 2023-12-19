@@ -29,7 +29,7 @@ module Chat =
         match msg with
         | SendMessage text ->
             let msg = { User = "Me"; Text = text; Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue" ; IsMe  = true }
-            printfn "Message: %A" msg
+            // printfn "Message: %A" msg
             {
                 Messages = model.Messages |> SourceList.add msg
             }
@@ -39,14 +39,26 @@ open Chat
 type ChatViewModel() as this =
     inherit ReactiveElmishViewModel()
 
+    let newMessageEvent = new Event<_>()
+
     let local =
         Program.mkAvaloniaSimple init update
         |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
         |> Program.mkStore
 
+    do
+        // Subscribe to the Messages list's Changed event
+        local.Model.Messages.Connect()
+            .Subscribe(fun _ -> 
+                printfn "New message added"  // Debug print statement
+                newMessageEvent.Trigger())
+            |> ignore
+
     member this.MessagesView = this.BindSourceList(local.Model.Messages)
-    
+
+    member this.NewMessageEvent = newMessageEvent.Publish
+
     member this.SendMessage(message: string) =
         local.Dispatch (SendMessage message)
-        
+
     static member DesignVM = new ChatViewModel()
