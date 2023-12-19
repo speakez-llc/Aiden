@@ -50,7 +50,6 @@ type ChatViewModel() as this =
         // Subscribe to the Messages list's Changed event
         local.Model.Messages.Connect()
             .Subscribe(fun _ -> 
-                printfn "New message added"  // Debug print statement
                 newMessageEvent.Trigger())
             |> ignore
 
