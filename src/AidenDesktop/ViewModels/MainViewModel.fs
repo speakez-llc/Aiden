@@ -2,21 +2,22 @@
 
 open ReactiveElmish
 open ReactiveElmish.Avalonia
-open App
 open FluentAvalonia.UI.Controls
+open FluentAvalonia.FluentIcons
 open ReactiveUI
 open System.Threading.Tasks
+open App
 
 type NavItem =
     {
         Name: string
-        Icon: string
+        Icon: FluentIconSymbol
     }
 
 type MainViewModel(root: CompositionRoot) as self =
     inherit ReactiveElmishViewModel()
     
-    let mutable _selectedNavItem : NavItem = {Name="Home"; Icon="Home"}
+    let mutable _selectedNavItem : NavItem = { Name="Home"; Icon= FluentIconSymbol.Home24Regular } 
     
     let itemInvokedCommand : ReactiveCommand<NavigationViewItem, System.Reactive.Unit> =
         ReactiveCommand.CreateFromTask<NavigationViewItem>(self.Show)
@@ -46,14 +47,18 @@ type MainViewModel(root: CompositionRoot) as self =
             | "About" -> app.Dispatch (SetView AboutView)
             | _ -> ()
             
-    member this.TestList = [ //"Home";"Counter";"Chart";"Doughnut";"File Picker";"About" ]
-        { Name = "Home"; Icon="Home" }
-        { Name = "Counter"; Icon="Calculator" }
-        { Name = "Chart"; Icon="Document" }
-        { Name = "Dashboard"; Icon="Globe"}
-        { Name = "File Picker"; Icon="Folder"}
-        { Name = "About"; Icon="Library" }
-    ]
+    member this.TestList = 
+        let createNavItem name iconSymbol =
+            let navItem = { Name = name; Icon = iconSymbol }
+            navItem
+        [ 
+            createNavItem "Home" FluentIconSymbol.Home24Regular
+            createNavItem "Counter" FluentIconSymbol.Calculator24Regular
+            createNavItem "Chart" FluentIconSymbol.ChartMultiple24Regular
+            createNavItem "Dashboard" FluentIconSymbol.ViewDesktop24Regular
+            createNavItem "File Picker" FluentIconSymbol.Folder24Regular
+            createNavItem "About" FluentIconSymbol.Info24Regular
+        ]
   
     member self.NavigationViewItems =
         [

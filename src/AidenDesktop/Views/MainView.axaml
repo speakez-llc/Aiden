@@ -3,7 +3,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:con="using:FluentAvalonia.UI.Controls"
-        xmlns:icons="using:FluentAvalonia.FluentIcons"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="850"
         Width="1200" Height="850"
         x:Class="AidenDesktop.Views.MainView"
@@ -26,8 +25,7 @@
                             CompactModeThresholdWidth="100">
             <con:NavigationView.MenuItemTemplate>
                 <DataTemplate DataType="{x:Type vm:NavItem}">
-                    <con:NavigationViewItem Content="{Binding Name}"
-                                            IconSource="{Binding Icon}" />
+                    <con:NavigationViewItem Content="{Binding Name}" IconSource="{Binding Icon}" />
                 </DataTemplate>
             </con:NavigationView.MenuItemTemplate>
             <con:NavigationView.Content>
