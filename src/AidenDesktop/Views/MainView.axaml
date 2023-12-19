@@ -22,6 +22,12 @@
                             MenuItemsSource="{Binding TestList}"
                             SelectedItem="{Binding SelectedNavItem}"
                             CompactModeThresholdWidth="100">
+            <con:NavigationView.MenuItemTemplate>
+                <DataTemplate DataType="{x:Type vm:NavItem}">
+                    <con:NavigationViewItem Content="{Binding Name}"
+                                            IconSource="{Binding Icon}" />
+                </DataTemplate>
+            </con:NavigationView.MenuItemTemplate>
             <con:NavigationView.Content>
                 <SplitView DisplayMode="CompactOverlay" IsPaneOpen="True"  DockPanel.Dock="Right" PanePlacement="Right" >
                     <SplitView.Content>

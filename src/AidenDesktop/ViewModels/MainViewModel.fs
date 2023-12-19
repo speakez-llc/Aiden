@@ -10,12 +10,13 @@ open System.Threading.Tasks
 type NavItem =
     {
         Name: string
+        Icon: string
     }
 
 type MainViewModel(root: CompositionRoot) as self =
     inherit ReactiveElmishViewModel()
     
-    let mutable _selectedNavItem : string = "Home"
+    let mutable _selectedNavItem : NavItem = {Name="Home"; Icon="Home"}
     
     let itemInvokedCommand : ReactiveCommand<NavigationViewItem, System.Reactive.Unit> =
         ReactiveCommand.CreateFromTask<NavigationViewItem>(self.Show)
@@ -36,7 +37,7 @@ type MainViewModel(root: CompositionRoot) as self =
         with get() = _selectedNavItem
         and set(value) =
             _selectedNavItem <- value
-            match value with
+            match value.Name with
             | "Home" -> app.Dispatch (SetView CounterView)
             | "Counter" -> app.Dispatch (SetView CounterView)
             | "Chart" -> app.Dispatch (SetView ChartView)
@@ -45,8 +46,14 @@ type MainViewModel(root: CompositionRoot) as self =
             | "About" -> app.Dispatch (SetView AboutView)
             | _ -> ()
             
-    member this.TestList = [ "Home";"Counter";"Chart";"Doughnut";"File Picker";"About" ]
-
+    member this.TestList = [ //"Home";"Counter";"Chart";"Doughnut";"File Picker";"About" ]
+        { Name = "Home"; Icon="Home" }
+        { Name = "Counter"; Icon="Calculator" }
+        { Name = "Chart"; Icon="Document" }
+        { Name = "Doughnut"; Icon="Globe"}
+        { Name = "File Picker"; Icon="Folder"}
+        { Name = "About"; Icon="Star" }
+    ]
   
     member self.NavigationViewItems =
         [
