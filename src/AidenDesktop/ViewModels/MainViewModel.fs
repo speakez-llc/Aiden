@@ -88,7 +88,7 @@ type MainViewModel(root: CompositionRoot) as self =
             | ChartView -> root.GetView<ChartViewModel>()
             | FilePickerView -> root.GetView<FilePickerViewModel>()
             | AboutView -> root.GetView<AboutViewModel>()
-            | HomeView -> root.GetView<HomeViewModel>()
+            (* | HomeView -> root.GetView<HomeViewModel>() *)
         )
 
     member this.SelectedNavItem

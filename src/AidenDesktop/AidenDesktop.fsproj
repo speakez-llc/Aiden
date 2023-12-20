@@ -15,7 +15,7 @@
 
     <ItemGroup>
         <Compile Include="ViewModels\App.fs" />
-        <Compile Include="ViewModels\HomeViewModel.fs" />
+
         <Compile Include="ViewModels\ChatViewModel.fs" />
         <Compile Include="ViewModels\AboutViewModel.fs" />
         <Compile Include="ViewModels\CounterViewModel.fs" />
@@ -23,7 +23,7 @@
         <Compile Include="ViewModels\DoughnutViewModel.fs" />
         <Compile Include="ViewModels\FilePickerViewModel.fs" />
         <Compile Include="ViewModels\MainViewModel.fs" />
-        <Compile Include="Views\HomeView.axaml.fs" />
+
         <Compile Include="Views\AboutView.axaml.fs" />
         <Compile Include="Views\ChatView.axaml.fs" />
         <Compile Include="Views\ChartView.axaml.fs" />
