@@ -126,6 +126,8 @@ module MainViewModule =
         | ToggleChat b -> 
             // Clear chat badge on close
             if b = false then
+                for item in model.NavigationList do
+                    item.SetBadgeValue(0)
                 { model with ChatOpen = b; ChatAlertCount = 0; ShowChatBadge = false }
             else
                 { model with ChatOpen = b }
@@ -140,7 +142,7 @@ module MainViewModule =
             | "File Picker" -> app.Dispatch (SetView FilePickerView)
             | "About" -> app.Dispatch (SetView AboutView)
             | "Home" -> app.Dispatch (SetView HomeView)
-            | _ -> ()
+            | _ -> ()            
             { model with SelectedNavItem = item }
     
 open MainViewModule
