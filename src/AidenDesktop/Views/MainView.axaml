@@ -18,7 +18,7 @@
                             PaneDisplayMode="Left"
                             IsPaneOpen="False"
                             Name="NavView"
-                            IsSettingsVisible="True"
+                            IsSettingsVisible="False"
                             IsBackEnabled="False"
                             MenuItemsSource="{Binding TestList}"
                             SelectedItem="{Binding SelectedNavItem}"
@@ -43,8 +43,8 @@
                                             <Border Width="36" Height="36" Background="Transparent" CornerRadius="20" HorizontalAlignment="Center" Margin="0,3,0,0">
                                                 <Image Source="/Assets/SpeakEZ.ico" Stretch="UniformToFill"/>
                                             </Border>
-                                            <Border Width="16" Height="16" Background="Red" CornerRadius="10" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
-                                                <TextBlock Text="2" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <Border Width="18" Height="18" Background="DarkOrange" CornerRadius="12" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
+                                                <TextBlock Text="2" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13"/>
                                             </Border>
                                         </Grid>
                                     </ControlTemplate>
@@ -55,9 +55,6 @@
                     </SplitView.Pane>
                 </SplitView>
             </con:NavigationView.Content>
-            <con:NavigationView.FooterMenuItems>
-                <con:NavigationViewItem Content="Chat" />
-            </con:NavigationView.FooterMenuItems>
         </con:NavigationView>
     </DockPanel>
 </Window>

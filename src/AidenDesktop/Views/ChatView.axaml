@@ -50,7 +50,7 @@
                             <StackPanel.Styles>
                                 <Style Selector="Border">
                                     <Setter Property="Margin" Value="0, 5,50,5" />
-                                    <Setter Property="BorderBrush" Value="DodgerBlue" />
+                                    <Setter Property="BorderBrush" Value="{Binding BorderColor}" />
                                     <Setter Property="Background" />
                                 </Style>
                                 <Style Selector="Border.isMe">
