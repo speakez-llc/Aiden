@@ -26,6 +26,7 @@
                             CompactModeThresholdWidth="100">
             <con:NavigationView.Resources>
                 <x:Double x:Key="NavigationViewItemHeight">48.0</x:Double>
+                <!-- NOTE: There was discussion about implementing this, but it currently doesn't work -->
                 <x:Double x:Key="NavigationViewItemIconFontSize">48.0</x:Double>
                 <x:Double x:Key="NavigationViewItemExpandedGlyphFontSize">48.0</x:Double>
             </con:NavigationView.Resources>
