@@ -8,6 +8,7 @@ open ReactiveUI
 open Avalonia.Media
 open System.Threading.Tasks
 open App
+open Avalonia.Layout
 
 
 type NavItem() =
@@ -34,13 +35,33 @@ type NavItem() =
         i.UriSource <- System.Uri("avares://AidenDesktop/Assets/test.png")
         i
         
-
+    let createBadge() =
+        let b = InfoBadge()
+        b.Value <- 0
+        b.FontSize <- 8.0
+        b.Foreground <- SolidColorBrush(Colors.White)
+        b.Background <- SolidColorBrush(Colors.Red)
+        b.HorizontalAlignment <- HorizontalAlignment.Left
+        b.VerticalAlignment <- VerticalAlignment.Top
+        b.IsVisible <- false
+        b
 
     let mutable _testIcon  = createTestIcon()
+    let mutable _badge = createBadge()
     member val Name = "" with get, set
+    member val Badge = _badge with get, set
+    
     member this.Icon
         with get() = _testIcon
         and set(value) = _testIcon <- value
+
+    member this.SetBadgeValue(value : int) =
+        this.Badge.Value <- value
+        if value > 0 then
+            this.Badge.IsVisible <- true
+        else
+            this.Badge.IsVisible <- false
+        
     
     new(name : string, icon : string) as self =
         NavItem() then
@@ -49,6 +70,15 @@ type NavItem() =
             let i = BitmapIconSource()
             i.UriSource <- System.Uri(sprintf "avares://AidenDesktop/Assets/%s.png" icon)
             self.Icon <- i
+    
+    new(name: string, icon: string, badgeValue: int) as self =
+        NavItem() then
+        do
+            self.Name <- name
+            let i = BitmapIconSource()
+            i.UriSource <- System.Uri(sprintf "avares://AidenDesktop/Assets/%s.png" icon)
+            self.Icon <- i
+            self.SetBadgeValue(badgeValue)
             
 (*     new(name : string, icon : Symbol) as self =
         NavItem() then
@@ -108,7 +138,7 @@ type MainViewModel(root: CompositionRoot) as self =
         NavItem("Home", "Home")
         NavItem("Counter", "Counter")
         NavItem("Chart", "Chart")
-        NavItem("Dashboard", "Dashboard")
+        NavItem("Dashboard", "Dashboard", 42)
         NavItem("File Picker", "Chat")
         NavItem("About", "About")
     ]

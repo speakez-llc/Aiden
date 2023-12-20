@@ -33,7 +33,8 @@
             <con:NavigationView.MenuItemTemplate>
                 <DataTemplate DataType="{x:Type vm:NavItem}">
                     <con:NavigationViewItem Content="{Binding Name}"
-                                            IconSource="{Binding Icon}" >
+                                            IconSource="{Binding Icon}"
+                                            InfoBadge="{Binding Badge}" >
                     </con:NavigationViewItem> 
                 </DataTemplate>
             </con:NavigationView.MenuItemTemplate>
