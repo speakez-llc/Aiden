@@ -8,6 +8,7 @@ open ReactiveElmish.Avalonia
 type Model =  
     { 
         View: View
+        IsHomeViewActive: bool
     }
 
 and View = 
@@ -17,20 +18,26 @@ and View =
     | DoughnutView
     | AboutView
     | FilePickerView
+    | HomeView
 
 type Msg = 
     | SetView of View
     | GoHome
+    | SetHomeViewActive of bool
 
 let init () = 
     { 
-        View = CounterView
+        View = HomeView
+        IsHomeViewActive = true 
     }
 
-let update (msg: Msg) (model: Model) = 
+let update (msg: Msg) (model: Model) =
     match msg with
-    | SetView view -> { View = view }   
-    | GoHome -> { View = CounterView }
+    | SetView view -> 
+        let isHomeViewActive = (view = HomeView)
+        { model with View = view; IsHomeViewActive = isHomeViewActive }
+    | GoHome -> { model with View = HomeView; IsHomeViewActive = true }
+    | SetHomeViewActive isActive -> { model with IsHomeViewActive = isActive }
 
 
 let app = 

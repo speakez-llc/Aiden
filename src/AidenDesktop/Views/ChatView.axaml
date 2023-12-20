@@ -49,12 +49,12 @@
                         <StackPanel HorizontalAlignment="Stretch">
                             <StackPanel.Styles>
                                 <Style Selector="Border">
-                                    <Setter Property="Margin" Value="10,5,50,5" />
-                                    <Setter Property="BorderBrush" Value="Orange" />
+                                    <Setter Property="Margin" Value="0, 5,50,5" />
+                                    <Setter Property="BorderBrush" Value="DodgerBlue" />
                                     <Setter Property="Background" />
                                 </Style>
                                 <Style Selector="Border.isMe">
-                                    <Setter Property="Margin" Value="50,5,10,5" />
+                                    <Setter Property="Margin" Value="50,5,0,5" />
                                     <Setter Property="BorderBrush" Value="MidnightBlue" />
                                     <Setter Property="Background" />
                                 </Style>							

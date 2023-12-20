@@ -5,7 +5,6 @@
              mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:vm="using:AidenDesktop.ViewModels"
-             xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
              Design.DataContext="{Binding Source={x:Static vm:ChartViewModel.DesignVM}}"
 			 x:DataType="vm:ChartViewModel"
              x:Class="AidenDesktop.Views.ChartView">
@@ -26,16 +25,18 @@
             </StackPanel>
             <lvc:CartesianChart 
                 Grid.Row="1" 
-                MinHeight="300"
-                MaxHeight="1200"
-                MinWidth="600"
-                MaxWidth="2400"
+                Height="325"
+                Width="800"
                 Series="{Binding Series}" 
                 XAxes="{Binding XAxes}"
                 EasingFunction="{Binding Source={x:Null}}">
             </lvc:CartesianChart>
         </Grid>
-        <DataGrid ItemsSource="{Binding Actions}" AutoGenerateColumns="True" Height="200">
+        <DataGrid ItemsSource="{Binding Actions}" Height="200" Width="350" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="TimeStamp" Binding="{Binding Timestamp}" />
+                <DataGridTextColumn Header="Event" Binding="{Binding Description}" />
+            </DataGrid.Columns>
         </DataGrid>
         <Button Content="Ok" Command="{Binding Ok}" HorizontalAlignment="Center" />
     </StackPanel>

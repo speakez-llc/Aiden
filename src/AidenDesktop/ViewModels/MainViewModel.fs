@@ -2,10 +2,10 @@
 
 open ReactiveElmish
 open ReactiveElmish.Avalonia
-open App
 open FluentAvalonia.UI.Controls
 open ReactiveUI
 open System.Threading.Tasks
+open App
 
 type NavItem =
     {
@@ -15,11 +15,13 @@ type NavItem =
 
 type MainViewModel(root: CompositionRoot) as self =
     inherit ReactiveElmishViewModel()
-    
+
     let mutable _selectedNavItem : NavItem = {Name="Home"; Icon="Home"}
     
     let itemInvokedCommand : ReactiveCommand<NavigationViewItem, System.Reactive.Unit> =
         ReactiveCommand.CreateFromTask<NavigationViewItem>(self.Show)
+        
+       
     member self.ItemInvokedCommand with get() = itemInvokedCommand
 
     member self.ChatView = root.GetView<ChatViewModel>()
@@ -31,6 +33,7 @@ type MainViewModel(root: CompositionRoot) as self =
             | ChartView -> root.GetView<ChartViewModel>()
             | FilePickerView -> root.GetView<FilePickerViewModel>()
             | AboutView -> root.GetView<AboutViewModel>()
+            | HomeView -> root.GetView<HomeViewModel>()
         )
 
     member this.SelectedNavItem
@@ -38,12 +41,12 @@ type MainViewModel(root: CompositionRoot) as self =
         and set(value) =
             _selectedNavItem <- value
             match value.Name with
-            | "Home" -> app.Dispatch (SetView CounterView)
             | "Counter" -> app.Dispatch (SetView CounterView)
             | "Chart" -> app.Dispatch (SetView ChartView)
             | "Dashboard" -> app.Dispatch (SetView DoughnutView)
             | "File Picker" -> app.Dispatch (SetView FilePickerView)
             | "About" -> app.Dispatch (SetView AboutView)
+            | "Home" -> app.Dispatch (SetView HomeView)
             | _ -> ()
             
     member this.TestList = [ //"Home";"Counter";"Chart";"Doughnut";"File Picker";"About" ]
@@ -57,6 +60,7 @@ type MainViewModel(root: CompositionRoot) as self =
   
     member self.NavigationViewItems =
         [
+            NavigationViewItem(Content = "Home", Tag = "HomeViewModel" )
             NavigationViewItem(Content = "Basic Counter", Tag = "CounterViewModel" )
             NavigationViewItem(Content = "Time Series", Tag = "ChartViewModel")
             NavigationViewItem(Content = "Dashboard", Tag = "DoughnutViewModel")
@@ -73,6 +77,7 @@ type MainViewModel(root: CompositionRoot) as self =
             | "DoughnutViewModel" -> app.Dispatch (SetView DoughnutView)
             | "FilePickerViewModel" -> app.Dispatch (SetView FilePickerView)
             | "AboutViewModel" -> app.Dispatch (SetView AboutView)
+            | "HomeViewModel" -> app.Dispatch (SetView HomeView)
             | _ -> ()
         | _ -> ()
         Task.CompletedTask
@@ -80,5 +85,7 @@ type MainViewModel(root: CompositionRoot) as self =
     member this.ShowAbout() = 
         printfn "Show About Called"
         app.Dispatch (SetView AboutView)
+        
+    
 
     static member DesignVM = new MainViewModel(Design.stub)

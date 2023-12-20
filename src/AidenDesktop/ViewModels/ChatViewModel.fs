@@ -18,10 +18,10 @@ module Chat =
     let init() =
         let initialMessages =
             [
-                { User = "Aiden"; Text = "Anomaly detected in in-bound data. It mirrors a previous probe attack that has preceded a DDoS cycle by 20 minutes."
+                { User = "Aiden"; Text = "This is a mock-up of chat history with Aiden."
                   Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
-                { User = "Me"; Text = "Thanks I see it. Clear the alarm. Is there any news on the wire that this is hitting more than us?"
-                  Alignment = "Right"; Color = "Charcoal"; BorderColor = "MidnightBlue" ; IsMe = true }
+                { User = "Jamie"; Text = "I was in the group chat and confirmed what Aiden saw."
+                  Alignment = "Left"; Color = "Glaucous"; BorderColor = "Blue" ; IsMe = false }
             ]
         { Messages = SourceList.createFrom initialMessages}
 

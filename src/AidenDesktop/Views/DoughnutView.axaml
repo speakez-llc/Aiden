@@ -103,7 +103,7 @@
                     <lvc:GeoMap  
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
-                        MaxHeight="400"
+                        MaxHeight="500"
                         MaxWidth="850"
                         Series="{Binding COO_MapSeries}"
                         MapProjection="Default"/>
