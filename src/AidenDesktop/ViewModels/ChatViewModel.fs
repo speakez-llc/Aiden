@@ -4,7 +4,6 @@ open Elmish
 open ReactiveElmish
 open ReactiveElmish.Avalonia
 open DynamicData
-open System.Collections.ObjectModel
 open System
 
 module Chat =
@@ -18,10 +17,14 @@ module Chat =
     let init() =
         let initialMessages =
             [
-                { User = "Aiden"; Text = "Anomaly detected in in-bound data. It mirrors a previous probe attack that has preceded a DDoS cycle by 20 minutes."
+                { User = "Aiden"; Text = "There are signals of low frequency probes at two customer sites in the past 15 minutes. It's likely a precursor, as those patterns have been observed before larger attacks."
+                  Alignment = "Left"; Color = "Glaucous"; BorderColor = "Gray" ; IsMe = false }
+                { User = "Houston"; Text = "Continue to monitor and if traffic patterns change or if the probes spread, notify me here."
+                  Alignment = "Right"; Color = "Glaucous"; BorderColor = "Blue" ; IsMe = true }
+                { User = "Aiden"; Text = "Probes are registering at two more customer sites, but total traffic volume is within tolerance."
                   Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
-                { User = "Me"; Text = "Thanks I see it. Clear the alarm. Is there any news on the wire that this is hitting more than us?"
-                  Alignment = "Right"; Color = "Charcoal"; BorderColor = "MidnightBlue" ; IsMe = true }
+                { User = "Aiden"; Text = "Countries of origin and source IP subnets are a high-confidence match to two attacks in the last three months."
+                  Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             ]
         { Messages = SourceList.createFrom initialMessages}
 

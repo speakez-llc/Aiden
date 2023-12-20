@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="325" d:DesignHeight="650"
-             xmlns:local="clr-namespace:AidenDesktop"
+             xmlns:fluent="using:FluentAvalonia.UI.Controls"
              xmlns:vm="using:AidenDesktop.ViewModels"
              Design.DataContext="{x:Static vm:ChatViewModel.DesignVM}"
              x:DataType="vm:ChatViewModel"
@@ -29,7 +29,7 @@
                         VerticalAlignment="Center"
                         Command="{Binding SendMessage}"
                         CommandParameter="{Binding Text, ElementName=MessageTextBox}">
-                    <Image Source="avares://AidenDesktop/Assets/SpeakEZ.ico" VerticalAlignment="Center" />
+                    <fluent:SymbolIcon Symbol="SendFilled" FontSize="20" VerticalAlignment="Center" Foreground="MidnightBlue" />
                 </Button>
             </Grid>
         </DockPanel>
@@ -49,12 +49,12 @@
                         <StackPanel HorizontalAlignment="Stretch">
                             <StackPanel.Styles>
                                 <Style Selector="Border">
-                                    <Setter Property="Margin" Value="10,5,50,5" />
-                                    <Setter Property="BorderBrush" Value="Orange" />
+                                    <Setter Property="Margin" Value="0, 5,50,5" />
+                                    <Setter Property="BorderBrush" Value="{Binding BorderColor}" />
                                     <Setter Property="Background" />
                                 </Style>
                                 <Style Selector="Border.isMe">
-                                    <Setter Property="Margin" Value="50,5,10,5" />
+                                    <Setter Property="Margin" Value="50,5,0,5" />
                                     <Setter Property="BorderBrush" Value="MidnightBlue" />
                                     <Setter Property="Background" />
                                 </Style>							

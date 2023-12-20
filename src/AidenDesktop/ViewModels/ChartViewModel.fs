@@ -74,10 +74,10 @@ module Chart =
         {
             Series = ObservableCollection<ISeries> 
                 [ 
-                    ColumnSeries<DateTimePoint>(Values = newSeries(None), Name = "Luck By Second") :> ISeries 
+                    LineSeries<DateTimePoint>(Values = newSeries(None), Name = "Luck By Second") :> ISeries 
                 ]
             Actions = SourceList.createFrom [ { Description = "Initialized Chart"; Timestamp = DateTime.Now }]
-            IsAutoUpdateChecked = false
+            IsAutoUpdateChecked = true
         }
 
     let update (msg: Msg) (model: Model) =
@@ -167,6 +167,7 @@ type ChartViewModel() as this =
         )
 
     member this.Series = local.Model.Series
+
     member this.Actions = this.BindSourceList(local.Model.Actions)
     member this.AddItem() = local.Dispatch AddItem
     member this.RemoveItem() = local.Dispatch RemoveItem
