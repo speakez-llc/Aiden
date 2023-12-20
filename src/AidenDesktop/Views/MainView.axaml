@@ -3,7 +3,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:con="using:FluentAvalonia.UI.Controls"
-        xmlns:icons="using:FluentAvalonia.FluentIcons"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="850"
         Width="1200" Height="850"
         x:Class="AidenDesktop.Views.MainView"
@@ -38,14 +37,18 @@
                     <SplitView.Pane>
                         <DockPanel LastChildFill="True">
                             <ToggleButton DockPanel.Dock="Top" x:Name="SlideButton" IsChecked="{Binding IsPaneOpen, ElementName=MySplitView}" Margin="5">
-                                <ToggleButton.Styles>
-                                    <Style Selector="ToggleButton[IsChecked=True]">
-                                        <Setter Property="Content" Value="►"/>
-                                    </Style>
-                                    <Style Selector="ToggleButton[IsChecked=False]">
-                                        <Setter Property="Content" Value="◄" />
-                                    </Style>
-                                </ToggleButton.Styles>
+                                <ToggleButton.Template>
+                                    <ControlTemplate>
+                                        <Grid>
+                                            <Border Width="36" Height="36" Background="Transparent" CornerRadius="20" HorizontalAlignment="Center" Margin="0,3,0,0">
+                                                <Image Source="/Assets/SpeakEZ.ico" Stretch="UniformToFill"/>
+                                            </Border>
+                                            <Border Width="16" Height="16" Background="Red" CornerRadius="10" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
+                                                <TextBlock Text="2" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
                             </ToggleButton>
                             <ContentControl Content="{Binding ChatView}" IsVisible="{Binding IsPaneOpen, ElementName=MySplitView}" VerticalContentAlignment="Stretch" />
                         </DockPanel>
