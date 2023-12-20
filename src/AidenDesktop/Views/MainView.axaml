@@ -40,7 +40,7 @@
             </con:NavigationView.MenuItemTemplate>
             
             <con:NavigationView.Content>
-                <SplitView x:Name="MySplitView" DisplayMode="CompactInline" IsPaneOpen="False"  DockPanel.Dock="Right" PanePlacement="Right" >
+                <SplitView x:Name="MySplitView" DisplayMode="CompactInline" IsPaneOpen="{Binding ChatOpen, Mode=TwoWay}"  DockPanel.Dock="Right" PanePlacement="Right" >
                     <SplitView.Content>
                         <ContentControl Content="{Binding ContentView}" />
                     </SplitView.Content>
@@ -59,7 +59,8 @@
                                             <!-- <Border Width="18" Height="18" Background="DarkOrange" CornerRadius="12" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
                                                 <TextBlock Text="2" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13"/>
                                             </Border> -->
-                                            <con:InfoBadge Value="1"
+                                            <con:InfoBadge Value="{Binding ChatAlertCount}"
+                                                           IsVisible="{Binding ShowChatBadge}"
                                                            HorizontalAlignment="Left" 
                                                            VerticalAlignment="Top" 
                                                            Background="DarkOrange" />

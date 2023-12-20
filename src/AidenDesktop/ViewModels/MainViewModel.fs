@@ -1,5 +1,6 @@
 ﻿namespace AidenDesktop.ViewModels
 
+open Elmish
 open ReactiveElmish
 open ReactiveElmish.Avalonia
 open FluentAvalonia.UI.Controls
@@ -10,6 +11,39 @@ open System.Threading.Tasks
 open App
 open Avalonia.Layout
 
+module MainViewModule =
+
+    type Model =
+        {
+            ChatOpen: bool
+            ChatAlertCount: int
+            ShowChatBadge: bool
+        }
+    
+    type Msg =
+    | ToggleChat of bool
+    | SetChatAlertCount of int
+
+    let init() = 
+        { 
+            ChatOpen = false 
+            ChatAlertCount = 2
+            ShowChatBadge = true
+        }
+
+    let update (msg: Msg) (model: Model) =
+        match msg with
+        | ToggleChat b -> 
+            // Clear chat badge on close
+            if b = false then
+                { model with ChatOpen = b; ChatAlertCount = 0; ShowChatBadge = false }
+            else
+                { model with ChatOpen = b }
+        | SetChatAlertCount count ->
+            // Set badge as active
+            { model with ChatAlertCount = count }
+    
+open MainViewModule
 
 type NavItem() =
     (* NOTE: FluentAvalonia.NavigationView Icons support:
@@ -101,11 +135,24 @@ type MainViewModel(root: CompositionRoot) as self =
     
     let mutable _selectedNavItem : NavItem = NavItem("Home", "Home")
     
-
+    let local =
+        Program.mkAvaloniaSimple init update
+        |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
+        |> Program.mkStore
     
     let itemInvokedCommand : ReactiveCommand<NavigationViewItem, System.Reactive.Unit> =
         ReactiveCommand.CreateFromTask<NavigationViewItem>(self.Show)
 
+    member self.ChatOpen
+        with get() = self.Bind(local, _.ChatOpen)
+        and set(value) = local.Dispatch (ToggleChat value)
+    
+    member self.ChatAlertCount
+        with get() = self.Bind(local, _.ChatAlertCount)
+        and set(value) = local.Dispatch (SetChatAlertCount value)
+    
+    member self.ShowChatBadge
+        with get() = self.Bind(local, _.ShowChatBadge)
 
     member self.ItemInvokedCommand with get() = itemInvokedCommand
 
