@@ -40,7 +40,7 @@ type NavItem() =
         b.Value <- 0
         b.FontSize <- 8.0
         b.Foreground <- SolidColorBrush(Colors.White)
-        b.Background <- SolidColorBrush(Colors.Red)
+        b.Background <- SolidColorBrush(Colors.Orange)
         b.HorizontalAlignment <- HorizontalAlignment.Left
         b.VerticalAlignment <- VerticalAlignment.Top
         b.IsVisible <- false
@@ -118,7 +118,7 @@ type MainViewModel(root: CompositionRoot) as self =
             | ChartView -> root.GetView<ChartViewModel>()
             | FilePickerView -> root.GetView<FilePickerViewModel>()
             | AboutView -> root.GetView<AboutViewModel>()
-            (* | HomeView -> root.GetView<HomeViewModel>() *)
+            | HomeView -> root.GetView<HomeViewModel>()
         )
 
     member this.SelectedNavItem
@@ -138,7 +138,7 @@ type MainViewModel(root: CompositionRoot) as self =
         NavItem("Home", "Home")
         NavItem("Counter", "Counter")
         NavItem("Chart", "Chart")
-        NavItem("Dashboard", "Dashboard", 42)
+        NavItem("Dashboard", "Dashboard", 2)
         NavItem("File Picker", "Chat")
         NavItem("About", "About")
     ]
