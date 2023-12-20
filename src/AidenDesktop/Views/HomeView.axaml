@@ -6,13 +6,13 @@
              x:Class="AidenDesktop.Views.HomeView">
     <Grid>
         <Border Name="MyBorder" >
-            <Image Name="MyImage" Source="/Assets/SpeakEZ_defaultBanner_1200px_630px.png"
+            <Image Name="MyImage" Source="/Assets/SpeakEZ_defaultBanner.png"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
                    Stretch="UniformToFill">
                 <Image.Styles>
                     <Style Selector="Image#MyImage">
-                        <Setter Property="Opacity" Value=".5"/>
+                        <Setter Property="Opacity" Value="1"/>
                         <Style.Animations>
                             <Animation Duration="0:0:1.25">
                                 <KeyFrame Cue="0">
