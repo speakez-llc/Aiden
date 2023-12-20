@@ -50,7 +50,7 @@
                                 <ToggleButton.Template>
                                     <ControlTemplate>
                                         <Grid>
-                                            <Border Width="36" Height="36" Background="Transparent" CornerRadius="20" HorizontalAlignment="Center" Margin="0,3,0,0">
+                                            <Border Width="32" Height="32" HorizontalAlignment="Center" Margin="4,3,0,0">
                                                 <Image Source="/Assets/SpeakEZ.ico" Stretch="UniformToFill"/>
                                             </Border>
                                             <Border Width="18" Height="18" Background="DarkOrange" CornerRadius="12" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
