@@ -135,12 +135,12 @@ type MainViewModel(root: CompositionRoot) as self =
             | _ -> ()
             
     member this.TestList = [ 
-        NavItem("Home", "Home")
-        NavItem("Counter", "Counter")
-        NavItem("Chart", "Chart")
-        NavItem("Dashboard", "Dashboard", 2)
-        NavItem("File Picker", "Chat")
-        NavItem("About", "About")
+        NavItem("Home", "FA_Home")
+        NavItem("Counter", "FA_Counter")
+        NavItem("Chart", "FA_Chart")
+        NavItem("Dashboard", "FA_Map", 2)
+        NavItem("File Picker", "FA_File")
+        NavItem("About", "FA_Info")
     ]
   
     member self.NavigationViewItems =
