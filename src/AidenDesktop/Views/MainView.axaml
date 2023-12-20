@@ -50,12 +50,19 @@
                                 <ToggleButton.Template>
                                     <ControlTemplate>
                                         <Grid>
-                                            <Border Width="32" Height="32" HorizontalAlignment="Center" Margin="4,3,0,0">
+                                            <con:BitmapIcon Width="32" Height="32" 
+                                                            HorizontalAlignment="Center"
+                                                            UriSource="avares://AidenDesktop/Assets/SpeakEZ.ico" />
+                                            <!-- <Border Width="32" Height="32" HorizontalAlignment="Center" Margin="4,3,0,0">
                                                 <Image Source="/Assets/SpeakEZ.ico" Stretch="UniformToFill"/>
-                                            </Border>
-                                            <Border Width="18" Height="18" Background="DarkOrange" CornerRadius="12" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
+                                            </Border> -->
+                                            <!-- <Border Width="18" Height="18" Background="DarkOrange" CornerRadius="12" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
                                                 <TextBlock Text="2" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13"/>
-                                            </Border>
+                                            </Border> -->
+                                            <con:InfoBadge Value="1"
+                                                           HorizontalAlignment="Left" 
+                                                           VerticalAlignment="Top" 
+                                                           Background="DarkOrange" />
                                         </Grid>
                                     </ControlTemplate>
                                 </ToggleButton.Template>

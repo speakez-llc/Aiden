@@ -40,7 +40,7 @@ type NavItem() =
         b.Value <- 0
         b.FontSize <- 8.0
         b.Foreground <- SolidColorBrush(Colors.White)
-        b.Background <- SolidColorBrush(Colors.Orange)
+        b.Background <- SolidColorBrush(Colors.DarkOrange)
         b.HorizontalAlignment <- HorizontalAlignment.Left
         b.VerticalAlignment <- VerticalAlignment.Top
         b.IsVisible <- false
