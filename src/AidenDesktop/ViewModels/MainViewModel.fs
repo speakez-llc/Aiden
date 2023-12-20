@@ -11,40 +11,8 @@ open System.Threading.Tasks
 open App
 open Avalonia.Layout
 
-module MainViewModule =
 
-    type Model =
-        {
-            ChatOpen: bool
-            ChatAlertCount: int
-            ShowChatBadge: bool
-        }
-    
-    type Msg =
-    | ToggleChat of bool
-    | SetChatAlertCount of int
-
-    let init() = 
-        { 
-            ChatOpen = false 
-            ChatAlertCount = 2
-            ShowChatBadge = true
-        }
-
-    let update (msg: Msg) (model: Model) =
-        match msg with
-        | ToggleChat b -> 
-            // Clear chat badge on close
-            if b = false then
-                { model with ChatOpen = b; ChatAlertCount = 0; ShowChatBadge = false }
-            else
-                { model with ChatOpen = b }
-        | SetChatAlertCount count ->
-            // Set badge as active
-            { model with ChatAlertCount = count }
-    
-open MainViewModule
-
+// TODO: Move to a shared module - I have a Models folder in my branch for base types, which is where I'd put this... thoughts?
 type NavItem() =
     (* NOTE: FluentAvalonia.NavigationView Icons support:
             BitmapIconSource, PathIconSource, and SymbolIconSource 
@@ -120,28 +88,75 @@ type NavItem() =
             self.Name <- name
             self.Icon <- SymbolIconSource()
             self.Icon.Symbol <- icon *)
+
+module MainViewModule =
+
+    type Model =
+        {
+            ChatOpen: bool
+            ChatAlertCount: int
+            ShowChatBadge: bool
+            SelectedNavItem: NavItem
+            NavigationList: NavItem list
+        }
+    
+    type Msg =
+    | ToggleChat of bool
+    | SetChatAlertCount of int
+    | SelectedNavItemChanged of NavItem
+
+    let init() = 
+        { 
+            ChatOpen = false 
+            ChatAlertCount = 2
+            ShowChatBadge = true
+            SelectedNavItem = NavItem("Home", "Home")
+            NavigationList = [ 
+                NavItem("Home", "FA_Home")
+                NavItem("Counter", "FA_Counter")
+                NavItem("Chart", "FA_Chart")
+                NavItem("Dashboard", "FA_Map", 2)
+                NavItem("File Picker", "FA_File")
+                NavItem("About", "FA_Info")
+            ]
+        }
+
+    let update (msg: Msg) (model: Model) =
+        match msg with
+        | ToggleChat b -> 
+            // Clear chat badge on close
+            if b = false then
+                { model with ChatOpen = b; ChatAlertCount = 0; ShowChatBadge = false }
+            else
+                { model with ChatOpen = b }
+        | SetChatAlertCount count ->
+            // Set badge as active
+            { model with ChatAlertCount = count }
+        | SelectedNavItemChanged item ->
+            match item.Name with
+            | "Counter" -> app.Dispatch (SetView CounterView)
+            | "Chart" -> app.Dispatch (SetView ChartView)
+            | "Dashboard" -> app.Dispatch (SetView DoughnutView)
+            | "File Picker" -> app.Dispatch (SetView FilePickerView)
+            | "About" -> app.Dispatch (SetView AboutView)
+            | "Home" -> app.Dispatch (SetView HomeView)
+            | _ -> ()
+            { model with SelectedNavItem = item }
+    
+open MainViewModule
+
+
     
 
-            
-
-(* type NavItem =
-    {
-        Name: string
-        Icon: string
-    } *)
 
 type MainViewModel(root: CompositionRoot) as self =
     inherit ReactiveElmishViewModel()
-    
-    let mutable _selectedNavItem : NavItem = NavItem("Home", "Home")
     
     let local =
         Program.mkAvaloniaSimple init update
         |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
         |> Program.mkStore
     
-    let itemInvokedCommand : ReactiveCommand<NavigationViewItem, System.Reactive.Unit> =
-        ReactiveCommand.CreateFromTask<NavigationViewItem>(self.Show)
 
     member self.ChatOpen
         with get() = self.Bind(local, _.ChatOpen)
@@ -154,7 +169,11 @@ type MainViewModel(root: CompositionRoot) as self =
     member self.ShowChatBadge
         with get() = self.Bind(local, _.ShowChatBadge)
 
-    member self.ItemInvokedCommand with get() = itemInvokedCommand
+    member self.SelectedNavItem
+        with get() = self.Bind(local, _.SelectedNavItem)
+        and set(value) = local.Dispatch (SelectedNavItemChanged value)
+
+    member self.NavigationList = self.Bind(local, _.NavigationList)
 
     member self.ChatView = root.GetView<ChatViewModel>()
     member self.ContentView =
@@ -168,56 +187,5 @@ type MainViewModel(root: CompositionRoot) as self =
             | HomeView -> root.GetView<HomeViewModel>()
         )
 
-    member this.SelectedNavItem
-        with get() = _selectedNavItem
-        and set(value) =
-            _selectedNavItem <- value
-            match value.Name with
-            | "Counter" -> app.Dispatch (SetView CounterView)
-            | "Chart" -> app.Dispatch (SetView ChartView)
-            | "Dashboard" -> app.Dispatch (SetView DoughnutView)
-            | "File Picker" -> app.Dispatch (SetView FilePickerView)
-            | "About" -> app.Dispatch (SetView AboutView)
-            | "Home" -> app.Dispatch (SetView HomeView)
-            | _ -> ()
-            
-    member this.TestList = [ 
-        NavItem("Home", "FA_Home")
-        NavItem("Counter", "FA_Counter")
-        NavItem("Chart", "FA_Chart")
-        NavItem("Dashboard", "FA_Map", 2)
-        NavItem("File Picker", "FA_File")
-        NavItem("About", "FA_Info")
-    ]
-  
-    member self.NavigationViewItems =
-        [
-            NavigationViewItem(Content = "Home", Tag = "HomeViewModel" )
-            NavigationViewItem(Content = "Basic Counter", Tag = "CounterViewModel" )
-            NavigationViewItem(Content = "Time Series", Tag = "ChartViewModel")
-            NavigationViewItem(Content = "Dashboard", Tag = "DoughnutViewModel")
-            NavigationViewItem(Content = "File Picker", Tag = "FilePickerViewModel")
-            NavigationViewItem(Content = "About", Tag = "AboutViewModel")
-        ]
-
-    member self.Show(item: NavigationViewItem) =
-        match item.Tag with
-        | :? string as tag ->
-            match tag with
-            | "CounterViewModel" -> app.Dispatch (SetView CounterView)
-            | "ChartViewModel" -> app.Dispatch (SetView ChartView)
-            | "DoughnutViewModel" -> app.Dispatch (SetView DoughnutView)
-            | "FilePickerViewModel" -> app.Dispatch (SetView FilePickerView)
-            | "AboutViewModel" -> app.Dispatch (SetView AboutView)
-            | "HomeViewModel" -> app.Dispatch (SetView HomeView)
-            | _ -> ()
-        | _ -> ()
-        Task.CompletedTask
-
-    member this.ShowAbout() = 
-        printfn "Show About Called"
-        app.Dispatch (SetView AboutView)
-        
-    
 
     static member DesignVM = new MainViewModel(Design.stub)

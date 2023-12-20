@@ -21,7 +21,7 @@
                             Name="NavView"
                             IsSettingsVisible="False"
                             IsBackEnabled="False"
-                            MenuItemsSource="{Binding TestList}"
+                            MenuItemsSource="{Binding NavigationList}"
                             SelectedItem="{Binding SelectedNavItem}"
                             CompactModeThresholdWidth="100">
             <con:NavigationView.Resources>
