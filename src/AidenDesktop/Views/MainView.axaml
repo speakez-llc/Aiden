@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:con="using:FluentAvalonia.UI.Controls"
+        xmlns:i="https://github.com/projektanker/icons.avalonia"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="850"
         Width="1200" Height="850"
         x:Class="AidenDesktop.Views.MainView"
@@ -23,11 +24,19 @@
                             MenuItemsSource="{Binding TestList}"
                             SelectedItem="{Binding SelectedNavItem}"
                             CompactModeThresholdWidth="100">
+            <con:NavigationView.Resources>
+                <x:Double x:Key="NavigationViewItemHeight">48.0</x:Double>
+                <x:Double x:Key="NavigationViewItemIconFontSize">48.0</x:Double>
+                <x:Double x:Key="NavigationViewItemExpandedGlyphFontSize">48.0</x:Double>
+            </con:NavigationView.Resources>
             <con:NavigationView.MenuItemTemplate>
                 <DataTemplate DataType="{x:Type vm:NavItem}">
-                    <con:NavigationViewItem Content="{Binding Name}" IconSource="{Binding Icon}" />
+                    <con:NavigationViewItem Content="{Binding Name}"
+                                            IconSource="{Binding Icon}" >
+                    </con:NavigationViewItem> 
                 </DataTemplate>
             </con:NavigationView.MenuItemTemplate>
+            
             <con:NavigationView.Content>
                 <SplitView x:Name="MySplitView" DisplayMode="CompactInline" IsPaneOpen="False"  DockPanel.Dock="Right" PanePlacement="Right" >
                     <SplitView.Content>
@@ -38,10 +47,10 @@
                             <ToggleButton DockPanel.Dock="Top" x:Name="SlideButton" IsChecked="{Binding IsPaneOpen, ElementName=MySplitView}" Margin="5">
                                 <ToggleButton.Styles>
                                     <Style Selector="ToggleButton[IsChecked=True]">
-                                        <Setter Property="Content" Value="&gt;" />
+                                        <Setter Property="Content" Value="►"/>
                                     </Style>
                                     <Style Selector="ToggleButton[IsChecked=False]">
-                                        <Setter Property="Content" Value="&lt;" />
+                                        <Setter Property="Content" Value="◄" />
                                     </Style>
                                 </ToggleButton.Styles>
                             </ToggleButton>
