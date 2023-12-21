@@ -116,6 +116,7 @@ module MainViewModule =
                 NavItem("Counter", "FA_Counter")
                 NavItem("Chart", "FA_Chart")
                 NavItem("Dashboard", "FA_Map", 2)
+                NavItem("WIP", "FA_Chart")
                 NavItem("File Picker", "FA_File")
                 NavItem("About", "FA_Info")
             ]
@@ -142,6 +143,7 @@ module MainViewModule =
             | "File Picker" -> app.Dispatch (SetView FilePickerView)
             | "About" -> app.Dispatch (SetView AboutView)
             | "Home" -> app.Dispatch (SetView HomeView)
+            | "WIP" -> app.Dispatch (SetView DashboardView)
             | _ -> ()            
             { model with SelectedNavItem = item }
     
