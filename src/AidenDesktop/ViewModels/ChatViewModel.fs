@@ -4,61 +4,129 @@ open Elmish
 open ReactiveElmish
 open ReactiveElmish.Avalonia
 open DynamicData
-open System.Collections.Generic
-open System.Collections.ObjectModel
+open System
 
 module Chat =
-    type Message = { User: string; Text: string; Alignment: string; Color: string; BorderColor: string }
+    type Message = { User: string; Text: string; Alignment: string; Color: string; BorderColor: string; IsMe: bool }
 
-    type Model = { Messages: SourceList<Message> }
+    type Model = { Messages: SourceList<Message>; IsProcessing: bool; MessageText: string }
 
     type Msg =
-        | SendMessage of Message
+        | SendMessage of string
+        | SendAidenMessage of string
+        | FeedMessage of string * int
+        | StartProcessing
+        | StopProcessing
+        | ClearMessageText
 
     let init() =
         let initialMessages =
             [
-                { User = "Aiden"; Text = "Anomaly detected in in-bound data. It mirrors a previous probe attack that has preceded a DDoS cycle by 20 minutes."
-                  Alignment = "Left"; Color = "WhiteSmoke"; BorderColor = "Orange"  }
-                { User = "Me"; Text = "Thanks I see it. Clear the alarm. Is there any news on the wire that this is hitting more than us?"
-                  Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue"  }
-                { User = "Aiden"; Text = "No headlines have been found in a recent sweep of known sources."
-                  Alignment = "Left"; Color = "WhiteSmoke"; BorderColor = "Gray"  }
-                { User = "Me"; Text = "OK. I have issued a request to re-route traffic. You can revert the status to green."
-                  Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue"  }
-                { User = "Aiden"; Text = "Thank you. I will continue to scan for news and monitor and notify on any DDoS activity."
-                  Alignment = "Left"; Color = "WhiteSmoke"; BorderColor = "Gray"  }
-                { User = "Aiden"; Text = "Anomaly detected in in-bound data. It mirrors a previous probe attack that has preceded a DDoS cycle by 20 minutes."
-                  Alignment = "Left"; Color = "WhiteSmoke"; BorderColor = "Orange"  }
-                { User = "Me"; Text = "Thanks I see it. Clear the alarm. Is there any news on the wire that this is hitting more than us?"
-                  Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue"  }
-                { User = "Aiden"; Text = "No headlines have been found in a recent sweep of known sources."
-                  Alignment = "Left"; Color = "WhiteSmoke"; BorderColor = "Gray"  }
-                { User = "Me"; Text = "OK. I have issued a request to re-route traffic. You can revert the status to green."
-                  Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue"  }
-                { User = "Aiden"; Text = "Thank you. I will continue to scan for news and monitor and notify on any DDoS activity."
-                  Alignment = "Left"; Color = "WhiteSmoke"; BorderColor = "Gray"  }
+                { User = "Aiden"; Text = "There are signals of low frequency probes at two customer sites in the past 15 minutes. It's likely a precursor, as those patterns have been observed before larger attacks."
+                  Alignment = "Left"; Color = "Glaucous"; BorderColor = "Gray" ; IsMe = false }
+                { User = "Houston"; Text = "Continue to monitor and if traffic patterns change or if the probes spread, notify me here."
+                  Alignment = "Right"; Color = "Glaucous"; BorderColor = "Blue" ; IsMe = true }
+                { User = "Aiden"; Text = "Probes are registering at two more customer sites, but total traffic volume is within tolerance."
+                  Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
+                { User = "Aiden"; Text = "Countries of origin and source IP subnets are a high-confidence match to two attacks in the last three months."
+                  Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             ]
-        { Messages = SourceList.createFrom initialMessages }
+        { Messages = SourceList.createFrom initialMessages; IsProcessing = false; MessageText = ""}
 
     let update (msg: Msg) (model: Model) =
         match msg with
-        | SendMessage message -> model.Messages |> SourceList.add message; model
-
+        | SendMessage text ->
+            let msg = { User = "Houston"; Text = text; Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue" ; IsMe  = true }
+            // printfn "Message: %A" msg
+            {
+                model with Messages = model.Messages |> SourceList.add msg
+            }
+        | SendAidenMessage text ->
+            let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
+            {                
+                model with Messages = model.Messages |> SourceList.add msg
+            }
+        | FeedMessage (text, index) ->
+            let messages = model.Messages
+            let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
+            messages.ReplaceAt (index, msg)
+            { model with Messages = messages }
+        | StartProcessing ->
+            { model with IsProcessing = true }
+        | StopProcessing ->
+            { model with IsProcessing = false }
+        | ClearMessageText ->
+            { model with MessageText = "" }
+            
 open Chat
-open System.Collections.Generic
 
 type ChatViewModel() as this =
     inherit ReactiveElmishViewModel()
+    let newMessageEvent = new Event<_>()
+    
 
-    let local = 
+    let local =
         Program.mkAvaloniaSimple init update
         |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
         |> Program.mkStore
-    let messages = ObservableCollection<Message>(this.BindSourceList(local.Model.Messages))
 
-    member x.LastMessage 
-        with get() = Seq.last x.MessagesView
-    member this.MessagesView: ObservableCollection<Message> = messages
+    do
+        // Subscribe to the Messages list's Changed event
+        local.Model.Messages.Connect()
+            .Subscribe(fun _ -> 
+                newMessageEvent.Trigger())
+            |> ignore
+
+    member this.MessagesView = this.BindSourceList(local.Model.Messages)
+    
+    member this.MessageText = this.Bind(local, _.MessageText)
+    member this.NewMessageEvent = newMessageEvent.Publish
+    
+    member this.IsProcessing = this.Bind(local, _.IsProcessing)
+        
+    member this.SendMessage(message: string) =
+        local.Dispatch (SendMessage message)
+        local.Dispatch ClearMessageText
+        let responseTask = async {
+            local.Dispatch(StartProcessing)
+            let waitTime = Random().Next(3000, 5000) 
+            do! Async.Sleep waitTime
+            local.Dispatch(StopProcessing)
+            this.FeedMessage ("This is a very long test message that plays out word by word which is a very useful thing for being able to eventually interrupt a generated message that goes on for too long.")
+        }
+
+        // Start the async task
+        Async.StartImmediate(responseTask)
+
+    
+    member this.FeedMessage(message: string) =
+        // Break up message into chunks and deliver at slightly varied cadence
+        let index = local.Model.Messages.Count
+        let len = message.Length
+        let mutable i = 0
+        let mutable waitTime = 0
+        let mutable fullMessage = ""
+        let updateFeed(msg : string) (wait : int) =
+            async {
+                    do! Async.Sleep (wait)                    
+                    //printfn $"Feeding message: {msg}"
+                    local.Dispatch (FeedMessage (msg, index))
+                } |> Async.StartImmediate
+
+        while i < len do
+            let chunkSize = Random().Next(8, 12)
+            let chunk = message.Substring(i, Math.Min(chunkSize, len - i))
+            i <- i + chunkSize
+            // NOTE: Due to the lack of a get for SourceList, we have to maintain the memory here
+            fullMessage <- fullMessage + chunk
+            if fullMessage = chunk then
+                //printfn $"Sending message: {fullMessage}"
+                local.Dispatch (SendAidenMessage fullMessage)
+            else
+                waitTime <- waitTime + Random().Next(100, 300)
+                updateFeed(fullMessage) (waitTime)
+                
+   
+
 
     static member DesignVM = new ChatViewModel()

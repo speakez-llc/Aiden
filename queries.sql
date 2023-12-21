@@ -42,7 +42,8 @@ FROM (
 -- returns all fields including partial matches in column for last time interval
 SELECT
     UNNEST(string_to_array(tor, ';')) AS tor_part,
-    COUNT(*) AS count
+    COUNT(*) AS count,
+    MAX(event_time) AT TIME ZONE 'US/Eastern' AS last_seen
 FROM
     events_hourly
 WHERE

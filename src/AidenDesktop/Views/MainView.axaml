@@ -1,114 +1,78 @@
 <Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"        
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:con="using:FluentAvalonia.UI.Controls"
+        xmlns:i="https://github.com/projektanker/icons.avalonia"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="850"
         Width="1200" Height="850"
-        x:Class="AidenDesktop.Views.MainView"        
+        x:Class="AidenDesktop.Views.MainView"
         Icon="/Assets/SpeakEZ.ico"
         xmlns:vm="using:AidenDesktop.ViewModels"
         Design.DataContext="{Binding Source={x:Static vm:MainViewModel.DesignVM}}"
-		x:DataType="vm:MainViewModel"
+        x:DataType="vm:MainViewModel"
+        x:CompileBindings="True"
         Title="SpeakEZ.ai :: Aiden Prototype">
-
-	<Window.Styles>
-
-		<Style Selector="Button.tab">
-			<Setter Property="Height" Value="120"/>
-			<Setter Property="VerticalContentAlignment" Value="Center" />
-		</Style>
-		<Style Selector="Grid.nav">
-			<Setter Property="Background" Value="#12327a"/>
-		</Style>
-		<Style Selector="Button.tab">
-			<Setter Property="FontSize" Value="16"/>
-			<Setter Property="Height" Value="34"/>
-			<Setter Property="VerticalAlignment" Value="Center"/>
-			<Setter Property="Background" Value="#12327a"/>
-			<Setter Property="Foreground" Value="White"/>
-			<Setter Property="Margin" Value="0 0 0 0"/>
-			<Setter Property="Padding" Value="10 0"/>
-		</Style>
-		<Style Selector="Button.tab:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-			<Setter Property="Background" Value="#4066C4"/>
-			<Setter Property="Foreground" Value="White"/>
-		</Style>
-
-		<Style Selector="Button.tab:focus">
-			<Setter Property="Background" Value="#4066C4"/>
-			<Setter Property="Foreground" Value="White"/>
-			<Setter Property="Margin" Value="0 0 0 0"/>
-			<Setter Property="Padding" Value="10 0"/>
-		</Style>
-		<Style Selector="Button.tab:focus /template/ ContentPresenter#PART_ContentPresenter">
-			<Setter Property="Background" Value="#4066C4"/>
-			<Setter Property="Foreground" Value="White"/>
-		</Style>
-
-		<Style Selector="Button.tab:selected">
-			<Setter Property="Background" Value="#4066C4"/>
-			<Setter Property="Foreground" Value="White"/>
-			<Setter Property="Margin" Value="0 0 0 0"/>
-			<Setter Property="Padding" Value="10 0"/>
-		</Style>
-		<Style Selector="Button.tab:selected /template/ ContentPresenter#PART_ContentPresenter">
-			<Setter Property="Background" Value="White"/>
-		</Style>
-		<Style Selector="ToggleButton">
-			<Setter Property="FontSize" Value="16"/>
-			<Setter Property="Background" Value="#12327a"/>
-			<Setter Property="Foreground" Value="White"/>
-		</Style>
-		<Style Selector="ToggleButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-			<Setter Property="Background" Value="#12327a"/>
-			<Setter Property="Foreground" Value="White"/>
-		</Style>
-		<Style Selector="ToggleButton:focus">
-			<Setter Property="Background" Value="DarkOrange"/>
-			<Setter Property="Foreground" Value="White"/>
-		</Style>
-		<Style Selector="ToggleButton:focus /template/ ContentPresenter#PART_ContentPresenter">
-			<Setter Property="Background" Value="#12327a"/>
-			<Setter Property="Foreground" Value="White"/>
-		</Style>
-		<Style Selector="ToggleButton:checked">
-			<Setter Property="Background" Value="#12327a"/>
-			<Setter Property="Foreground" Value="White"/>
-		</Style>
-		<Style Selector="ToggleButton:checked /template/ ContentPresenter#PART_ContentPresenter">
-			<Setter Property="Background" Value="DarkOrange"/>
-		</Style>
-	</Window.Styles>
-
-
-	<DockPanel LastChildFill="true">
-		<Grid DockPanel.Dock="Top" Classes="nav">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*"/>
-				<ColumnDefinition Width="Auto"/>
-			</Grid.ColumnDefinitions>
-
-			<StackPanel Orientation="Horizontal" Grid.Column="0">
-				<Button Classes="tab" Content="Basic Counter" Command="{Binding ShowCounter}" />
-				<Button Classes="tab" Content="Time Series" Command="{Binding ShowChart}" />
-				<Button Classes="tab" Content="Map Dashboard" Command="{Binding ShowDoughnut}" />
-				<Button Classes="tab" Content="Dashboard" Command="{Binding ShowDashboard}" />
-				<Button Classes="tab" Content="File Picker" Command="{Binding ShowFilePicker}" />
-				<Button Classes="tab" Content="About" Command="{Binding ShowAbout}" />
-			</StackPanel>
-
-			<ToggleButton x:Name="SplitViewToggle" Content="Chat" Grid.Column="1" />
-		</Grid>
-		
-		<SplitView IsPaneOpen="{Binding IsChecked, ElementName=SplitViewToggle}" DisplayMode="Overlay" DockPanel.Dock="Right" PaneBackground="#EEE" PanePlacement="Right" >
-			<SplitView.Content>
-				<ContentControl Content="{Binding ContentView}" />
-			</SplitView.Content>
-			<SplitView.Pane>
-				<ContentControl Content="{Binding ChatView}" />
-			</SplitView.Pane>
-		</SplitView>
-		
-	</DockPanel>
-	
+    <DockPanel LastChildFill="true">
+        <con:NavigationView AlwaysShowHeader="False"
+                            OpenPaneLength="150"
+                            PaneDisplayMode="Left"
+                            IsPaneOpen="False"
+                            Name="NavView"
+                            IsSettingsVisible="False"
+                            IsBackEnabled="False"
+                            MenuItemsSource="{Binding NavigationList}"
+                            SelectedItem="{Binding SelectedNavItem}"
+                            CompactModeThresholdWidth="100">
+            <con:NavigationView.Resources>
+                <x:Double x:Key="NavigationViewItemHeight">48.0</x:Double>
+                <!-- NOTE: There was discussion about implementing this, but it currently doesn't work -->
+                <x:Double x:Key="NavigationViewItemIconFontSize">48.0</x:Double>
+                <x:Double x:Key="NavigationViewItemExpandedGlyphFontSize">48.0</x:Double>
+            </con:NavigationView.Resources>
+            <con:NavigationView.MenuItemTemplate>
+                <DataTemplate DataType="{x:Type vm:NavItem}">
+                    <con:NavigationViewItem Content="{Binding Name}"
+                                            IconSource="{Binding Icon}"
+                                            InfoBadge="{Binding Badge}" >
+                    </con:NavigationViewItem> 
+                </DataTemplate>
+            </con:NavigationView.MenuItemTemplate>
+            
+            <con:NavigationView.Content>
+                <SplitView x:Name="MySplitView" DisplayMode="CompactInline" IsPaneOpen="{Binding ChatOpen, Mode=TwoWay}"  DockPanel.Dock="Right" PanePlacement="Right" >
+                    <SplitView.Content>
+                        <ContentControl Content="{Binding ContentView}" />
+                    </SplitView.Content>
+                    <SplitView.Pane>
+                        <DockPanel LastChildFill="True">
+                            <ToggleButton DockPanel.Dock="Top" x:Name="SlideButton" IsChecked="{Binding IsPaneOpen, ElementName=MySplitView}" Margin="5">
+                                <ToggleButton.Template>
+                                    <ControlTemplate>
+                                        <Grid>
+                                            <con:BitmapIcon Width="32" Height="32" 
+                                                            HorizontalAlignment="Center"
+                                                            UriSource="avares://AidenDesktop/Assets/SpeakEZ.ico" />
+                                            <!-- <Border Width="32" Height="32" HorizontalAlignment="Center" Margin="4,3,0,0">
+                                                <Image Source="/Assets/SpeakEZ.ico" Stretch="UniformToFill"/>
+                                            </Border> -->
+                                            <!-- <Border Width="18" Height="18" Background="DarkOrange" CornerRadius="12" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
+                                                <TextBlock Text="2" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13"/>
+                                            </Border> -->
+                                            <con:InfoBadge Value="{Binding ChatAlertCount}"
+                                                           IsVisible="{Binding ShowChatBadge}"
+                                                           HorizontalAlignment="Left" 
+                                                           VerticalAlignment="Top" 
+                                                           Background="DarkOrange" />
+                                        </Grid>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentControl Content="{Binding ChatView}" IsVisible="{Binding IsPaneOpen, ElementName=MySplitView}" VerticalContentAlignment="Stretch" />
+                        </DockPanel>
+                    </SplitView.Pane>
+                </SplitView>
+            </con:NavigationView.Content>
+        </con:NavigationView>
+    </DockPanel>
 </Window>

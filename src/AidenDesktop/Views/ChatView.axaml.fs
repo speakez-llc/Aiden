@@ -1,33 +1,53 @@
 ﻿namespace AidenDesktop.Views
 
-open System.Threading.Tasks
+open System.Diagnostics
+open Avalonia
+open Avalonia.VisualTree
 open Avalonia.Controls
 open Avalonia.Markup.Xaml
+open Avalonia.Threading
 open AidenDesktop.ViewModels
 
 type ChatView() as this =
     inherit UserControl ()
-    
-    let vm = new ChatViewModel()
-    
-    let scrollToEnd (listBox: ListBox) = 
-       let itemCount = listBox.ItemCount
-       if itemCount > 0 then 
-           listBox.ScrollIntoView(listBox.Items |> Seq.item (itemCount - 1))
 
-    let asyncScrollToEnd listBox =
-        async {
-            do! Task.Delay(100) |> Async.AwaitTask
-            scrollToEnd listBox
-        } |> Async.StartImmediate
+    let mutable viewModel: ChatViewModel option = None
 
     do
-        AvaloniaXamlLoader.Load this
-        this.DataContext <- vm
-        // ViewModel and ListBox references
+        this.InitializeComponent()
+        this.DataContextChanged.Add(fun args ->
+            viewModel <- this.DataContext :?> ChatViewModel |> Some
+            match viewModel with
+            | Some viewModel ->
+                viewModel.NewMessageEvent
+                |> Observable.subscribe (fun _ ->
+                    this.ScrollToBottomSmooth())
+                |> ignore
+            | None -> ())
+
+    member private this.ScrollToBottomSmooth() =
         let listBox = this.FindControl<ListBox>("ChatWindow")
-        // Call asyncScrollToEnd when ListBox DataContext is changed
-        listBox.DataContextChanged.Add(fun _ ->
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync((fun () -> asyncScrollToEnd listBox |> ignore), Avalonia.Threading.DispatcherPriority.Render) |> ignore)
-        // Respond to any changes in the underlying collection
-        vm.MessagesView.CollectionChanged.Add(fun _ -> asyncScrollToEnd listBox |> ignore)
+        if listBox.ItemCount > 0 then
+            let item = listBox.ContainerFromIndex(listBox.ItemCount - 1)
+            let target = (item :?> ListBoxItem).Bounds.Y
+            let scrollViewerOption = listBox.GetVisualDescendants() |> Seq.tryFind (fun v -> v :? ScrollViewer) |> Option.map (fun v -> v :?> ScrollViewer)
+            match scrollViewerOption with
+            | Some scrollViewer ->
+                let sw = Stopwatch.StartNew()
+                let timer = new DispatcherTimer(DispatcherPriority.Render)
+                let start = scrollViewer.Offset.Y
+                let diff = target - start
+                timer.Tick.Add(fun _ ->
+                    let elapsed = sw.Elapsed.TotalMilliseconds
+                    if elapsed < 500.0 then
+                        let offset = start + diff * (elapsed / 500.0)
+                        scrollViewer.Offset <- new Vector(scrollViewer.Offset.X, offset)
+                    else
+                        timer.Stop()
+                        scrollViewer.Offset <- new Vector(scrollViewer.Offset.X, target)
+                )
+                timer.Start()
+            | None -> ()
+
+    member private this.InitializeComponent() =
+        AvaloniaXamlLoader.Load(this)

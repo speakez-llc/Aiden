@@ -1,17 +1,13 @@
-namespace AidenDesktop.Views
+﻿namespace AidenDesktop.Views
 
 open Avalonia
 open Avalonia.Controls
 open Avalonia.Markup.Xaml
-open FluentAvalonia.UI.Windowing
 
-type MainView () as this = 
-    inherit AppWindow ()
+type HomeView() as this = 
+    inherit UserControl ()
 
     do this.InitializeComponent()
 
     member private this.InitializeComponent() =
-#if DEBUG
-        this.AttachDevTools()
-#endif
         AvaloniaXamlLoader.Load(this)

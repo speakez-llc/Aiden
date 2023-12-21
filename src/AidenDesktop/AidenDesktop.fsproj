@@ -21,19 +21,24 @@
     <ItemGroup>
         
         <Compile Include="ViewModels\App.fs" />
+
         <Compile Include="ViewModels\ChatViewModel.fs" />
         <Compile Include="ViewModels\AboutViewModel.fs" />
         <Compile Include="ViewModels\CounterViewModel.fs" />
         <Compile Include="ViewModels\ChartViewModel.fs" />
         <Compile Include="ViewModels\DoughnutViewModel.fs" />
+        <Compile Include="ViewModels\HomeViewModel.fs" />
         <Compile Include="ViewModels\FilePickerViewModel.fs" />
         <Compile Include="ViewModels\DashboardViewModel.fs" />
         <Compile Include="ViewModels\MainViewModel.fs" />
+
         <Compile Include="Views\AboutView.axaml.fs" />
+
+        <Compile Include="Views\HomeView.axaml.fs" />
         <Compile Include="Views\ChatView.axaml.fs" />
         <Compile Include="Views\ChartView.axaml.fs" />
         <Compile Include="Views\DoughnutView.axaml.fs" />
-        <Compile Include="Views\CounterView.axaml.fs" />        
+        <Compile Include="Views\CounterView.axaml.fs" />
         <Compile Include="Views\FilePickerView.axaml.fs" /> 
         <Compile Include="Views\DashboardView.axaml.fs" />       
         <Compile Include="Views\MainView.axaml.fs" />
@@ -52,17 +57,18 @@
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.6" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
         <PackageReference Include="Avalonia.Desktop" Version="11.0.6" />
-        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.6" />
         <PackageReference Include="Avalonia.Controls.TreeDataGrid" Version="11.0.2" />
         <PackageReference Include="Avalonia.Diagnostics" Version="11.0.6" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.6" />
+        <PackageReference Include="FluentAvalonia.FluentIcons" Version="2.0.0-alpha.9" />
+        <PackageReference Include="FluentAvaloniaUI" Version="2.0.4" />
+        <PackageReference Include="FluentIcons.Avalonia" Version="1.1.224" />
         <PackageReference Include="LiveChartsCore" Version="2.0.0-rc2" />
         <PackageReference Include="LiveChartsCore.SkiaSharpView" Version="2.0.0-rc2" />
         <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-rc2" />
         <PackageReference Include="Npgsql" Version="8.0.1" />
         <PackageReference Include="Projektanker.Icons.Avalonia.FontAwesome" Version="8.3.0" />
         <PackageReference Include="Projektanker.Icons.Avalonia.MaterialDesign" Version="8.3.0" />
-        <PackageReference Include="ReactiveElmish.Avalonia" Version="1.0.0" />
+        <PackageReference Include="ReactiveElmish.Avalonia" Version="1.0.1" />
         <PackageReference Include="ReactiveUI" Version="19.5.1" />
         <PackageReference Include="System.Reactive" Version="6.0.1-preview.1" />
 

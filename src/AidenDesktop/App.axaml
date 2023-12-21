@@ -1,23 +1,20 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:AidenDesktop"
+             xmlns:sty="using:FluentAvalonia.Styling"
+             xmlns:icons="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia.FluentIcons"
              x:Class="AidenDesktop.App"
              RequestedThemeVariant="Light">
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
-
     <Application.Styles>
-        <FluentTheme />
+        <sty:FluentAvaloniaTheme PreferUserAccentColor="True" />
         
         <StyleInclude Source="avares://AidenDesktop/Controls/RadialSlider.axaml"/>
         <StyleInclude Source="avares://AidenDesktop/Controls/SeriesBox.axaml" />
         <StyleInclude Source="avares://AidenDesktop/Controls/EZPie.axaml" />
 
         
-        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
     </Application.Styles>
-    <Application.Resources>
-        <local:StringToMarginConverter x:Key="StringToMarginConverter"/>
-    </Application.Resources>
 </Application>
