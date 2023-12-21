@@ -40,7 +40,6 @@ module Chat =
         | FeedMessage (text, index) ->
             let messages = model.Messages
             let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Gray" ; IsMe = false }
-            messages.Add msg
             messages.ReplaceAt (index, msg)
             { model with Messages = messages }
 
