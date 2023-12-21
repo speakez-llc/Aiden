@@ -2,16 +2,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:AidenDesktop"
              xmlns:sty="using:FluentAvalonia.Styling"
+             xmlns:icons="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia.FluentIcons"
              x:Class="AidenDesktop.App"
              RequestedThemeVariant="Light">
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
-
     <Application.Styles>
         <sty:FluentAvaloniaTheme PreferUserAccentColor="True" />
     </Application.Styles>
-    <Application.Resources>
-        <local:StringToMarginConverter x:Key="StringToMarginConverter"/>
-    </Application.Resources>
 </Application>

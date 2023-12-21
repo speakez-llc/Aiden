@@ -24,7 +24,7 @@ module Doughnut =
             let json = JsonDocument.Parse(File.ReadAllText(filePath))
             let dbSection = json.RootElement.GetProperty("Database")
             let connectionString = dbSection.GetProperty("ConnectionString").GetString()
-            printfn $"Connection String: %s{connectionString}"
+            //printfn $"Connection String: %s{connectionString}"
             connectionString
         else
             printfn $"Error: File not found: %s{filePath}"
@@ -133,7 +133,7 @@ module Doughnut =
                     dispatch (UpdatePXYChartData fetchedData)
                 } |> Async.Start
             )
-        printfn $"{DateTime.Now} PXY Subscription started"
+        //printfn $"{DateTime.Now} PXY Subscription started"
         timer.Start()
         disposable
     let fetchDataForMALChart (dispatch: Msg -> unit) =
@@ -145,7 +145,7 @@ module Doughnut =
                     dispatch (UpdateMALChartData fetchedData)
                 } |> Async.Start
             )
-        printfn $"{DateTime.Now} MAL Subscription started"
+        //printfn $"{DateTime.Now} MAL Subscription started"
         timer.Start()
         disposable
     let fetchDataForCOOChart (dispatch: Msg -> unit) =
@@ -157,7 +157,7 @@ module Doughnut =
                     dispatch (UpdateCOOChartData fetchedData)
                 } |> Async.Start
             )
-        printfn $"{DateTime.Now} COO Subscription started"
+        //printfn $"{DateTime.Now} COO Subscription started"
         timer.Start()
         disposable  
     let fetchDataForVPNChart (dispatch: Msg -> unit) =
@@ -169,7 +169,7 @@ module Doughnut =
                     dispatch (UpdateVPNChartData fetchedData)
                 } |> Async.Start
             )
-        printfn $"{DateTime.Now} VPN Subscription started"
+        //printfn $"{DateTime.Now} VPN Subscription started"
         timer.Start()
         disposable 
     let fetchDataForTORChart (dispatch: Msg -> unit) =
@@ -181,7 +181,7 @@ module Doughnut =
                     dispatch (UpdateTORChartData fetchedData)
                 } |> Async.Start
             )
-        printfn $"{DateTime.Now} TOR Subscription started"
+        //printfn $"{DateTime.Now} TOR Subscription started"
         timer.Start()
         disposable
       
@@ -260,7 +260,7 @@ module Doughnut =
                 if not (Set.contains pieSeries.Name currentNames) then
                     model.MAL_Series.Remove(series) |> ignore
             )
-            printfn $"{DateTime.Now} MAL Series updated"
+            //printfn $"{DateTime.Now} MAL Series updated"
             model
         | UpdatePXYChartData chartData ->
             let seriesMap = 
@@ -286,7 +286,7 @@ module Doughnut =
                 if not (Set.contains pieSeries.Name currentNames) then
                     model.PXY_Series.Remove(series) |> ignore
             )
-            printfn $"{DateTime.Now} PXY Series updated"
+            //printfn $"{DateTime.Now} PXY Series updated"
             model   
         | UpdateVPNChartData chartData ->
             let seriesMap = 
@@ -312,7 +312,7 @@ module Doughnut =
                 if not (Set.contains pieSeries.Name currentNames) then
                     model.VPN_Series.Remove(series) |> ignore
             )
-            printfn $"{DateTime.Now} VPN Series updated"
+            //printfn $"{DateTime.Now} VPN Series updated"
             model
         | UpdateTORChartData chartData ->
             let seriesMap = 
@@ -338,7 +338,7 @@ module Doughnut =
                 if not (Set.contains pieSeries.Name currentNames) then
                     model.TOR_Series.Remove(series) |> ignore
             )
-            printfn $"{DateTime.Now} TOR Series updated"
+            //printfn $"{DateTime.Now} TOR Series updated"
             model
             
         | UpdateCOOChartData chartData ->
@@ -379,7 +379,7 @@ module Doughnut =
                 series.Lands <- updatedLands |> Seq.toArray
                 updatedLands, newHeatMap
 
-            printfn $"{DateTime.Now} COO Series updated"
+            //printfn $"{DateTime.Now} COO Series updated"
             // Replace the COO_MapSeries in the model with the new series
             match model.COO_MapSeries, model.currentColorSeries with
             | [| heatLandSeries |] as existingSeries, currentColorSeries ->

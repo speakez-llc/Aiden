@@ -30,7 +30,6 @@
                            VerticalAlignment="Center"
                            FontSize="20"
                            FontWeight="Bold"
-                           Foreground="Black" 
                            Grid.Column="0" />
                 <lvc:PieChart  
                     Height="300"
@@ -43,7 +42,6 @@
                            VerticalAlignment="Center"
                            FontSize="20"
                            FontWeight="Bold"
-                           Foreground="Black"
                            Grid.Column="1" />
                 <lvc:PieChart  
                     Height="300"
@@ -56,7 +54,6 @@
                            VerticalAlignment="Center"
                            FontSize="20"
                            FontWeight="Bold"
-                           Foreground="Black" 
                            Grid.Column="2" />
                 <lvc:PieChart  
                     Height="300"
@@ -69,7 +66,6 @@
                            VerticalAlignment="Center"
                            FontSize="20"
                            FontWeight="Bold"
-                           Foreground="Black" 
                            Grid.Column="3"/>
                 <lvc:PieChart  
                     Height="300"
@@ -82,7 +78,6 @@
                            VerticalAlignment="Center"
                            FontSize="20"
                            FontWeight="Bold"
-                           Foreground="Black" 
                            Grid.Column="4"/>
                 <lvc:PieChart
                     Height="300"
@@ -93,26 +88,25 @@
             </Grid>
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="20" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="8*" />
                 </Grid.ColumnDefinitions>
-                <DataGrid Grid.Column="1" ItemsSource="{Binding COO_GridData}" HorizontalAlignment="Right">
+                <DataGrid Grid.Column="0" ItemsSource="{Binding COO_GridData}" HorizontalAlignment="Right">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Country" Binding="{Binding Name}" />
                         <DataGridTextColumn Header="Count" Binding="{Binding Count}" />
                     </DataGrid.Columns>
                 </DataGrid>
-                <Border Grid.Column="2" CornerRadius="10"
+                <Border Grid.Column="1" CornerRadius="10"
                         Background="LightBlue"
                         Padding="20">
                     <lvc:GeoMap  
-                        HorizontalAlignment="Center"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
                         Height="400"
-                        Width="900"
+                        MaxWidth="750"
                         Series="{Binding COO_MapSeries}"
-                        MapProjection="Default"
-                        Grid.Column="2" />
+                        MapProjection="Default"/>
                 </Border>
                 
             </Grid>
