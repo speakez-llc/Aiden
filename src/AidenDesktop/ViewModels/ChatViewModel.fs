@@ -10,12 +10,14 @@ open Avalonia.Data.Converters
 module Chat =
     type Message = { User: string; Text: string; Alignment: string; Color: string; BorderColor: string; IsMe: bool }
 
-    type Model = { Messages: SourceList<Message> }
+    type Model = { Messages: SourceList<Message>; IsProcessing: bool }
 
     type Msg =
         | SendMessage of string
         | SendAidenMessage of string
         | FeedMessage of string * int
+        | StartProcessing
+        | StopProcessing
 
     let init() =
         let initialMessages =
@@ -29,7 +31,7 @@ module Chat =
                 { User = "Aiden"; Text = "Countries of origin and source IP subnets are a high-confidence match to two attacks in the last three months."
                   Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             ]
-        { Messages = SourceList.createFrom initialMessages}
+        { Messages = SourceList.createFrom initialMessages; IsProcessing = false}
 
     let update (msg: Msg) (model: Model) =
         match msg with
@@ -38,17 +40,23 @@ module Chat =
             // printfn "Message: %A" msg
             {                
                 Messages = model.Messages |> SourceList.add msg
+                IsProcessing = false
             }
         | SendAidenMessage text ->
             let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             {                
                 Messages = model.Messages |> SourceList.add msg
+                IsProcessing = false
             }
         | FeedMessage (text, index) ->
             let messages = model.Messages
             let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             messages.ReplaceAt (index, msg)
             { model with Messages = messages }
+        | StartProcessing ->
+            { model with IsProcessing = true }
+        | StopProcessing ->
+            { model with IsProcessing = false }
             
 open Chat
 
@@ -72,14 +80,16 @@ type ChatViewModel() =
     member this.MessagesView = this.BindSourceList(local.Model.Messages)
 
     member this.NewMessageEvent = newMessageEvent.Publish
-
+    member this.IsProcessing = this.Bind(local, _.IsProcessing)
     member this.SendMessage(message: string) =
         local.Dispatch (SendMessage message)
         //this.FeedMessage(message)
         // Create an async task that waits for a random amount of time and then sends a FeedMessage
         let responseTask = async {
-            let waitTime = Random().Next(1000, 2000) 
+            local.Dispatch(StartProcessing)
+            let waitTime = Random().Next(3000, 5000) 
             do! Async.Sleep waitTime
+            local.Dispatch(StopProcessing)
             this.FeedMessage ("This is a very long test message that plays out word by word which is a very useful thing for being able to eventually interrupt a generated message that goes on for too long.")
         }
 

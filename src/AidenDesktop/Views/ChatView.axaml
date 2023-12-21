@@ -12,35 +12,58 @@
     <DockPanel DockPanel.Dock="Top" LastChildFill="True">
         <DockPanel DockPanel.Dock="Bottom">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0"
-                        VerticalAlignment="Bottom"
-                        Width="40"
-                        Height="40"
-                        Margin="8,0,2,10"
-                        CornerRadius="10"
-                        Command="{Binding SendMessage}"
-                        CommandParameter="{Binding Text, ElementName=MessageTextBox}">
-                    <fluent:SymbolIcon Symbol="SendFilled" FontSize="20" VerticalAlignment="Center" Foreground="MidnightBlue" />
-                    <Button.RenderTransform>
-                        <RotateTransform Angle="-90" />
-                    </Button.RenderTransform>
-                </Button>
-                <TextBox Grid.Column="1"  x:Name="MessageTextBox" 
-                         MinHeight="40"
-                         MaxHeight="150"
-                         AcceptsReturn="True" 
-                         BorderBrush="MidnightBlue"
-                         TextWrapping="Wrap"
-                         BorderThickness="3" CornerRadius="10" Margin="0, 10, 0, 10"
-                         HorizontalAlignment="Stretch"
-                         Width="260"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         Watermark="Type your message here...">
-                </TextBox>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Margin="60,10 0 1" IsVisible="{Binding IsProcessing}" FontSize="12">
+                    Processing...
+                    <TextBlock.Styles>
+                        <Style Selector="TextBlock">
+                            <Style.Animations>
+                                <Animation Duration="0:0:1" IterationCount="INFINITE"> 
+                                    <KeyFrame Cue="50%">
+                                        <Setter Property="Opacity" Value="0.0"/>
+                                    </KeyFrame>
+                                    <KeyFrame Cue="100%">
+                                        <Setter Property="Opacity" Value="1.0"/>
+                                    </KeyFrame>
+                                </Animation>
+                            </Style.Animations>
+                        </Style>
+                    </TextBlock.Styles>
+                </TextBlock>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Row="1" Grid.Column="0"
+                            VerticalAlignment="Bottom"
+                            Width="40"
+                            Height="40"
+                            Margin="8,0,2,10"
+                            CornerRadius="10"
+                            Command="{Binding SendMessage}"
+                            CommandParameter="{Binding Text, ElementName=MessageTextBox}">
+                        <fluent:SymbolIcon Symbol="SendFilled" FontSize="20" VerticalAlignment="Center" Foreground="MidnightBlue" />
+                        <Button.RenderTransform>
+                            <RotateTransform Angle="-90" />
+                        </Button.RenderTransform>
+                    </Button>
+                    <TextBox Grid.Row="1" Grid.Column="1"  x:Name="MessageTextBox" 
+                             MinHeight="40"
+                             MaxHeight="150"
+                             AcceptsReturn="True" 
+                             BorderBrush="MidnightBlue"
+                             TextWrapping="Wrap"
+                             BorderThickness="3" CornerRadius="10" Margin="0, 0, 0, 10"
+                             HorizontalAlignment="Stretch"
+                             Width="260"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             Watermark="Type your message here...">
+                    </TextBox>
+                </Grid>
             </Grid>
         </DockPanel>
         <DockPanel>
