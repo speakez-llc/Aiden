@@ -127,7 +127,6 @@ module Chart =
             Observable
                 .Interval(TimeSpan.FromSeconds(1))
                 .Subscribe(fun _ -> 
-                    printfn "AutoUpdate"
                     // similar to newSeries create null entry in 1% of cases
                     let randomNull = rnd.Next(0, 99)
                     match randomNull with
@@ -162,7 +161,6 @@ type ChartViewModel() as this =
     do  // Manually disable AutoUpdate (when view is registered as Singleton).
         this.Subscribe(app.Observable, fun m -> 
             if m.View <> App.ChartView && this.IsAutoUpdateChecked then
-                printfn "Disabling Chart AutoUpdate"
                 local.Dispatch (SetIsAutoUpdateChecked false)
         )
 

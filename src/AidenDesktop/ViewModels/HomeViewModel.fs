@@ -3,7 +3,7 @@
 open ReactiveElmish
 open App
 
-type HomeViewModel() as this =
+type HomeViewModel() =
     inherit ReactiveElmishViewModel()
     
     member this.Version = "v1.0"

@@ -33,7 +33,7 @@ type NavItem() =
         pathIcon.Data <- Geometry.Parse("M0,0 L0,1 1,1 1,0 z M0.5,0.5 L0.5,0 L0,0.5 L0.5,1 L1,0.5 L0.5,0 z")
         pathIcon *)
 
-        let i = BitmapIconSource()
+        let i = new BitmapIconSource()
         i.UriSource <- System.Uri("avares://AidenDesktop/Assets/test.png")
         i
         
@@ -69,7 +69,7 @@ type NavItem() =
         NavItem() then
         do
             self.Name <- name
-            let i = BitmapIconSource()
+            let i = new BitmapIconSource()
             i.UriSource <- System.Uri(sprintf "avares://AidenDesktop/Assets/%s.png" icon)
             self.Icon <- i
     
@@ -77,7 +77,7 @@ type NavItem() =
         NavItem() then
         do
             self.Name <- name
-            let i = BitmapIconSource()
+            let i = new BitmapIconSource()
             i.UriSource <- System.Uri(sprintf "avares://AidenDesktop/Assets/%s.png" icon)
             self.Icon <- i
             self.SetBadgeValue(badgeValue)
@@ -151,7 +151,7 @@ open MainViewModule
     
 
 
-type MainViewModel(root: CompositionRoot) as self =
+type MainViewModel(root: CompositionRoot) =
     inherit ReactiveElmishViewModel()
     
     let local =
