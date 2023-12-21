@@ -14,6 +14,8 @@ type SeriesData =
         Geography: string
     }
 
+
+
 type DragPanel() =
     let mutable _seriesName : string = "VPN"
     // TODO: SeriesList would be better as an option type, but that seems to break
@@ -23,10 +25,10 @@ type DragPanel() =
             { Name = "FoxyProxy"; Count = 10; Geography = "" }
             { Name = "Nord"; Count = 10; Geography = "" }
         ])
-    let mutable _posX : double = 100.0
+    let mutable _posX : double = 0.0
     let mutable _posY : double = 0.0
-    let mutable _width : double = 400.0
-    let mutable _height : double = 300.0
+    let mutable _width : double = 200.0
+    let mutable _height : double = 200.0
 
     member this.SeriesName
         with get() = _seriesName

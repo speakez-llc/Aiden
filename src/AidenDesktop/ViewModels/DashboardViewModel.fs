@@ -57,8 +57,9 @@ module Dashboard =
             IsFrozen = false
             TimeFrame = "todo"
             Panels = [ 
-                        DragPanel(SeriesName="TOR", Width=300.0, Height=200.0)
-                        DragPanel(PosY=300.0)
+                        DragPanel(SeriesName="VPN", PosX=10.0, PosY=10.0)
+                        DragPanel(SeriesName="TOR", PosX=220.0, PosY=10.0)
+                        DragPanel(SeriesName="PRX", PosX=430.0, PosY=10.0)
                      ]
             VPNSeries = ObservableCollection<SeriesData>
                 [

@@ -20,6 +20,10 @@ type SeriesBox () =
     static let SeriesListProperty = AvaloniaProperty.Register<SeriesBox, ObservableCollection<SeriesData>>("SeriesList", ObservableCollection<SeriesData>())
 
 
+    static let SeriesTypesProperty = AvaloniaProperty.Register<SeriesBox, string list>("SeriesTypes", ["VPN"; "TOR"; "PRX"; "COO"])
+
+    static let ChartTypesProperty = AvaloniaProperty.Register<SeriesBox, string list>("ChartTypes", ["Pie"; "Bar"; "Line"; "Area"])
+
     interface INotifyPropertyChanged with
         [<CLIEvent>]
         member this.PropertyChanged = propertyChanged.Publish
@@ -38,6 +42,16 @@ type SeriesBox () =
             this.SetValue(SeriesListProperty, value) |> ignore
             for item in this.SeriesList do
                 printfn $"{item.Name} : {item.Count} : {item.Geography}"
+    
+    member this.SeriesTypes
+        with get() = this.GetValue(SeriesTypesProperty)
+        and set(value) =
+            this.SetValue(SeriesTypesProperty, value) |> ignore
+    
+    member this.ChartTypes
+        with get() = this.GetValue(ChartTypesProperty)
+        and set(value) =
+            this.SetValue(ChartTypesProperty, value) |> ignore
 
     member this.BackEndX
         with get() = this.Width / 2.0

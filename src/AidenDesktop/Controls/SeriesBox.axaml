@@ -34,10 +34,10 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
+                    <!-- <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="65*" />
                         <ColumnDefinition Width="35*" />
-                    </Grid.ColumnDefinitions>
+                    </Grid.ColumnDefinitions> -->
                     
                 
                     <Border Grid.Row="0" 
@@ -63,8 +63,32 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Button i:Attached.Icon="fa fa-cogs" Grid.Column="0" Foreground="#dddddd"/>
-                            <Button i:Attached.Icon="fa-solid fa-chart-pie" Grid.Column="1" Foreground="#dddddd" />
+                            <Button i:Attached.Icon="fa fa-cogs" Grid.Column="0" Foreground="#dddddd">
+                                <Button.Flyout>
+                                    <Flyout>
+                                        <ListBox SelectionMode="Single" ItemsSource="{Binding SeriesTypes, RelativeSource={RelativeSource TemplatedParent}}">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}" />
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                            <Button i:Attached.Icon="fa-solid fa-chart-pie" Grid.Column="1" Foreground="#dddddd" >
+                                <Button.Flyout>
+                                    <Flyout>
+                                        <ListBox SelectionMode="Single" ItemsSource="{Binding ChartTypes, RelativeSource={RelativeSource TemplatedParent}}">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}" />
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
 
                             <TextBlock Grid.Column="2"
                                        Text="{Binding SeriesName, RelativeSource={RelativeSource TemplatedParent}}"
@@ -74,7 +98,20 @@
                                        FontWeight="Bold"/>
                             
                             <Button i:Attached.Icon="fa fa-eye" Grid.Column="3" Foreground="#dddddd" />
-                            <Button i:Attached.Icon="fa fa-eye-slash" Grid.Column="4" Foreground="#dddddd" />
+                            <Button i:Attached.Icon="fa fa-list" Grid.Column="4" Foreground="#dddddd" >
+                                <Button.Flyout>
+                                    <Flyout>
+                                        <ListBox SelectionMode="Multiple,Toggle" ItemsSource="{Binding SeriesList, RelativeSource={RelativeSource TemplatedParent}}">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Name}" />
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+
                         </Grid>
                     </Border>
 
@@ -82,7 +119,7 @@
                         <controls:EZPie SeriesList="{Binding SeriesList, RelativeSource={RelativeSource TemplatedParent}}" />
                     </Viewbox>
 
-                    <ItemsControl ItemsSource="{Binding SeriesList, RelativeSource={RelativeSource TemplatedParent}}"
+                    <!-- <ItemsControl ItemsSource="{Binding SeriesList, RelativeSource={RelativeSource TemplatedParent}}"
                                   Grid.Row="1" Grid.Column="1">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -103,7 +140,7 @@
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    </ItemsControl> -->
 
                 </Grid>
                 </Border>
