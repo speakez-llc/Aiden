@@ -13,6 +13,7 @@ module Chat =
 
     type Msg =
         | SendMessage of string
+        | FeedMessage of string * int
 
     let init() =
         let initialMessages =
@@ -33,9 +34,14 @@ module Chat =
         | SendMessage text ->
             let msg = { User = "Me"; Text = text; Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue" ; IsMe  = true }
             // printfn "Message: %A" msg
-            {
+            {                
                 Messages = model.Messages |> SourceList.add msg
             }
+        | FeedMessage (text, index) ->
+            let messages = model.Messages
+            let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Gray" ; IsMe = false }
+            messages.ReplaceAt (index, msg)
+            { model with Messages = messages }
 
 open Chat
 
@@ -61,6 +67,38 @@ type ChatViewModel() =
     member this.NewMessageEvent = newMessageEvent.Publish
 
     member this.SendMessage(message: string) =
-        local.Dispatch (SendMessage message)
+        //local.Dispatch (SendMessage message)
+        this.FeedMessage(message)
+
+    
+    member this.FeedMessage(message: string) =
+        // Break up message into chunks and deliver at slightly varied cadence
+        let index = local.Model.Messages.Count
+        let len = message.Length
+        let mutable i = 0
+        let mutable waitTime = 0
+        let mutable fullMessage = ""
+        let updateFeed(msg : string) (wait : int) =
+            async {
+                    do! Async.Sleep (wait)                    
+                    printfn $"Feeding message: {msg}"
+                    local.Dispatch (FeedMessage (msg, index))
+                } |> Async.StartImmediate
+
+        while i < len do
+            let chunkSize = Random().Next(8, 12)
+            let chunk = message.Substring(i, Math.Min(chunkSize, len - i))
+            i <- i + chunkSize
+            // NOTE: Due to the lack of a get for SourceList, we have to maintain the memory here
+            fullMessage <- fullMessage + chunk
+            if fullMessage = chunk then
+                printfn $"Sending message: {fullMessage}"
+                local.Dispatch (SendMessage fullMessage)
+            else
+                waitTime <- waitTime + Random().Next(50, 100)
+                updateFeed(fullMessage) (waitTime)
+                
+   
+
 
     static member DesignVM = new ChatViewModel()
