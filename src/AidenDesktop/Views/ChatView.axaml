@@ -57,6 +57,7 @@
                              AcceptsReturn="True" 
                              BorderBrush="MidnightBlue"
                              TextWrapping="Wrap"
+                             Text="{Binding MessageText, Mode=TwoWay}"
                              BorderThickness="3" CornerRadius="10" Margin="0, 0, 0, 10"
                              HorizontalAlignment="Stretch"
                              Width="260"

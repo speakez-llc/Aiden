@@ -5,12 +5,11 @@ open ReactiveElmish
 open ReactiveElmish.Avalonia
 open DynamicData
 open System
-open Avalonia.Data.Converters
 
 module Chat =
     type Message = { User: string; Text: string; Alignment: string; Color: string; BorderColor: string; IsMe: bool }
 
-    type Model = { Messages: SourceList<Message>; IsProcessing: bool }
+    type Model = { Messages: SourceList<Message>; IsProcessing: bool; MessageText: string }
 
     type Msg =
         | SendMessage of string
@@ -18,6 +17,7 @@ module Chat =
         | FeedMessage of string * int
         | StartProcessing
         | StopProcessing
+        | ClearMessageText
 
     let init() =
         let initialMessages =
@@ -31,22 +31,20 @@ module Chat =
                 { User = "Aiden"; Text = "Countries of origin and source IP subnets are a high-confidence match to two attacks in the last three months."
                   Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             ]
-        { Messages = SourceList.createFrom initialMessages; IsProcessing = false}
+        { Messages = SourceList.createFrom initialMessages; IsProcessing = false; MessageText = ""}
 
     let update (msg: Msg) (model: Model) =
         match msg with
         | SendMessage text ->
             let msg = { User = "Houston"; Text = text; Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue" ; IsMe  = true }
             // printfn "Message: %A" msg
-            {                
-                Messages = model.Messages |> SourceList.add msg
-                IsProcessing = false
+            {
+                model with Messages = model.Messages |> SourceList.add msg
             }
         | SendAidenMessage text ->
             let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             {                
-                Messages = model.Messages |> SourceList.add msg
-                IsProcessing = false
+                model with Messages = model.Messages |> SourceList.add msg
             }
         | FeedMessage (text, index) ->
             let messages = model.Messages
@@ -57,13 +55,15 @@ module Chat =
             { model with IsProcessing = true }
         | StopProcessing ->
             { model with IsProcessing = false }
+        | ClearMessageText ->
+            { model with MessageText = "" }
             
 open Chat
 
-type ChatViewModel() =
+type ChatViewModel() as this =
     inherit ReactiveElmishViewModel()
-
     let newMessageEvent = new Event<_>()
+    
 
     let local =
         Program.mkAvaloniaSimple init update
@@ -78,13 +78,15 @@ type ChatViewModel() =
             |> ignore
 
     member this.MessagesView = this.BindSourceList(local.Model.Messages)
-
+    
+    member this.MessageText = this.Bind(local, _.MessageText)
     member this.NewMessageEvent = newMessageEvent.Publish
+    
     member this.IsProcessing = this.Bind(local, _.IsProcessing)
+        
     member this.SendMessage(message: string) =
         local.Dispatch (SendMessage message)
-        //this.FeedMessage(message)
-        // Create an async task that waits for a random amount of time and then sends a FeedMessage
+        local.Dispatch ClearMessageText
         let responseTask = async {
             local.Dispatch(StartProcessing)
             let waitTime = Random().Next(3000, 5000) 
