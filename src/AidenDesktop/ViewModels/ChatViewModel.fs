@@ -5,6 +5,7 @@ open ReactiveElmish
 open ReactiveElmish.Avalonia
 open DynamicData
 open System
+open Avalonia.Data.Converters
 
 module Chat =
     type Message = { User: string; Text: string; Alignment: string; Color: string; BorderColor: string; IsMe: bool }
@@ -13,6 +14,7 @@ module Chat =
 
     type Msg =
         | SendMessage of string
+        | SendAidenMessage of string
         | FeedMessage of string * int
 
     let init() =
@@ -32,17 +34,22 @@ module Chat =
     let update (msg: Msg) (model: Model) =
         match msg with
         | SendMessage text ->
-            let msg = { User = "Me"; Text = text; Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue" ; IsMe  = true }
+            let msg = { User = "Houston"; Text = text; Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue" ; IsMe  = true }
             // printfn "Message: %A" msg
+            {                
+                Messages = model.Messages |> SourceList.add msg
+            }
+        | SendAidenMessage text ->
+            let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             {                
                 Messages = model.Messages |> SourceList.add msg
             }
         | FeedMessage (text, index) ->
             let messages = model.Messages
-            let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Gray" ; IsMe = false }
+            let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             messages.ReplaceAt (index, msg)
             { model with Messages = messages }
-
+            
 open Chat
 
 type ChatViewModel() =
@@ -73,7 +80,7 @@ type ChatViewModel() =
         let responseTask = async {
             let waitTime = Random().Next(1000, 2000) 
             do! Async.Sleep waitTime
-            this.FeedMessage ("This is a test")
+            this.FeedMessage ("This is a very long test message that plays out word by word which is a very useful thing for being able to eventually interrupt a generated message that goes on for too long.")
         }
 
         // Start the async task
@@ -102,9 +109,9 @@ type ChatViewModel() =
             fullMessage <- fullMessage + chunk
             if fullMessage = chunk then
                 //printfn $"Sending message: {fullMessage}"
-                local.Dispatch (SendMessage fullMessage)
+                local.Dispatch (SendAidenMessage fullMessage)
             else
-                waitTime <- waitTime + Random().Next(180, 280)
+                waitTime <- waitTime + Random().Next(100, 300)
                 updateFeed(fullMessage) (waitTime)
                 
    

@@ -2,8 +2,7 @@
 
 open Elmish
 open ReactiveElmish.Avalonia
-
-
+open Avalonia.Data.Converters
 
 type Model =  
     { 
