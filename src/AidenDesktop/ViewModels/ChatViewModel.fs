@@ -92,10 +92,10 @@ type ChatViewModel() =
             // NOTE: Due to the lack of a get for SourceList, we have to maintain the memory here
             fullMessage <- fullMessage + chunk
             if fullMessage = chunk then
-                printfn $"Sending message: {fullMessage}"
+                //printfn $"Sending message: {fullMessage}"
                 local.Dispatch (SendMessage fullMessage)
             else
-                waitTime <- waitTime + Random().Next(50, 100)
+                waitTime <- waitTime + Random().Next(70, 120)
                 updateFeed(fullMessage) (waitTime)
                 
    
