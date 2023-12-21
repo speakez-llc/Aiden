@@ -74,7 +74,7 @@ type ChatViewModel() =
         let responseTask = async {
             let waitTime = Random().Next(1000, 2000) 
             do! Async.Sleep waitTime
-            local.Dispatch (FeedMessage ("This is a test", local.Model.Messages.Count - 1))
+            this.FeedMessage ("This is a test")
         }
 
         // Start the async task
