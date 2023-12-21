@@ -40,6 +40,7 @@ module Chat =
         | FeedMessage (text, index) ->
             let messages = model.Messages
             let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Gray" ; IsMe = false }
+            messages.Add msg
             messages.ReplaceAt (index, msg)
             { model with Messages = messages }
 
@@ -67,8 +68,17 @@ type ChatViewModel() =
     member this.NewMessageEvent = newMessageEvent.Publish
 
     member this.SendMessage(message: string) =
-        //local.Dispatch (SendMessage message)
-        this.FeedMessage(message)
+        local.Dispatch (SendMessage message)
+        //this.FeedMessage(message)
+        // Create an async task that waits for a random amount of time and then sends a FeedMessage
+        let responseTask = async {
+            let waitTime = Random().Next(1000, 2000) 
+            do! Async.Sleep waitTime
+            local.Dispatch (FeedMessage ("This is a test", local.Model.Messages.Count - 1))
+        }
+
+        // Start the async task
+        Async.StartImmediate(responseTask)
 
     
     member this.FeedMessage(message: string) =
@@ -81,7 +91,7 @@ type ChatViewModel() =
         let updateFeed(msg : string) (wait : int) =
             async {
                     do! Async.Sleep (wait)                    
-                    printfn $"Feeding message: {msg}"
+                    //printfn $"Feeding message: {msg}"
                     local.Dispatch (FeedMessage (msg, index))
                 } |> Async.StartImmediate
 
@@ -95,7 +105,7 @@ type ChatViewModel() =
                 //printfn $"Sending message: {fullMessage}"
                 local.Dispatch (SendMessage fullMessage)
             else
-                waitTime <- waitTime + Random().Next(70, 120)
+                waitTime <- waitTime + Random().Next(180, 280)
                 updateFeed(fullMessage) (waitTime)
                 
    
