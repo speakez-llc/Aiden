@@ -48,6 +48,38 @@ module Dashboard =
         | ClosePanel of int
         | SetPanelSeries
         | DragStart of bool
+        | UpdateVPNSeries of (string * int) list
+        | UpdateTORSeries of (string * int) list
+        | UpdatePRXSeries of (string * int) list
+        | UpdateCOOSeries of (string * int) list
+        | UpdateMALSeries of (string * int) list
+
+    let updateSeries (series: ObservableCollection<SeriesData>) (data: (string * int) list) =
+
+        // Remove items not in data
+        let namesInData = data |> List.map fst |> Set.ofList
+        let itemsToRemove = 
+            series
+            |> Seq.filter (fun sd -> not (Set.contains sd.Name namesInData))
+            |> Seq.toList
+
+        for item in itemsToRemove do
+            series.Remove(item) |> ignore 
+        
+        // Change values with matching names, add new ones
+        data |> List.iter (fun (name, count) ->
+            match series |> Seq.mapi (fun i sd -> (i, sd)) |> Seq.tryFind (fun (_, sd) -> sd.Name = name) with
+            | Some(i, seriesData) ->
+                // Replace existing item at the same index
+                let updatedItem = { seriesData with Count = count }
+                series.[i] <- updatedItem
+            | None ->
+                // Add new item
+                let newItem = { Name = name; Count = count; Geography = "" }
+                series.Add(newItem))
+        
+        series
+
 
     let fetchDataAsync(column: string) =
         async {
@@ -75,6 +107,66 @@ module Dashboard =
             return results
         }
 
+    let fetchDataForVPNChart (dispatch: Msg -> unit) =
+        let timer = new Timer(Random().Next(2990,3010))
+        let disposable =
+            timer.Elapsed.Subscribe(fun _ ->
+                async {
+                    let! data = fetchDataAsync("vpn")
+                    dispatch (UpdateVPNSeries data)
+                } |> Async.Start
+            )
+        timer.Start()
+        disposable
+    
+    let fetchDataForTORChart (dispatch: Msg -> unit) =
+        let timer = new Timer(Random().Next(2990,3010))
+        let disposable =
+            timer.Elapsed.Subscribe(fun _ ->
+                async {
+                    let! data = fetchDataAsync("tor")
+                    dispatch (UpdateTORSeries data)
+                } |> Async.Start
+            )
+        timer.Start()
+        disposable
+    
+    let fetchDataForPRXChart (dispatch: Msg -> unit) =
+        let timer = new Timer(Random().Next(2990,3010))
+        let disposable =
+            timer.Elapsed.Subscribe(fun _ ->
+                async {
+                    let! data = fetchDataAsync("proxy")
+                    dispatch (UpdatePRXSeries data)
+                } |> Async.Start
+            )
+        timer.Start()
+        disposable
+    
+    let fetchDataForCOOChart (dispatch: Msg -> unit) =
+        let timer = new Timer(Random().Next(2990,3010))
+        let disposable =
+            timer.Elapsed.Subscribe(fun _ ->
+                async {
+                    let! data = fetchDataAsync("cc")
+                    dispatch (UpdateCOOSeries data)
+                } |> Async.Start
+            )
+        timer.Start()
+        disposable
+    
+    let fetchDataForMALChart (dispatch: Msg -> unit) =
+        let timer = new Timer(Random().Next(2990,3010))
+        let disposable =
+            timer.Elapsed.Subscribe(fun _ ->
+                async {
+                    let! data = fetchDataAsync("malware")
+                    dispatch (UpdateMALSeries data)
+                } |> Async.Start
+            )
+        timer.Start()
+        disposable
+
     let mapSourceDataToSeriesData(data: list<string * int>) : ObservableCollection<SeriesData> =
         let seriesData = ObservableCollection<SeriesData>()
         for item in data do
@@ -92,13 +184,7 @@ module Dashboard =
         printfn "setPanelSeries Called..."
         for panel in model.Panels do
             match panel.SeriesName with
-            | "VPN" -> 
-                panel.SeriesList <- model.VPNSeries
-                printfn "VPN Series Set:"
-                for item in panel.SeriesList do
-                    printfn $"{item.Name} : {item.Count} : {item.Geography}"
-            
-                
+            | "VPN" -> panel.SeriesList <- model.VPNSeries
             | "TOR" -> panel.SeriesList <- model.TORSeries
             | "PRX" -> panel.SeriesList <- model.PRXSeries
             | "COO" -> panel.SeriesList <- model.COOSeries
@@ -159,7 +245,35 @@ module Dashboard =
         | DragStart bDragging ->
             { model with IsDragging = bDragging }, Cmd.none
 
+        | UpdateVPNSeries data ->
+            // update VPNSeries with new data
+            let series = updateSeries model.VPNSeries data
+            { model with VPNSeries = series }, Cmd.none
+        | UpdateTORSeries data ->
+            // update TORSeries with new data
+            let series = updateSeries model.TORSeries data
+            { model with TORSeries = series}, Cmd.none
+        | UpdatePRXSeries data ->
+            // update PRXSeries with new data
+            let series = updateSeries model.PRXSeries data
+            { model with PRXSeries = series}, Cmd.none
+        | UpdateCOOSeries data ->
+            // update COOSeries with new data
+            let series = updateSeries model.COOSeries data
+            { model with COOSeries = series}, Cmd.none
+        | UpdateMALSeries data ->
+            // update MALSeries with new data
+            let series = updateSeries model.MALSeries data
+            { model with MALSeries = series}, Cmd.none
 
+    let subscriptions (model : Model) : Sub<Msg> =
+        [
+            [ nameof fetchDataForVPNChart], fetchDataForVPNChart
+            [ nameof fetchDataForTORChart], fetchDataForTORChart
+            [ nameof fetchDataForPRXChart], fetchDataForPRXChart
+            [ nameof fetchDataForCOOChart], fetchDataForCOOChart
+            [ nameof fetchDataForMALChart], fetchDataForMALChart            
+        ]
 
 open Dashboard
 
@@ -168,6 +282,7 @@ type DashboardViewModel() =
 
     let local =
         Program.mkAvaloniaProgram init update
+        |> Program.withSubscription subscriptions
         |> Program.mkStore
 
     member this.IsLoading

@@ -92,29 +92,31 @@ type EZPie() =
         let targetCollection = _seriesValues
         match e.Action with
         | NotifyCollectionChangedAction.Add ->
-            printfn $"Add... {e.NewItems}"
             e.NewItems |> Seq.cast<SeriesData> |> Seq.iter (fun item ->
                 let series = PieSeries<int>() 
                 series.MaxRadialColumnWidth <- this.MaxRadialWidth
                 series.Values <- [item.Count]      
-                series.Name <- item.Name     
-                printfn $"Adding Series: {series.Name}, {series.Values}"    
+                series.Name <- item.Name      
                 targetCollection.Add(series :> ISeries))
 
         | NotifyCollectionChangedAction.Remove ->
-            printfn $"Remove...{e.OldItems}"
+            let oldItems = e.OldItems
+            for item in oldItems do
+                let oldItem = item :?> SeriesData
+                let index = targetCollection |> Seq.tryFindIndex(fun s -> s.Name = oldItem.Name)
+                match index with
+                | Some idx ->
+                    targetCollection.RemoveAt(idx)
+                | _ -> ()
+
             //e.OldItems |> Seq.cast<ISeries> |> Seq.iter (fun item -> targetCollection.Remove(item) |> ignore)
             
 
         | NotifyCollectionChangedAction.Replace ->
             // Handle replace logic
-            printfn $"Replace... {e.NewItems} {e.OldItems}"
-            // ... find items that match old items and replace with new items values??
-            let newItems = e.NewItems;
-            printfn "NEW ITEMS:"
+            let newItems = e.NewItems;   
             for item in newItems do
                 let newItem = item :?> SeriesData
-                printfn $"{newItem.Name} : {newItem.Count}"
                 let index = targetCollection |> Seq.tryFindIndex(fun s -> s.Name = newItem.Name)
                 match index with
                 | Some idx ->
@@ -148,11 +150,9 @@ type EZPie() =
     override this.OnPropertyChanged(e : AvaloniaPropertyChangedEventArgs) =
         base.OnPropertyChanged(e)
         //this.NotifyPropertyChanged(e.Property.Name)
-        printfn $"EZ Property Changed: {e.Property.Name}"
+        //printfn $"EZ Property Changed: {e.Property.Name}"
         match e.Property.Name with
         | "Value" ->
-            (* let value = this.GetValue(ValueProperty)
-            this.Value <- value *)
             this.NotifyPropertyChanged("Value")
         | "SeriesList" ->
             // This gets called once at initialization, but not when items in the collection change
@@ -164,12 +164,10 @@ type EZPie() =
             _seriesValues.Clear()
             let series = this.SeriesList
             for item in series do
-                printfn $"Series: {item.Name}, {item.Count}"
                 let series = PieSeries<int>() 
                 series.MaxRadialColumnWidth <- this.MaxRadialWidth
                 series.Values <- [item.Count]      
-                series.Name <- item.Name     
-                printfn $"Adding Series: {series.Name}, {series.Values}"    
+                series.Name <- item.Name       
                 _seriesValues.Add(series :> ISeries)
             
         | _ -> ()
