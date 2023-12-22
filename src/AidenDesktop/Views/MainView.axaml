@@ -3,7 +3,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:con="using:FluentAvalonia.UI.Controls"
-        xmlns:i="https://github.com/projektanker/icons.avalonia"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="850"
         Width="1200" Height="850"
         x:Class="AidenDesktop.Views.MainView"
@@ -12,7 +11,7 @@
         Design.DataContext="{Binding Source={x:Static vm:MainViewModel.DesignVM}}"
         x:DataType="vm:MainViewModel"
         x:CompileBindings="True"
-        Title="SpeakEZ.ai :: Aiden Prototype">
+        Title="Rower :: Aiden Working Sample">
     <DockPanel LastChildFill="true">
         <con:NavigationView AlwaysShowHeader="False"
                             OpenPaneLength="150"
@@ -52,13 +51,7 @@
                                         <Grid>
                                             <con:BitmapIcon Width="32" Height="32" 
                                                             HorizontalAlignment="Center"
-                                                            UriSource="avares://AidenDesktop/Assets/SpeakEZ.ico" />
-                                            <!-- <Border Width="32" Height="32" HorizontalAlignment="Center" Margin="4,3,0,0">
-                                                <Image Source="/Assets/SpeakEZ.ico" Stretch="UniformToFill"/>
-                                            </Border> -->
-                                            <!-- <Border Width="18" Height="18" Background="DarkOrange" CornerRadius="12" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
-                                                <TextBlock Text="2" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13"/>
-                                            </Border> -->
+                                                            UriSource="avares://AidenDesktop/Assets/Rower_icon_2.ico" />
                                             <con:InfoBadge Value="{Binding ChatAlertCount}"
                                                            IsVisible="{Binding ShowChatBadge}"
                                                            HorizontalAlignment="Left" 
