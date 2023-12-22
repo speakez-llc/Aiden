@@ -33,5 +33,6 @@
                                HandleWidth="30.0" 
                                HandleHeight="30"
                                ValueFontSize="34"/>
+        <controls:EZGeo Background="Blue"/>
     </StackPanel>
 </UserControl>

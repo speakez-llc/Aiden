@@ -14,6 +14,7 @@
              x:Class="AidenDesktop.Views.DashboardView">
 
     <Grid Name="DragZone" >
+        <controls:EZGeo  Width="800" Height="600" />
         <ItemsControl ItemsSource="{Binding Panels}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>

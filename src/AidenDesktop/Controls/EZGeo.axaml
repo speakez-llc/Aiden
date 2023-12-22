@@ -3,7 +3,7 @@
         xmlns:controls="using:AidenDesktop.Controls"
         xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
         xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia; assembly=LiveChartsCore.SkiaSharpView.Avalonia"
-        x:CompileBindings="True">
+        x:CompileBindings="False">
     
     <Style Selector="controls|EZGeo">
         <Setter Property="Template">
@@ -11,6 +11,13 @@
                 <StackPanel>
 
                     <TextBlock Text="Greetings mortal" />
+                    <lvc:GeoMap HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Height="400" 
+                                MaxWidth="750"
+                                MapProjection="Mercator"
+                                Series="{Binding ActualSeries, RelativeSource={RelativeSource TemplatedParent}}"
+                                Background="Green"/>
                 </StackPanel>
             </ControlTemplate>
         </Setter>
