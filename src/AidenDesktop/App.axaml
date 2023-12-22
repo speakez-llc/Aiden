@@ -14,6 +14,7 @@
         <StyleInclude Source="avares://AidenDesktop/Controls/RadialSlider.axaml"/>
         <StyleInclude Source="avares://AidenDesktop/Controls/SeriesBox.axaml" />
         <StyleInclude Source="avares://AidenDesktop/Controls/EZPie.axaml" />
+        <StyleInclude Source="avares://AidenDesktop/Controls/EZGeo.axaml" />
 
         
     </Application.Styles>

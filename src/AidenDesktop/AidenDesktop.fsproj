@@ -14,6 +14,7 @@
         <Compile Include="Converters\SeriesBoxConverters.fs" />
         <Compile Include="Controls\SeriesBox.axaml.fs" />
         <Compile Include="Controls\EZPie.axaml.fs"/>
+        <Compile Include="Controls\EZGeo.axaml.fs"/>
         <Compile Include="Services\FileService.fs" />
         <None Remove=".gitignore" />
     </ItemGroup>

@@ -1,0 +1,18 @@
+<Styles xmlns="https://github.com/avaloniaui" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:AidenDesktop.Controls"
+        xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+        xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia; assembly=LiveChartsCore.SkiaSharpView.Avalonia"
+        x:CompileBindings="True">
+    
+    <Style Selector="controls|EZGeo">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <StackPanel>
+
+                    <TextBlock Text="Greetings mortal" />
+                </StackPanel>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>
