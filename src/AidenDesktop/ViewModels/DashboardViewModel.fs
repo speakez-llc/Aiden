@@ -1,17 +1,32 @@
 namespace AidenDesktop.ViewModels
 
 open System
+open System.IO
+open System.Timers
+open System.Text.Json
 open System.Collections.ObjectModel
 open ReactiveElmish
 open ReactiveElmish.Avalonia
 open Elmish
 open AidenDesktop.Models
 open App
-
+open Npgsql
 
 
 module Dashboard =
 
+    let connectionString =
+        let filePath = Path.Combine(AppContext.BaseDirectory, "appsettings.json")
+        if File.Exists(filePath) then
+            let json = JsonDocument.Parse(File.ReadAllText(filePath))
+            let dbSection = json.RootElement.GetProperty("Database")
+            let connectionString = dbSection.GetProperty("ConnectionString").GetString()
+            //printfn $"Connection String: %s{connectionString}"
+            connectionString
+        else
+            printfn $"Error: File not found: %s{filePath}"
+            ""
+    
     type Model =
         {
             IsLoading : bool
@@ -22,6 +37,7 @@ module Dashboard =
             TORSeries : ObservableCollection<SeriesData>
             PRXSeries : ObservableCollection<SeriesData>
             COOSeries : ObservableCollection<SeriesData>
+            MALSeries : ObservableCollection<SeriesData>
 
             IsDragging : bool
 
@@ -32,6 +48,45 @@ module Dashboard =
         | ClosePanel of int
         | SetPanelSeries
         | DragStart of bool
+
+    let fetchDataAsync(column: string) =
+        async {
+            // Connect to the database and execute the query
+            use connection = new NpgsqlConnection(connectionString)
+            do! connection.OpenAsync() |> Async.AwaitTask
+            // Construct the query string with the column name
+            let query =
+                $@"SELECT UNNEST(string_to_array({column}, ':')) AS label, COUNT(*) AS count
+                   FROM events_hourly
+                   WHERE event_time >= now() AT TIME ZONE 'UTC' - INTERVAL '1 minute'
+                   GROUP BY label;"
+
+            use cmd = new NpgsqlCommand(query, connection)
+
+            do! cmd.PrepareAsync() |> Async.AwaitTask
+
+            use! reader = cmd.ExecuteReaderAsync() |> Async.AwaitTask
+            let results = 
+                [ while reader.Read() do
+                    yield (
+                        reader.GetString(reader.GetOrdinal("label")),
+                        reader.GetInt32(reader.GetOrdinal("count"))
+                    ) ]
+            return results
+        }
+
+    let mapSourceDataToSeriesData(data: list<string * int>) : ObservableCollection<SeriesData> =
+        let seriesData = ObservableCollection<SeriesData>()
+        for item in data do
+            seriesData.Add({Name = fst item; Count = snd item; Geography = ""})
+        seriesData
+
+    let fetchPieDataAsync (dataType: string) =
+        async {
+            let! data = fetchDataAsync(dataType)
+            let series = mapSourceDataToSeriesData data
+            return series
+        }
 
     let setPanelSeries (model : Model) =        
         printfn "setPanelSeries Called..."
@@ -47,47 +102,39 @@ module Dashboard =
             | "TOR" -> panel.SeriesList <- model.TORSeries
             | "PRX" -> panel.SeriesList <- model.PRXSeries
             | "COO" -> panel.SeriesList <- model.COOSeries
+            | "MAL" -> panel.SeriesList <- model.MALSeries
             | _ -> ()
 
         model //{ model with Panels = model.Panels }
     
     let init() =
-        {
-            IsLoading = false
-            IsFrozen = false
-            TimeFrame = "todo"
-            Panels = [ 
-                        DragPanel(SeriesName="VPN", PosX=10.0, PosY=10.0)
-                        DragPanel(SeriesName="TOR", PosX=220.0, PosY=10.0)
-                        DragPanel(SeriesName="PRX", PosX=430.0, PosY=10.0)
-                     ]
-            VPNSeries = ObservableCollection<SeriesData>
-                [
-                    {Name = "Voxyproxy"; Count = 10; Geography = ""}
-                    {Name = "Vord"; Count = 5; Geography = ""}
-                    {Name = "Vexpress"; Count = 3; Geography = ""}
-                ]
-            TORSeries = ObservableCollection<SeriesData>
-                [
-                    {Name = "Foxytroxy"; Count = 10; Geography = ""}
-                    {Name = "Tjord"; Count = 5; Geography = ""}
-                    {Name = "Texpress"; Count = 3; Geography = ""}
-                ]
-            PRXSeries = ObservableCollection<SeriesData>
-                [
-                    {Name = "Foxyproxy"; Count = 10; Geography = ""}
-                    {Name = "Nord"; Count = 5; Geography = ""}
-                    {Name = "Express"; Count = 3; Geography = ""}
-                ]
-            COOSeries = ObservableCollection<SeriesData>
-                [
-                    {Name = "USA"; Count = 10; Geography = "World"}
-                    {Name = "RUS"; Count = 5; Geography = "World"}
-                    {Name = "CAN"; Count = 3; Geography = "World"}
-                ]
-            
-            IsDragging = false
-        },
+        async {
+            let! vpnSeries = fetchPieDataAsync("vpn")
+            let! torSeries = fetchPieDataAsync("tor")
+            let! prxSeries = fetchPieDataAsync("proxy")
+            let! cooSeries = fetchPieDataAsync("cc")
+            let! malSeries = fetchPieDataAsync("malware")
+        
+            return {
+                IsLoading = false
+                IsFrozen = false
+                TimeFrame = "todo"
+                Panels = [ 
+                            DragPanel(SeriesName="VPN", PosX=10.0, PosY=10.0)
+                            DragPanel(SeriesName="TOR", PosX=220.0, PosY=10.0)
+                            DragPanel(SeriesName="PRX", PosX=430.0, PosY=10.0)
+                            DragPanel(SeriesName="MAL", PosX=640.0, PosY=10.0)
+                            DragPanel(SeriesName="COO", PosX=10.0, PosY=220.0)
+                        ]
+                VPNSeries = vpnSeries                
+                TORSeries = torSeries
+                PRXSeries = prxSeries
+                COOSeries = cooSeries
+                MALSeries = malSeries
+                
+                IsDragging = false
+            }
+        } |> Async.RunSynchronously,
         Cmd.ofEffect (fun dispatch ->
             printfn "Dashboard init"
             dispatch SetPanelSeries
