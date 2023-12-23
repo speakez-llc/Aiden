@@ -40,7 +40,7 @@ module Dashboard =
             MALSeries : ObservableCollection<SeriesData>
 
             IsDragging : bool
-
+            ColorMap : string[]
         }
     
     type Msg =
@@ -181,7 +181,6 @@ module Dashboard =
         }
 
     let setPanelSeries (model : Model) =        
-        printfn "setPanelSeries Called..."
         for panel in model.Panels do
             match panel.SeriesName with
             | "VPN" -> panel.SeriesList <- model.VPNSeries
@@ -206,11 +205,11 @@ module Dashboard =
                 IsFrozen = false
                 TimeFrame = "todo"
                 Panels = [ 
-                            DragPanel(SeriesName="VPN", PosX=10.0, PosY=10.0)
-                            DragPanel(SeriesName="TOR", PosX=220.0, PosY=10.0)
-                            DragPanel(SeriesName="PRX", PosX=430.0, PosY=10.0)
-                            DragPanel(SeriesName="MAL", PosX=640.0, PosY=10.0)
-                            DragPanel(SeriesName="COO", PosX=10.0, PosY=220.0)
+                            DragPanel(SeriesName="VPN", PosX=10.0, PosY=300.0)
+                            DragPanel(SeriesName="TOR", PosX=220.0, PosY=300.0)
+                            DragPanel(SeriesName="PRX", PosX=430.0, PosY=300.0)
+                            DragPanel(SeriesName="MAL", PosX=640.0, PosY=300.0)
+                            DragPanel(SeriesName="COO", PosX=10.0, PosY=90.0)
                         ]
                 VPNSeries = vpnSeries                
                 TORSeries = torSeries
@@ -219,10 +218,11 @@ module Dashboard =
                 MALSeries = malSeries
                 
                 IsDragging = false
+                //ColorMap = [|"#5e56f5"; "#2d2899"; "#100c52"|]
+                ColorMap = [|"#47cc47"; "#0cab0c"; "#036603"; "#5e56f5"; "#2d2899"; "#100c52" |]
             }
         } |> Async.RunSynchronously,
         Cmd.ofEffect (fun dispatch ->
-            printfn "Dashboard init"
             dispatch SetPanelSeries
         )
     
@@ -309,6 +309,9 @@ type DashboardViewModel() =
     member this.IsDragging
         with get() = this.Bind(local, _.IsDragging)
         and set(value) = local.Dispatch (DragStart value)
+    
+    member this.ColorMap
+        with get() = this.Bind(local, _.ColorMap)
 
     static member DesignVM =
         new DashboardViewModel()
