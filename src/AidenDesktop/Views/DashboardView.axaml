@@ -14,7 +14,7 @@
              x:Class="AidenDesktop.Views.DashboardView">
 
     <Grid Name="DragZone" >
-        <controls:EZGeo ColorMap="{Binding ColorMap}" SeriesList="{Binding COOSeries}" />
+        <!-- <controls:EZGeo SeriesList="{Binding COOSeries}" /> -->
         <ItemsControl ItemsSource="{Binding Panels}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -34,6 +34,7 @@
                     <StackPanel>
                         <controls:SeriesBox SeriesName="{Binding SeriesName}"
                                             SeriesList="{Binding SeriesList}" 
+                                            SelectedChartType="{Binding ChartType}"
                                             Width="{Binding Width}" 
                                             Height="{Binding Height}" />
                     </StackPanel>

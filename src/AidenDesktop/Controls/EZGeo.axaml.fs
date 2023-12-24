@@ -26,9 +26,11 @@ type EZGeo() =
     static let ColorMapProperty = AvaloniaProperty.Register<EZGeo, string[]>("ColorMap", [|"#5e56f5"; "#2d2899"; "#100c52"|])
 
     let blueSeries = [|
+        SKColor.Parse("#8e89f8").AsLvcColor(); // LightBlue
         SKColor.Parse("#5e56f5").AsLvcColor(); // LightBlue
         SKColor.Parse("#2d2899").AsLvcColor(); // Blue
         SKColor.Parse("#100c52").AsLvcColor()  // DeepBlue
+        SKColor.Parse("#0b0837").AsLvcColor()  // DeepBlue
     |]
 
     let mutable _seriesValues : HeatLandSeries[] = [| HeatLandSeries(HeatMap = blueSeries, Lands = [|

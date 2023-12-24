@@ -205,11 +205,12 @@ module Dashboard =
                 IsFrozen = false
                 TimeFrame = "todo"
                 Panels = [ 
-                            DragPanel(SeriesName="VPN", PosX=10.0, PosY=300.0)
-                            DragPanel(SeriesName="TOR", PosX=220.0, PosY=300.0)
-                            DragPanel(SeriesName="PRX", PosX=430.0, PosY=300.0)
-                            DragPanel(SeriesName="MAL", PosX=640.0, PosY=300.0)
-                            DragPanel(SeriesName="COO", PosX=10.0, PosY=90.0)
+                            DragPanel(SeriesName="VPN", PosX=10.0, PosY=10.0)
+                            DragPanel(SeriesName="TOR", PosX=220.0, PosY=10.0)
+                            DragPanel(SeriesName="PRX", PosX=430.0, PosY=10.0)
+                            DragPanel(SeriesName="MAL", PosX=640.0, PosY=10.0)
+                            //DragPanel(SeriesName="COO", PosX=850.0, PosY=10.0)
+                            DragPanel(SeriesName="COO", PosX=10.0, PosY=220.0, Width=830.0, Height=550.0, ChartType=EZChartType.GeoMap)
                         ]
                 VPNSeries = vpnSeries                
                 TORSeries = torSeries

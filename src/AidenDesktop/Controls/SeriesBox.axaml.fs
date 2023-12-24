@@ -23,6 +23,8 @@ type SeriesBox () =
     static let SeriesTypesProperty = AvaloniaProperty.Register<SeriesBox, string list>("SeriesTypes", ["VPN"; "TOR"; "PRX"; "COO"])
 
     static let ChartTypesProperty = AvaloniaProperty.Register<SeriesBox, string list>("ChartTypes", ["Pie"; "Bar"; "Line"; "Area"])
+    static let SelectedChartTypeProperty = AvaloniaProperty.Register<SeriesBox, EZChartType>("SelectedChartType", EZChartType.Pie)
+
 
     interface INotifyPropertyChanged with
         [<CLIEvent>]
@@ -52,6 +54,17 @@ type SeriesBox () =
         with get() = this.GetValue(ChartTypesProperty)
         and set(value) =
             this.SetValue(ChartTypesProperty, value) |> ignore
+    member this.SelectedChartType
+        with get() = this.GetValue(SelectedChartTypeProperty)
+        and set(value) =
+            this.SetValue(SelectedChartTypeProperty, value) |> ignore
+
+    member this.ShowPie
+        with get() = this.SelectedChartType = EZChartType.Pie
+    
+    member this.ShowMap
+        with get() = this.SelectedChartType = EZChartType.GeoMap
+
 
     member this.BackEndX
         with get() = this.Width / 2.0
@@ -66,8 +79,7 @@ type SeriesBox () =
     override this.OnApplyTemplate(e) =
         base.OnApplyTemplate(e)
         printfn "SeriesBox OnApplyTemplate"
-        for item in this.SeriesList do
-            printfn $"{item.Name} : {item.Count} : {item.Geography}"
+        
 
     override this.OnPropertyChanged(e : AvaloniaPropertyChangedEventArgs) =
         base.OnPropertyChanged(e)

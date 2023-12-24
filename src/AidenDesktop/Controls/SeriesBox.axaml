@@ -119,8 +119,12 @@
                         </Grid>
                     </Border>
 
-                    <Viewbox Grid.Row="1" Grid.Column="0" >
+                    <Viewbox Grid.Row="1" Grid.Column="0" IsVisible="{Binding ShowPie, RelativeSource={RelativeSource TemplatedParent}}">
                         <controls:EZPie SeriesList="{Binding SeriesList, RelativeSource={RelativeSource TemplatedParent}}" />
+                    </Viewbox>
+
+                    <Viewbox Grid.Row="1" Grid.Column="0" IsVisible="{Binding ShowMap, RelativeSource={RelativeSource TemplatedParent}}">
+                        <controls:EZGeo SeriesList="{Binding SeriesList, RelativeSource={RelativeSource TemplatedParent}}" />
                     </Viewbox>
 
                 </Grid>

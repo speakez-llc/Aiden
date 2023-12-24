@@ -14,6 +14,11 @@ type SeriesData =
         Geography: string
     }
 
+type EZChartType =
+    | Pie
+    | GeoMap
+    | NoChart
+
 
 
 type DragPanel() =
@@ -29,6 +34,8 @@ type DragPanel() =
     let mutable _posY : double = 0.0
     let mutable _width : double = 200.0
     let mutable _height : double = 200.0
+
+    let mutable _chartType : EZChartType = EZChartType.Pie
 
     member this.SeriesName
         with get() = _seriesName
@@ -53,3 +60,7 @@ type DragPanel() =
     member this.Height
         with get() = _height
         and set(value) = _height <- value
+
+    member this.ChartType
+        with get() = _chartType
+        and set(value) = _chartType <- value
