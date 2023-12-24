@@ -29,8 +29,11 @@ type EZGeo() =
         SKColor.Parse("#8e89f8").AsLvcColor(); // LightBlue
         SKColor.Parse("#5e56f5").AsLvcColor(); // LightBlue
         SKColor.Parse("#2d2899").AsLvcColor(); // Blue
-        SKColor.Parse("#100c52").AsLvcColor()  // DeepBlue
-        SKColor.Parse("#0b0837").AsLvcColor()  // DeepBlue
+        SKColor.Parse("#100c52").AsLvcColor();  // DeepBlue
+        SKColor.Parse("#0b0837").AsLvcColor();
+        SKColor.Parse("#9e4cf5").AsLvcColor(); 
+        SKColor.Parse("#671fb5").AsLvcColor(); 
+        SKColor.Parse("#3c0478").AsLvcColor()   // DeepBlue
     |]
 
     let mutable _seriesValues : HeatLandSeries[] = [| HeatLandSeries(HeatMap = blueSeries, Lands = [|
