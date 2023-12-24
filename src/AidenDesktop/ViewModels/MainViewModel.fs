@@ -1,15 +1,14 @@
 ﻿namespace AidenDesktop.ViewModels
 
+open Avalonia
+open Avalonia.Styling
 open Elmish
+open Avalonia.Media
+open Avalonia.Layout
 open ReactiveElmish
 open ReactiveElmish.Avalonia
 open FluentAvalonia.UI.Controls
-open FluentAvalonia.FluentIcons
-open ReactiveUI
-open Avalonia.Media
-open System.Threading.Tasks
 open App
-open Avalonia.Layout
 
 
 // TODO: Move to a shared module - I have a Models folder in my branch for base types, which is where I'd put this... thoughts?
@@ -98,28 +97,30 @@ module MainViewModule =
             ShowChatBadge: bool
             SelectedNavItem: NavItem
             NavigationList: NavItem list
+            IsDarkThemeEnabled: bool
         }
     
     type Msg =
     | ToggleChat of bool
     | SetChatAlertCount of int
     | SelectedNavItemChanged of NavItem
+    | IsDarkThemeEnabled of bool
+    | ToggleTheme of bool
 
     let init() = 
         { 
             ChatOpen = false 
             ChatAlertCount = 2
             ShowChatBadge = true
-            SelectedNavItem = NavItem("Home", "Home")
+            SelectedNavItem = NavItem("Home", "Home_Rower")
             NavigationList = [ 
-                NavItem("Home", "FA_Home")
-                NavItem("Counter", "FA_Counter")
-                NavItem("Chart", "FA_Chart")
-                NavItem("Dashboard", "FA_Map", 2)
-                NavItem("WIP", "FA_Chart")
-                NavItem("File Picker", "FA_File")
-                NavItem("About", "FA_Info")
+                NavItem("Home", "Home_Rower")
+                NavItem("Dashboard", "FA_Map_Rower", 2)
+                NavItem("WIP", "FA_Chart_Rower")
+                NavItem("File Picker", "FA_File_Rower")
+                NavItem("About", "FA_Info_Rower")
             ]
+            IsDarkThemeEnabled = true
         }
 
     let update (msg: Msg) (model: Model) =
@@ -137,7 +138,6 @@ module MainViewModule =
             { model with ChatAlertCount = count }
         | SelectedNavItemChanged item ->
             match item.Name with
-            | "Counter" -> app.Dispatch (SetView CounterView)
             | "Chart" -> app.Dispatch (SetView ChartView)
             | "Dashboard" -> app.Dispatch (SetView DoughnutView)
             | "File Picker" -> app.Dispatch (SetView FilePickerView)
@@ -146,21 +146,35 @@ module MainViewModule =
             | "WIP" -> app.Dispatch (SetView DashboardView)
             | _ -> ()            
             { model with SelectedNavItem = item }
+        | ToggleTheme t ->
+            { model with IsDarkThemeEnabled = t } 
     
 open MainViewModule
 
-
-    
-
-
-type MainViewModel(root: CompositionRoot) =
+type MainViewModel(root: CompositionRoot) as self =
     inherit ReactiveElmishViewModel()
-    
+
     let local =
         Program.mkAvaloniaSimple init update
         |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
         |> Program.mkStore
-    
+
+    do
+        self.PropertyChanged.Add(fun args ->
+            if args.PropertyName = "IsDarkThemeEnabled" then
+                self.SwitchTheme())
+
+    member self.IsDarkThemeEnabled
+        with get() = self.Bind(local, _.IsDarkThemeEnabled)
+        and set(value) = local.Dispatch (ToggleTheme value)
+
+    member this.SwitchTheme() =
+        if this.IsDarkThemeEnabled then
+            Application.Current.RequestedThemeVariant <- ThemeVariant.Dark
+        else
+            Application.Current.RequestedThemeVariant <- ThemeVariant.Light
+
+    // Other code...
 
     member self.ChatOpen
         with get() = self.Bind(local, _.ChatOpen)
@@ -178,12 +192,12 @@ type MainViewModel(root: CompositionRoot) =
         and set(value) = local.Dispatch (SelectedNavItemChanged value)
 
     member self.NavigationList = self.Bind(local, _.NavigationList)
-
+        
+      
     member self.ChatView = root.GetView<ChatViewModel>()
     member self.ContentView =
         self.BindOnChanged (app, _.View, fun m ->
             match m.View with
-            | CounterView -> root.GetView<CounterViewModel>()
             | DoughnutView -> root.GetView<DoughnutViewModel>()
             | ChartView -> root.GetView<ChartViewModel>()
             | FilePickerView -> root.GetView<FilePickerViewModel>()
@@ -191,6 +205,5 @@ type MainViewModel(root: CompositionRoot) =
             | AboutView -> root.GetView<AboutViewModel>()
             | HomeView -> root.GetView<HomeViewModel>()
         )
-
 
     static member DesignVM = new MainViewModel(Design.stub)

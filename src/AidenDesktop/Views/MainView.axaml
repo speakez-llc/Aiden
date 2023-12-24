@@ -13,6 +13,7 @@
         x:DataType="vm:MainViewModel"
         x:CompileBindings="True"
         Title="SpeakEZ.ai :: Aiden Prototype">
+
     <DockPanel LastChildFill="true">
         <con:NavigationView AlwaysShowHeader="False"
                             OpenPaneLength="150"
@@ -24,22 +25,42 @@
                             MenuItemsSource="{Binding NavigationList}"
                             SelectedItem="{Binding SelectedNavItem}"
                             CompactModeThresholdWidth="100">
+            <con:NavigationView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="DarkBlue" Offset="0.0" />
+                    <GradientStop Color="Transparent" Offset="1.0" />
+                </LinearGradientBrush>
+            </con:NavigationView.Background>
             <con:NavigationView.Resources>
                 <x:Double x:Key="NavigationViewItemHeight">48.0</x:Double>
                 <!-- NOTE: There was discussion about implementing this, but it currently doesn't work -->
                 <x:Double x:Key="NavigationViewItemIconFontSize">48.0</x:Double>
                 <x:Double x:Key="NavigationViewItemExpandedGlyphFontSize">48.0</x:Double>
+                <x:Double x:Key="NavigationViewItemCollapsedGlyphFontSize">48.0</x:Double>
+                <x:Double x:Key="NavigationViewItemSeparatorHeight">1.0</x:Double>
+                <x:Double x:Key="NavigationViewItemSeparatorVerticalMargin">12.0</x:Double>
+                <x:Double x:Key="NavigationViewItemSeparatorHorizontalMargin">24.0</x:Double>
+                <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#C18E3A"/>
+                <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="#C18E3A"/>
+                <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="#C18E3A"/>
+                <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="#C18E3A"/>
+                <SolidColorBrush x:Key="NavigationViewItemForegroundSelectedPointerOver" Color="#C18E3A"/>
+                <SolidColorBrush x:Key="NavigationViewIconSolidColorBrush" Color="#C18E3A" />
             </con:NavigationView.Resources>
+
             <con:NavigationView.MenuItemTemplate>
                 <DataTemplate DataType="{x:Type vm:NavItem}">
                     <con:NavigationViewItem Content="{Binding Name}"
                                             IconSource="{Binding Icon}"
-                                            InfoBadge="{Binding Badge}" >
-                    </con:NavigationViewItem> 
+                                            InfoBadge="{Binding Badge}" 
+                                            Background="Transparent">
+
+                    </con:NavigationViewItem>
                 </DataTemplate>
             </con:NavigationView.MenuItemTemplate>
-            
+
             <con:NavigationView.Content>
+
                 <SplitView x:Name="MySplitView" DisplayMode="CompactInline" IsPaneOpen="{Binding ChatOpen, Mode=TwoWay}"  DockPanel.Dock="Right" PanePlacement="Right" >
                     <SplitView.Content>
                         <ContentControl Content="{Binding ContentView}" />
@@ -50,20 +71,14 @@
                                 <ToggleButton.Template>
                                     <ControlTemplate>
                                         <Grid>
-                                            <con:BitmapIcon Width="32" Height="32" 
+                                            <con:BitmapIcon Width="32" Height="32"
                                                             HorizontalAlignment="Center"
                                                             UriSource="avares://AidenDesktop/Assets/SpeakEZ.ico" />
-                                            <!-- <Border Width="32" Height="32" HorizontalAlignment="Center" Margin="4,3,0,0">
-                                                <Image Source="/Assets/SpeakEZ.ico" Stretch="UniformToFill"/>
-                                            </Border> -->
-                                            <!-- <Border Width="18" Height="18" Background="DarkOrange" CornerRadius="12" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
-                                                <TextBlock Text="2" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13"/>
-                                            </Border> -->
                                             <con:InfoBadge Value="{Binding ChatAlertCount}"
                                                            IsVisible="{Binding ShowChatBadge}"
-                                                           HorizontalAlignment="Left" 
-                                                           VerticalAlignment="Top" 
-                                                           Background="DarkOrange" />
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Top"
+                                                           Background="#C18E3A" />
                                         </Grid>
                                     </ControlTemplate>
                                 </ToggleButton.Template>
@@ -72,7 +87,21 @@
                         </DockPanel>
                     </SplitView.Pane>
                 </SplitView>
+
             </con:NavigationView.Content>
+            <con:NavigationView.FooterMenuItems>
+                <ToggleButton IsChecked="{Binding IsDarkThemeEnabled }">
+                    <ToggleButton.Template>
+                        <ControlTemplate>
+                            <Grid>
+                                <con:BitmapIcon Width="32" Height="32"
+                                                HorizontalAlignment="Center"
+                                                UriSource="avares://AidenDesktop/Assets/avalonia-logo.ico" />
+                            </Grid>
+                        </ControlTemplate>
+                    </ToggleButton.Template>
+                </ToggleButton>
+            </con:NavigationView.FooterMenuItems>
         </con:NavigationView>
     </DockPanel>
 </Window>
