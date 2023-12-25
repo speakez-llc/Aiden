@@ -12,7 +12,7 @@
         Design.DataContext="{Binding Source={x:Static vm:MainViewModel.DesignVM}}"
         x:DataType="vm:MainViewModel"
         x:CompileBindings="True"
-        Title="SpeakEZ.ai :: Aiden Prototype">
+        Title="Rower :: Aiden Sample">
 
     <DockPanel LastChildFill="true">
         <con:NavigationView AlwaysShowHeader="False"
@@ -20,15 +20,15 @@
                             PaneDisplayMode="Left"
                             IsPaneOpen="False"
                             Name="NavView"
-                            IsSettingsVisible="False"
+                            IsSettingsVisible="True"
                             IsBackEnabled="False"
                             MenuItemsSource="{Binding NavigationList}"
                             SelectedItem="{Binding SelectedNavItem}"
                             CompactModeThresholdWidth="100">
             <con:NavigationView.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                    <GradientStop Color="DarkBlue" Offset="0.0" />
-                    <GradientStop Color="Transparent" Offset="1.0" />
+                <LinearGradientBrush StartPoint="0,1" EndPoint="0,1200">
+                    <GradientStop Color="Black" Offset="0.3" />
+                    <GradientStop Color="#164b72" Offset="0.9" />
                 </LinearGradientBrush>
             </con:NavigationView.Background>
             <con:NavigationView.Resources>
@@ -87,21 +87,7 @@
                         </DockPanel>
                     </SplitView.Pane>
                 </SplitView>
-
             </con:NavigationView.Content>
-            <con:NavigationView.FooterMenuItems>
-                <ToggleButton IsChecked="{Binding IsDarkThemeEnabled }">
-                    <ToggleButton.Template>
-                        <ControlTemplate>
-                            <Grid>
-                                <con:BitmapIcon Width="32" Height="32"
-                                                HorizontalAlignment="Center"
-                                                UriSource="avares://AidenDesktop/Assets/avalonia-logo.ico" />
-                            </Grid>
-                        </ControlTemplate>
-                    </ToggleButton.Template>
-                </ToggleButton>
-            </con:NavigationView.FooterMenuItems>
         </con:NavigationView>
     </DockPanel>
 </Window>
