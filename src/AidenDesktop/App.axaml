@@ -4,7 +4,7 @@
              xmlns:sty="using:FluentAvalonia.Styling"
              xmlns:icons="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia.FluentIcons"
              x:Class="AidenDesktop.App"
-             RequestedThemeVariant="Dark">
+             RequestedThemeVariant="Light">
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
@@ -14,5 +14,10 @@
         <StyleInclude Source="avares://AidenDesktop/Controls/SeriesBox.axaml" />
         <StyleInclude Source="avares://AidenDesktop/Controls/EZPie.axaml" />
         <StyleInclude Source="avares://AidenDesktop/Controls/EZGeo.axaml" />
+        <Style>
+            <Style.Resources>
+                <ResourceInclude x:Key="IconGeometries" Source="avares://AidenDesktop/Assets/IconGeometries.axaml"/>
+            </Style.Resources>
+        </Style>
     </Application.Styles>
 </Application>

@@ -13,7 +13,7 @@
         x:DataType="vm:MainViewModel"
         x:CompileBindings="True"
         Title="Rower :: Aiden Sample">
-
+    
     <DockPanel LastChildFill="true">
         <con:NavigationView AlwaysShowHeader="False"
                             OpenPaneLength="150"
@@ -27,7 +27,7 @@
                             CompactModeThresholdWidth="100">
             <con:NavigationView.Background>
                 <LinearGradientBrush StartPoint="0,1" EndPoint="0,1200">
-                    <GradientStop Color="Black" Offset="0.3" />
+                    <GradientStop Color="White" Offset="0.3" />
                     <GradientStop Color="#164b72" Offset="0.9" />
                 </LinearGradientBrush>
             </con:NavigationView.Background>
@@ -51,7 +51,7 @@
             <con:NavigationView.MenuItemTemplate>
                 <DataTemplate DataType="{x:Type vm:NavItem}">
                     <con:NavigationViewItem Content="{Binding Name}"
-                                            IconSource="{Binding Icon}"
+                                            IconSource="{Binding IconSource}"
                                             InfoBadge="{Binding Badge}" 
                                             Background="Transparent">
 

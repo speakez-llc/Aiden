@@ -1,5 +1,6 @@
 ﻿namespace AidenDesktop.ViewModels
 
+
 open Avalonia
 open Avalonia.Styling
 open Elmish
@@ -23,19 +24,6 @@ type NavItem() =
     (* TODO: If we want multiple icon type support, a converter may be a better option
         at the moment, it can be only one type, so for the short term we'll have to choose one
      *)
-    let createTestIcon() =
-        (* let symbolIcon = SymbolIconSource()
-        symbolIcon.Symbol <- Symbol.Home
-        symbolIcon *)
-
-        (* let pathIcon = PathIconSource()
-        pathIcon.Data <- Geometry.Parse("M0,0 L0,1 1,1 1,0 z M0.5,0.5 L0.5,0 L0,0.5 L0.5,1 L1,0.5 L0.5,0 z")
-        pathIcon *)
-
-        let i = new BitmapIconSource()
-        i.UriSource <- System.Uri("avares://AidenDesktop/Assets/test.png")
-        i
-        
     let createBadge() =
         let b = InfoBadge()
         b.Value <- 0
@@ -47,14 +35,22 @@ type NavItem() =
         b.IsVisible <- false
         b
 
-    let mutable _testIcon  = createTestIcon()
+    
+    let createIcon(iconKey: string) =
+        let pathIcon = PathIconSource()
+        let geometry = Application.Current.Resources.[iconKey] :?> Geometry
+        pathIcon.Data <- geometry
+        pathIcon
+                
+    let mutable _icon = createIcon("Home")
+        
     let mutable _badge = createBadge()
+    member val IconSource = _icon :> IconSource with get
+    member val Icon = _icon with get, set
+
     member val Name = "" with get, set
     member val Badge = _badge with get, set
     
-    member this.Icon
-        with get() = _testIcon
-        and set(value) = _testIcon <- value
 
     member this.SetBadgeValue(value : int) =
         this.Badge.Value <- value
@@ -64,20 +60,20 @@ type NavItem() =
             this.Badge.IsVisible <- false
         
     
-    new(name : string, icon : string) as self =
+    new(name : string, iconKey : string) as self =
         NavItem() then
         do
             self.Name <- name
-            let i = new BitmapIconSource()
-            i.UriSource <- System.Uri(sprintf "avares://AidenDesktop/Assets/%s.png" icon)
+            let i = new PathIconSource()
+            i.Data <- Application.Current.Resources.[iconKey] :?> Geometry
             self.Icon <- i
     
-    new(name: string, icon: string, badgeValue: int) as self =
+    new(name: string, iconKey: string, badgeValue: int) as self =
         NavItem() then
         do
             self.Name <- name
-            let i = new BitmapIconSource()
-            i.UriSource <- System.Uri(sprintf "avares://AidenDesktop/Assets/%s.png" icon)
+            let i = new PathIconSource()
+            i.Data <- Application.Current.Resources.[iconKey] :?> Geometry
             self.Icon <- i
             self.SetBadgeValue(badgeValue)
             
@@ -112,13 +108,13 @@ module MainViewModule =
             ChatOpen = false 
             ChatAlertCount = 2
             ShowChatBadge = true
-            SelectedNavItem = NavItem("Home", "Home_Rower")
+            SelectedNavItem = NavItem("Home", "Home")
             NavigationList = [ 
-                NavItem("Home", "Home_Rower")
-                NavItem("Dashboard", "FA_Map_Rower", 2)
-                NavItem("WIP", "FA_Chart_Rower")
-                NavItem("File Picker", "FA_File_Rower")
-                NavItem("About", "FA_Info_Rower")
+                NavItem("Home", "Home")
+                NavItem("Line Chart", "Line", 2)
+                NavItem("Map Dashboard", "Globe")
+                NavItem("File Picker", "FileImport")
+                NavItem("About", "Info")
             ]
             IsDarkThemeEnabled = true
         }
@@ -138,12 +134,11 @@ module MainViewModule =
             { model with ChatAlertCount = count }
         | SelectedNavItemChanged item ->
             match item.Name with
-            | "Chart" -> app.Dispatch (SetView ChartView)
-            | "Dashboard" -> app.Dispatch (SetView DoughnutView)
+            | "Home" -> app.Dispatch (SetView HomeView)
+            | "Line Chart" -> app.Dispatch (SetView ChartView)
+            | "Map Dashboard" -> app.Dispatch (SetView DashboardView)
             | "File Picker" -> app.Dispatch (SetView FilePickerView)
             | "About" -> app.Dispatch (SetView AboutView)
-            | "Home" -> app.Dispatch (SetView HomeView)
-            | "WIP" -> app.Dispatch (SetView DashboardView)
             | _ -> ()            
             { model with SelectedNavItem = item }
         | ToggleTheme t ->
@@ -192,7 +187,11 @@ type MainViewModel(root: CompositionRoot) as self =
         and set(value) = local.Dispatch (SelectedNavItemChanged value)
 
     member self.NavigationList = self.Bind(local, _.NavigationList)
-        
+    
+    member self.createIcon(iconKey: string) =
+        let pathIcon = PathIconSource()
+        pathIcon.Data <- Application.Current.Resources.[iconKey] :?> Geometry
+        pathIcon
       
     member self.ChatView = root.GetView<ChatViewModel>()
     member self.ContentView =
