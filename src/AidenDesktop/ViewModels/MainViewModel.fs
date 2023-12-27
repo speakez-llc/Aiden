@@ -29,7 +29,7 @@ type NavItem() =
         b.Value <- 0
         b.FontSize <- 8.0
         b.Foreground <- SolidColorBrush(Colors.White)
-        b.Background <- SolidColorBrush(Colors.DarkOrange)
+        b.Background <- SolidColorBrush(Colors.Navy)
         b.HorizontalAlignment <- HorizontalAlignment.Left
         b.VerticalAlignment <- VerticalAlignment.Top
         b.IsVisible <- false
@@ -189,9 +189,10 @@ type MainViewModel(root: CompositionRoot) as self =
     member self.NavigationList = self.Bind(local, _.NavigationList)
     
     member self.createIcon(iconKey: string) =
-        let pathIcon = PathIconSource()
-        pathIcon.Data <- Application.Current.Resources.[iconKey] :?> Geometry
-        pathIcon
+        let fontIcon = FontIconSource()
+        fontIcon.FontFamily <- FontFamily("FontAwesome")
+        fontIcon.Glyph <- iconKey
+        fontIcon
       
     member self.ChatView = root.GetView<ChatViewModel>()
     member self.ContentView =

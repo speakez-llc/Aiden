@@ -27,7 +27,7 @@
                             CompactModeThresholdWidth="100">
             <con:NavigationView.Background>
                 <LinearGradientBrush StartPoint="0,1" EndPoint="0,1200">
-                    <GradientStop Color="White" Offset="0.3" />
+                    <GradientStop Color="Black" Offset="0.3" />
                     <GradientStop Color="#164b72" Offset="0.9" />
                 </LinearGradientBrush>
             </con:NavigationView.Background>
@@ -51,10 +51,8 @@
             <con:NavigationView.MenuItemTemplate>
                 <DataTemplate DataType="{x:Type vm:NavItem}">
                     <con:NavigationViewItem Content="{Binding Name}"
-                                            IconSource="{Binding IconSource}"
-                                            InfoBadge="{Binding Badge}" 
-                                            Background="Transparent">
-
+                                            IconSource="{Binding Icon}"
+                                            InfoBadge="{Binding Badge}">
                     </con:NavigationViewItem>
                 </DataTemplate>
             </con:NavigationView.MenuItemTemplate>
@@ -71,9 +69,9 @@
                                 <ToggleButton.Template>
                                     <ControlTemplate>
                                         <Grid>
-                                            <con:BitmapIcon Width="32" Height="32"
+                                            <con:BitmapIcon Width="36" Height="36"
                                                             HorizontalAlignment="Center"
-                                                            UriSource="avares://AidenDesktop/Assets/SpeakEZ.ico" />
+                                                            UriSource="avares://AidenDesktop/Assets/Rower_icon.ico" />
                                             <con:InfoBadge Value="{Binding ChatAlertCount}"
                                                            IsVisible="{Binding ShowChatBadge}"
                                                            HorizontalAlignment="Left"
