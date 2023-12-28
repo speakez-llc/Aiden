@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:fluent="using:FluentAvalonia.UI.Controls"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="850"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:vm="using:AidenDesktop.ViewModels"
@@ -13,17 +14,15 @@
     <StackPanel HorizontalAlignment="Center" Margin="10">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" /> 
-                <RowDefinition Height="50" /> 
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="4*" /> 
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" /> 
-                    <ColumnDefinition Width="*" /> 
-                    <ColumnDefinition Width="*" /> 
-                    <ColumnDefinition Width="*" /> 
-                    <ColumnDefinition Width="*" /> 
+                    <ColumnDefinition Width="2*" /> 
+                    <ColumnDefinition Width="2*" /> 
+                    <ColumnDefinition Width="2*" /> 
+                    <ColumnDefinition Width="2*" /> 
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="VPN"
                            HorizontalAlignment="Center"
@@ -73,45 +72,63 @@
                     DrawMargin="{Binding Margin}"
                     Series="{Binding MAL_Series}" 
                     Grid.Column="3"/>
-                <TextBlock Text="COO"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           FontSize="20"
-                           FontWeight="Bold"
-                           Grid.Column="4"/>
-                <lvc:PieChart
-                    Height="300"
-                    Width="300"
-                    DrawMargin="{Binding Margin}"
-                    Series="{Binding COO_PieSeries}" 
-                    Grid.Column="4"/>
             </Grid>
             <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="8*" />
-                </Grid.ColumnDefinitions>
-                <DataGrid Grid.Column="0" ItemsSource="{Binding COO_GridData}" HorizontalAlignment="Right">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Country" Binding="{Binding Name}" />
-                        <DataGridTextColumn Header="Count" Binding="{Binding Count}" />
-                    </DataGrid.Columns>
-                </DataGrid>
-                <Border Grid.Column="1" CornerRadius="10"
-                        Background="LightBlue"
-                        Padding="20">
-                    <lvc:GeoMap  
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        Height="400"
-                        MaxWidth="750"
-                        Series="{Binding COO_MapSeries}"
-                        MapProjection="Default"/>
+                <Border Grid.Column="1" CornerRadius="20"
+                        Background="#010B17"
+                        Padding="15, 0, 0 ,30">
+                    <TabControl  HorizontalAlignment="Stretch" 
+                                 VerticalAlignment="Stretch" 
+                                 TabStripPlacement="Top" 
+                                 FontSize="12">
+                        <TabControl.Styles>
+                            <Style Selector="TabItem">
+                                <Setter Property="FontSize" Value="16"/>
+                                <Setter Property="Margin" Value="0,0,0,10"/>
+                                <Setter Property="Padding" Value="10, 0, 10, 8"/>
+                                <Setter Property="CornerRadius" Value="16" />
+                            </Style>
+                        </TabControl.Styles>
+                        <TabItem Header="Map View">
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="8*" />
+                                </Grid.ColumnDefinitions>
+                                <DataGrid Grid.Column="0" ItemsSource="{Binding COO_GridData}" HorizontalAlignment="Right">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Country" Binding="{Binding Name}" />
+                                        <DataGridTextColumn Header="Count" Binding="{Binding Count}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <Border Grid.Column="1" CornerRadius="10"
+                                        Background="LightSlateGray"
+                                        Padding="15"
+                                        MaxWidth="800">
+                                    <lvc:GeoMap Name="GeoMap"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Stretch"
+                                                Height="380    "
+                                                MaxWidth="750"
+                                                Series="{Binding COO_MapSeries}"
+                                                MapProjection="Default"/>
+                                </Border>
+                                
+                            </Grid>
+                        </TabItem>
+                        
+                        <TabItem Header="Data Grid">
+                            <DataGrid ItemsSource="{Binding COO_GridData}" HorizontalAlignment="Stretch">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Country" Binding="{Binding Name}" />
+                                    <DataGridTextColumn Header="Count" Binding="{Binding Count}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                    </TabControl>
                 </Border>
-                
             </Grid>
-            <Button Grid.Row="2" Content="Ok"  Command="{Binding Ok}" HorizontalAlignment="Center" />
         </Grid>
     </StackPanel>
-        
+   
 </UserControl>

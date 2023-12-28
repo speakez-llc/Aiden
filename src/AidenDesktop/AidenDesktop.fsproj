@@ -62,6 +62,7 @@
         <PackageReference Include="LiveChartsCore" Version="2.0.0-rc2" />
         <PackageReference Include="LiveChartsCore.SkiaSharpView" Version="2.0.0-rc2" />
         <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-rc2" />
+        <PackageReference Include="Neumorphism.Avalonia" Version="0.10.0" />
         <PackageReference Include="Npgsql" Version="8.0.1" />
         <PackageReference Include="Projektanker.Icons.Avalonia.FontAwesome" Version="9.0.1" />
         <PackageReference Include="Projektanker.Icons.Avalonia.MaterialDesign" Version="9.0.1" />

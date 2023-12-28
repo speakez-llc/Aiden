@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia; assembly=LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
-             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
 			 xmlns:vm="using:AidenDesktop.ViewModels"
 			 xmlns:local="using:AidenDesktop.Views"
              xmlns:controls="clr-namespace:AidenDesktop.Controls;assembly=AidenDesktop"

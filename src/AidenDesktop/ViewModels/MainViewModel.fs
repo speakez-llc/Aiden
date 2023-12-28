@@ -3,12 +3,12 @@
 
 open Avalonia
 open Avalonia.Styling
-open Elmish
 open Avalonia.Media
+open FluentAvalonia.UI.Controls
 open Avalonia.Layout
+open Elmish
 open ReactiveElmish
 open ReactiveElmish.Avalonia
-open FluentAvalonia.UI.Controls
 open App
 
 
@@ -24,33 +24,38 @@ type NavItem() =
     (* TODO: If we want multiple icon type support, a converter may be a better option
         at the moment, it can be only one type, so for the short term we'll have to choose one
      *)
+    
+    let createTestIcon() =
+        let i = new BitmapIconSource()
+        i.UriSource <- System.Uri("avares://AidenDesktop/Assets/Home.png")
+        i
+        
     let createBadge() =
         let b = InfoBadge()
         b.Value <- 0
         b.FontSize <- 8.0
-        b.Foreground <- SolidColorBrush(Colors.White)
-        b.Background <- SolidColorBrush(Colors.Navy)
-        b.HorizontalAlignment <- HorizontalAlignment.Left
-        b.VerticalAlignment <- VerticalAlignment.Top
+        b.Width <- 16.0
+        b.Height <- 16.0
+        b.Padding <- Thickness(0, 4, 0, 0)
+        b.Foreground <- SolidColorBrush(Colors.Black)
+        b.Background <- SolidColorBrush(Colors.Tan)
+        b.HorizontalAlignment <- HorizontalAlignment.Stretch
+        b.VerticalAlignment <- VerticalAlignment.Bottom
         b.IsVisible <- false
         b
 
-    
-    let createIcon(iconKey: string) =
-        let pathIcon = PathIconSource()
-        let geometry = Application.Current.Resources.[iconKey] :?> Geometry
-        pathIcon.Data <- geometry
-        pathIcon
+    let mutable _testIcon = createTestIcon()
                 
-    let mutable _icon = createIcon("Home")
+    let mutable _icon = createTestIcon()
         
     let mutable _badge = createBadge()
-    member val IconSource = _icon :> IconSource with get
-    member val Icon = _icon with get, set
 
     member val Name = "" with get, set
     member val Badge = _badge with get, set
     
+    member this.Icon
+        with get() = _icon
+        and set(value) = _icon <- value
 
     member this.SetBadgeValue(value : int) =
         this.Badge.Value <- value
@@ -60,20 +65,20 @@ type NavItem() =
             this.Badge.IsVisible <- false
         
     
-    new(name : string, iconKey : string) as self =
+    new(name : string, icon : string) as self =
         NavItem() then
         do
             self.Name <- name
-            let i = new PathIconSource()
-            i.Data <- Application.Current.Resources.[iconKey] :?> Geometry
+            let i = new BitmapIconSource()
+            i.UriSource <- System.Uri(sprintf "avares://AidenDesktop/Assets/%s.png" icon)
             self.Icon <- i
     
-    new(name: string, iconKey: string, badgeValue: int) as self =
+    new(name: string, icon: string, badgeValue: int) as self =
         NavItem() then
         do
             self.Name <- name
-            let i = new PathIconSource()
-            i.Data <- Application.Current.Resources.[iconKey] :?> Geometry
+            let i = new BitmapIconSource()
+            i.UriSource <- System.Uri(sprintf "avares://AidenDesktop/Assets/%s.png" icon)
             self.Icon <- i
             self.SetBadgeValue(badgeValue)
             
@@ -108,13 +113,13 @@ module MainViewModule =
             ChatOpen = false 
             ChatAlertCount = 2
             ShowChatBadge = true
-            SelectedNavItem = NavItem("Home", "Home")
+            SelectedNavItem = NavItem("Home", "Home_Rower")
             NavigationList = [ 
-                NavItem("Home", "Home")
-                NavItem("Line Chart", "Line", 2)
-                NavItem("Map Dashboard", "Globe")
-                NavItem("File Picker", "FileImport")
-                NavItem("About", "Info")
+                NavItem("Home", "Home_Rower")
+                NavItem("Timeline", "FA_Chart_Rower")
+                NavItem("Map View", "FA_Map_Rower", 2)
+                NavItem("Load Files", "FA_File_Rower")
+                NavItem("About", "FA_Info_Rower")
             ]
             IsDarkThemeEnabled = true
         }
@@ -135,9 +140,9 @@ module MainViewModule =
         | SelectedNavItemChanged item ->
             match item.Name with
             | "Home" -> app.Dispatch (SetView HomeView)
-            | "Line Chart" -> app.Dispatch (SetView ChartView)
-            | "Map Dashboard" -> app.Dispatch (SetView DashboardView)
-            | "File Picker" -> app.Dispatch (SetView FilePickerView)
+            | "Timeline" -> app.Dispatch (SetView ChartView)
+            | "Map View" -> app.Dispatch (SetView DoughnutView)
+            | "Load Files" -> app.Dispatch (SetView FilePickerView)
             | "About" -> app.Dispatch (SetView AboutView)
             | _ -> ()            
             { model with SelectedNavItem = item }

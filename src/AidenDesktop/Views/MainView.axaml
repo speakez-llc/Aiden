@@ -4,8 +4,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:con="using:FluentAvalonia.UI.Controls"
         xmlns:i="https://github.com/projektanker/icons.avalonia"
-        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="850"
-        Width="1200" Height="850"
+        mc:Ignorable="d" d:DesignWidth="1512" d:DesignHeight="850"
+        Width="1512" Height="850"
         x:Class="AidenDesktop.Views.MainView"
         Icon="/Assets/SpeakEZ.ico"
         xmlns:vm="using:AidenDesktop.ViewModels"
@@ -71,12 +71,16 @@
                                         <Grid>
                                             <con:BitmapIcon Width="36" Height="36"
                                                             HorizontalAlignment="Center"
-                                                            UriSource="avares://AidenDesktop/Assets/Rower_icon.ico" />
+                                                            UriSource="avares://AidenDesktop/Assets/Rower_icon.png" />
                                             <con:InfoBadge Value="{Binding ChatAlertCount}"
                                                            IsVisible="{Binding ShowChatBadge}"
                                                            HorizontalAlignment="Left"
                                                            VerticalAlignment="Top"
-                                                           Background="#C18E3A" />
+                                                           Background="Tan"
+                                                           Foreground="Black"
+                                                           Height="16"
+                                                           Width="16"
+                                                           Padding="0,4,0,0"/>
                                         </Grid>
                                     </ControlTemplate>
                                 </ToggleButton.Template>

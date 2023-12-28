@@ -32,12 +32,6 @@
                 EasingFunction="{Binding Source={x:Null}}">
             </lvc:CartesianChart>
         </Grid>
-        <DataGrid ItemsSource="{Binding Actions}" Height="200" Width="350" >
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="TimeStamp" Binding="{Binding Timestamp}" />
-                <DataGridTextColumn Header="Event" Binding="{Binding Description}" />
-            </DataGrid.Columns>
-        </DataGrid>
         <Button Content="Ok" Command="{Binding Ok}" HorizontalAlignment="Center" />
     </StackPanel>
 </UserControl>

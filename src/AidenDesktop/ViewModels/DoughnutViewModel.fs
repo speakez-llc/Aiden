@@ -41,12 +41,14 @@ module Doughnut =
             TOR_Series: ObservableCollection<ISeries>
             PXY_Series: ObservableCollection<ISeries>
             MAL_Series: ObservableCollection<ISeries>
+            MAL_CardData: (string * float) list
             COO_PieSeries: ObservableCollection<ISeries>
             COO_MapSeries: HeatLandSeries array
             COO_GridData: ObservableCollection<CountryData>
             IsFrozen: bool
             Margin: LiveChartsCore.Measure.Margin
             currentColorSeries: Drawing.LvcColor array
+            IsFetchDataForCOOChartActive: bool
         }
 
     type Msg =
@@ -56,39 +58,22 @@ module Doughnut =
         | UpdateMALChartData of (string * int) list 
         | UpdateCOOChartData of (string * int) list
         | UpdateCOOGridData of (string * int) list
+        | SetFetchDataForCOOChartActive of bool
         | Terminate
      
+
+     
     let blueSeries = [|
-        SKColor.Parse("#5e56f5").AsLvcColor(); // LightBlue
-        SKColor.Parse("#2d2899").AsLvcColor(); // Blue
-        SKColor.Parse("#100c52").AsLvcColor()  // DeepBlue
+        SKColor.Parse("#164B72").AsLvcColor(); // LightBlue
+        SKColor.Parse("#0E1A45").AsLvcColor()  // DeepBlue
     |]
-
-    let orangeSeries = [|
-        SKColor.Parse("#ed6339").AsLvcColor(); 
-        SKColor.Parse("#bf431d").AsLvcColor(); 
-        SKColor.Parse("#ad2a02").AsLvcColor() 
-    |]
-
-    let greenSeries = [|
-        SKColor.Parse("#47cc47").AsLvcColor(); 
-        SKColor.Parse("#0cab0c").AsLvcColor(); 
-        SKColor.Parse("#036603").AsLvcColor() 
-    |]
-
+   
     let goldSeries = [|
-        SKColor.Parse("#f0d341").AsLvcColor(); 
-        SKColor.Parse("#c4a81a").AsLvcColor(); 
-        SKColor.Parse("#998005").AsLvcColor() 
+        SKColor.Parse("#C18E3A").AsLvcColor(); 
+        SKColor.Parse("#664B1F").AsLvcColor() 
     |]
     
-    let purpleSeries = [|
-        SKColor.Parse("#9e4cf5").AsLvcColor(); 
-        SKColor.Parse("#671fb5").AsLvcColor(); 
-        SKColor.Parse("#3c0478").AsLvcColor() 
-    |]
-    
-    let allColorSeries = [blueSeries; orangeSeries; greenSeries; goldSeries; purpleSeries]
+    let allColorSeries = [blueSeries; goldSeries]
 
     let selectRandomColorSeries (currentColorSeries: Drawing.LvcColor array) =
         // Filter out the current color series
@@ -96,7 +81,7 @@ module Doughnut =
         // Select a random color series from the available ones
         let rnd = Random()
         let index = rnd.Next(availableColorSeries.Length)
-        availableColorSeries.[index]
+        availableColorSeries[index]
         
     let fetchDataAsync(column: string) =
         async {
@@ -125,7 +110,7 @@ module Doughnut =
         }
 
     let fetchDataForPXYChart (dispatch: Msg -> unit) =
-        let timer = new Timer(rnd.Next(2990, 3010)) // Fetch data every 5 seconds
+        let timer = new Timer(rnd.Next(2998, 3002)) // Fetch data every 5 seconds
         let disposable =
             timer.Elapsed.Subscribe(fun _ -> 
                 async {
@@ -137,7 +122,7 @@ module Doughnut =
         timer.Start()
         disposable
     let fetchDataForMALChart (dispatch: Msg -> unit) =
-        let timer = new Timer(rnd.Next(2990, 3010)) // Fetch data every 5 seconds
+        let timer = new Timer(rnd.Next(2998, 3002)) // Fetch data every 5 seconds
         let disposable =
             timer.Elapsed.Subscribe(fun _ -> 
                 async {
@@ -149,19 +134,20 @@ module Doughnut =
         timer.Start()
         disposable
     let fetchDataForCOOChart (dispatch: Msg -> unit) =
-        let timer = new Timer(rnd.Next(2990, 3010)) // Fetch data every 5 seconds
+        let timer = new Timer(rnd.Next(2998, 3002)) // Fetch data every 5 seconds
         let disposable =
-            timer.Elapsed.Subscribe(fun _ -> 
+            timer.Elapsed.Subscribe(fun _ ->
                 async {
-                    let! fetchedData = fetchDataAsync("cc") 
+                    let! fetchedData = fetchDataAsync("cc")
                     dispatch (UpdateCOOChartData fetchedData)
                 } |> Async.Start
             )
-        //printfn $"{DateTime.Now} COO Subscription started"
         timer.Start()
-        disposable  
+        disposable
+
+
     let fetchDataForVPNChart (dispatch: Msg -> unit) =
-        let timer = new Timer(rnd.Next(2990, 3010)) // Fetch data every 5 seconds
+        let timer = new Timer(rnd.Next(2998, 3002)) // Fetch data every 5 seconds
         let disposable =
             timer.Elapsed.Subscribe(fun _ -> 
                 async {
@@ -173,7 +159,7 @@ module Doughnut =
         timer.Start()
         disposable 
     let fetchDataForTORChart (dispatch: Msg -> unit) =
-        let timer = new Timer(rnd.Next(2990, 3010)) // Fetch data every 5 seconds
+        let timer = new Timer(rnd.Next(2998, 3002)) // Fetch data every 5 seconds
         let disposable =
             timer.Elapsed.Subscribe(fun _ -> 
                 async {
@@ -194,8 +180,15 @@ module Doughnut =
     let fetchCOOGridDataAsync (dataType: string) =
         async {
             let! data = fetchDataAsync(dataType)
-            let updatedGridData = data |> List.map (fun (name, count) -> { Name = name.ToUpper(); Count = count })
+            let updatedGridData = data |> List.map (fun (name, count) -> { Name = name.ToUpper(); Count = count }) |> List.sortBy (fun data -> data.Count) |> List.rev
             return ObservableCollection<_>(updatedGridData)
+        }
+        
+    let fetchMALCardDataAsync (dataType: string) =
+        async {
+            let! data = fetchDataAsync(dataType)
+            let updatedCardData = data |> List.map (fun (name, count) -> (name.ToUpper(), float count))
+            return updatedCardData
         }
         
     let init() =
@@ -204,6 +197,7 @@ module Doughnut =
             let! torSeries = fetchPieDataAsync("tor")
             let! pxySeries = fetchPieDataAsync("proxy")
             let! malSeries = fetchPieDataAsync("malware")
+            let! malCardData = fetchMALCardDataAsync("malware")
             let! cooSeries = fetchPieDataAsync("cc")
             let! cooGridData = fetchCOOGridDataAsync("cc")
 
@@ -213,22 +207,24 @@ module Doughnut =
                 PXY_Series = pxySeries
                 COO_MapSeries = [| HeatLandSeries(HeatMap = blueSeries, Lands = [|
                             HeatLand(Name = "usa", Value = 47.0) :> IWeigthedMapLand
-                            HeatLand(Name = "gbr", Value = 6.0) :> IWeigthedMapLand
-                            HeatLand(Name = "egy", Value = 7.0) :> IWeigthedMapLand
+                            HeatLand(Name = "can", Value = 22.0) :> IWeigthedMapLand
                             HeatLand(Name = "ind", Value = 18.0) :> IWeigthedMapLand
                             HeatLand(Name = "kor", Value = 10.0) :> IWeigthedMapLand
+                            HeatLand(Name = "egy", Value = 7.0) :> IWeigthedMapLand
                             HeatLand(Name = "rus", Value = 7.0) :> IWeigthedMapLand
-                            HeatLand(Name = "can", Value = 22.0) :> IWeigthedMapLand
+                            HeatLand(Name = "gbr", Value = 6.0) :> IWeigthedMapLand
                             HeatLand(Name = "ukr", Value = 6.0) :> IWeigthedMapLand
                             HeatLand(Name = "idn", Value = 5.0) :> IWeigthedMapLand
                             HeatLand(Name = "deu", Value = 2.0) :> IWeigthedMapLand
                         |]) |]
                 COO_PieSeries = cooSeries
                 COO_GridData = cooGridData
+                MAL_CardData = malCardData 
                 MAL_Series = malSeries
                 IsFrozen = false
                 Margin = LiveChartsCore.Measure.Margin(50f, 50f, 50f, 50f)
-                currentColorSeries = blueSeries 
+                currentColorSeries = blueSeries
+                IsFetchDataForCOOChartActive = true 
             }
 
         } |> Async.RunSynchronously
@@ -236,6 +232,8 @@ module Doughnut =
 
     let rec update (msg: Msg) (model: Model) =
         match msg with
+        | SetFetchDataForCOOChartActive isActive ->
+            { model with IsFetchDataForCOOChartActive = isActive }
         | UpdateMALChartData chartData ->
             let seriesMap = 
                 model.MAL_Series |> Seq.map (fun s -> (s :?> PieSeries<int>).Name, s) |> Map.ofSeq
@@ -372,7 +370,7 @@ module Doughnut =
                             else l)
                         |> Map.values
                     else
-                        landsMap.Add(nameLower, new HeatLand(Name = name, Value = float value) :> IWeigthedMapLand)
+                        landsMap.Add(nameLower, HeatLand(Name = name, Value = float value) :> IWeigthedMapLand)
                         |> Map.values
                 let newHeatMap = createHeatMap()
                 series.HeatMap <- newHeatMap
@@ -391,23 +389,29 @@ module Doughnut =
                 // Handle case where COO_MapSeries is not initialized or in an unexpected state
                 model
         | UpdateCOOGridData chartData ->
-            let updatedGridData = chartData |> List.map (fun (name, count) -> { Name = name.ToUpper(); Count = count })
+            let updatedGridData = 
+                chartData 
+                |> List.map (fun (name, count) -> { Name = name.ToUpper(); Count = count })
+                |> List.sortBy (fun data -> data.Count) |> List.rev
             { model with COO_GridData = ObservableCollection<_>(updatedGridData) }
         | Terminate -> model
 
     let subscriptions (model: Model) : Sub<Msg> =
         [
-            [ nameof fetchDataForCOOChart], fetchDataForCOOChart
             [ nameof fetchDataForMALChart], fetchDataForMALChart
             [ nameof fetchDataForVPNChart], fetchDataForVPNChart
             [ nameof fetchDataForPXYChart], fetchDataForPXYChart
             [ nameof fetchDataForTORChart], fetchDataForTORChart
+            if model.IsFetchDataForCOOChartActive then
+                [ nameof fetchDataForCOOChart], fetchDataForCOOChart
         ]
         
 open Doughnut
 
 type DoughnutViewModel() as this =
     inherit ReactiveElmishViewModel()
+    
+    let mutable dispatch : Msg -> unit = ignore
 
     let app = App.app
 
@@ -420,6 +424,8 @@ type DoughnutViewModel() as this =
         //Terminate all Elmish subscriptions on dispose (view is registered as Transient).
         |> Program.mkStoreWithTerminate this Terminate
     
+    
+    member this.Dispatch with get() = dispatch
     member this.Margin = this.Bind(local, _.Margin)
     member this.VPN_Series = this.Bind(local, _.VPN_Series)
     member this.TOR_Series =  this.Bind(local, _.TOR_Series)
