@@ -12,6 +12,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <lvc:CartesianChart 
                 Grid.Row="0" 
@@ -21,6 +22,20 @@
                 XAxes="{Binding XAxes}"
                 EasingFunction="{Binding Source={x:Null}}">
             </lvc:CartesianChart>
+            <!-- <DataGrid Grid.Row="1" ItemsSource="{Binding Events}" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Event Time" Binding="{Binding EventTime }"/>
+                    <DataGridTextColumn Header="Source IP" Binding="{Binding SrcIp}"/>
+                    <DataGridTextColumn Header="Source Port" Binding="{Binding SrcPort}"/>
+                    <DataGridTextColumn Header="Dest IP" Binding="{Binding DstIp}"/>
+                    <DataGridTextColumn Header="Dest Port" Binding="{Binding DstPort}"/>
+                    <DataGridTextColumn Header="CC" Binding="{Binding Cc}"/>
+                    <DataGridTextColumn Header="VPN" Binding="{Binding Vpn}"/>
+                    <DataGridTextColumn Header="Proxy" Binding="{Binding Proxy}"/>
+                    <DataGridTextColumn Header="TOR" Binding="{Binding Tor}"/>
+                    <DataGridTextColumn Header="Malware" Binding="{Binding Malware}"/>
+                </DataGrid.Columns>
+            </DataGrid> -->
         </Grid>
     </StackPanel>
 </UserControl>

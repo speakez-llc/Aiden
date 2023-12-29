@@ -1,25 +1,48 @@
 namespace AidenDesktop.ViewModels
 
 open System
-open System.Data
 open System.IO
 open System.Collections.Generic
 open System.Collections.ObjectModel
 open System.Reactive.Linq
 open System.Text.Json
-open Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindings
-open LiveChartsCore.SkiaSharpView.Drawing.Geometries
 open ReactiveElmish
 open ReactiveElmish.Avalonia
 open Elmish
-open DynamicData
 open LiveChartsCore
 open LiveChartsCore.Kernel.Sketches
 open LiveChartsCore.SkiaSharpView
 open LiveChartsCore.Defaults
 open Npgsql
 
-module Chart = 
+module Chart =
+    
+    type EventsData =
+        {
+            EventTime: DateTime
+            SrcIp: string
+            SrcPort: int
+            DstIp: string
+            DstPort: int
+            Cc: string
+            Vpn: string
+            Proxy: string
+            Tor: string
+            Malware: string
+        }
+        
+    type Model = 
+        {
+            Series: ObservableCollection<ISeries>
+            //Events: ObservableCollection<EventsData>
+        }
+
+    type Msg =
+       | RemoveOldSeries
+       | UpdateSeries
+       //| UpdateDataGrid
+       | Terminate
+    
 
     let rnd = Random()
     
@@ -29,20 +52,31 @@ module Chart =
             let json = JsonDocument.Parse(File.ReadAllText(filePath))
             let dbSection = json.RootElement.GetProperty("Database")
             let connectionString = dbSection.GetProperty("ConnectionString").GetString()
-            //printfn $"Connection String: %s{connectionString}"
             connectionString
         else
             printfn $"Error: File not found: %s{filePath}"
             ""
             
+    let readEventsData (reader: NpgsqlDataReader) =
+        {
+            EventTime = reader.GetDateTime(reader.GetOrdinal("event_time"))
+            SrcIp = reader.GetString(reader.GetOrdinal("src_ip"))
+            SrcPort = reader.GetInt32(reader.GetOrdinal("src_port"))
+            DstIp = reader.GetString(reader.GetOrdinal("dst_ip"))
+            DstPort = reader.GetInt32(reader.GetOrdinal("dst_port"))
+            Cc = reader.GetString(reader.GetOrdinal("cc"))
+            Vpn = reader.GetString(reader.GetOrdinal("vpn"))
+            Proxy = reader.GetString(reader.GetOrdinal("proxy"))
+            Tor = reader.GetString(reader.GetOrdinal("tor"))
+            Malware = reader.GetString(reader.GetOrdinal("malware"))
+        }
+
     let fetchEventsAsync() =
         async {
-            // Connect to the database and execute the query
             use connection = new NpgsqlConnection(connectionString)
             do! connection.OpenAsync() |> Async.AwaitTask
-            // Construct the query string with the column name
             let query =
-                $@"SELECT event_time, src_ip, src_port, dst_ip, dst_port, cc, vpn, proxy, tor, malware  
+                $@"SELECT event_time, src_ip, src_port, dst_ip, dst_port, cc, vpn, proxy, tor, malware
                    FROM events_hourly
                    WHERE event_time >= now() AT TIME ZONE 'UTC' - INTERVAL '1 minute'
                    ORDER BY event_time DESC;"
@@ -51,30 +85,18 @@ module Chart =
 
             do! cmd.PrepareAsync() |> Async.AwaitTask
 
-            use! reader = cmd.ExecuteReaderAsync() |> Async.AwaitTask
-            let results = 
+            let! dbReader = cmd.ExecuteReaderAsync() |> Async.AwaitTask
+            use reader = dbReader :?> NpgsqlDataReader
+            let results =
                 [ while reader.Read() do
-                    yield (
-                        reader.GetDateTime(reader.GetOrdinal("event_time")),
-                        reader.GetString(reader.GetOrdinal("src_ip")),
-                        reader.GetInt32(reader.GetOrdinal("src_port")),
-                        reader.GetString(reader.GetOrdinal("dst_ip")),
-                        reader.GetInt32(reader.GetOrdinal("dst_port")),
-                        reader.GetString(reader.GetOrdinal("cc")),
-                        reader.GetString(reader.GetOrdinal("vpn")),
-                        reader.GetString(reader.GetOrdinal("proxy")),
-                        reader.GetString(reader.GetOrdinal("tor")),
-                        reader.GetString(reader.GetOrdinal("malware"))
-                    ) ]
-            return results
+                    yield readEventsData reader ]
+            return ObservableCollection<_>(results)
         }
         
     let fetchEventsPerSecondAsync() =
         async {
-            // Connect to the database and execute the query
             use connection = new NpgsqlConnection(connectionString)
             do! connection.OpenAsync() |> Async.AwaitTask
-            // Construct the query string with the column name
             let query =
                 $@"WITH time_series AS (
                     SELECT generate_series(
@@ -119,10 +141,8 @@ module Chart =
         
     let fetchMALEventsPerSecondAsync() =
         async {
-            // Connect to the database and execute the query
             use connection = new NpgsqlConnection(connectionString)
             do! connection.OpenAsync() |> Async.AwaitTask
-            // Construct the query string with the column name
             let query =
                 $@"WITH time_series AS (
                     SELECT generate_series(
@@ -166,49 +186,51 @@ module Chart =
             return results
         }
 
-    
-    
-    // create time labeling for the X axis in the Chart visual
     let XAxes : IEnumerable<ICartesianAxis> =
         [| Axis (
-                Labeler = (fun value -> DateTime(int64 value).ToString("HH:mm:ss")),
-                LabelsRotation = 15,
+                Labeler = (fun value -> 
+                    let eventTime = DateTime(int64 value)
+                    let timeAgo = DateTime.UtcNow - eventTime
+                    if timeAgo.TotalSeconds < 60.0 then
+                        $"{timeAgo.TotalSeconds:F0} seconds ago"
+                    elif timeAgo.TotalMinutes < 60.0 then
+                        $"{timeAgo.TotalMinutes:F0} minutes ago"
+                    else
+                        $"{timeAgo.TotalHours:F0} hours ago"),
+                LabelsRotation = 10,
                 UnitWidth = float(TimeSpan.FromSeconds(1).Ticks),
                 MinStep = float(TimeSpan.FromSeconds(1).Ticks)
             )
         |]
 
-    type Model = 
-        {
-            Series: ObservableCollection<ISeries>
-        }
 
-
-    type Msg =
-       | RemoveOldSeries
-       | UpdateSeries
-       | Terminate
-    
     let init() =
-        let eventsPerSecond = 
-            fetchEventsPerSecondAsync()
-            |> Async.RunSynchronously
-            |> List.map (fun (time, count) -> DateTimePoint(time, float count))
-            |> ObservableCollection<_>
-
-        let malEventsPerSecond = 
-            fetchMALEventsPerSecondAsync()
-            |> Async.RunSynchronously
-            |> List.map (fun (time, count) -> DateTimePoint(time, float count))
-            |> ObservableCollection<_>
-
-        {
-            Series = ObservableCollection<ISeries>
-                [
-                    LineSeries<DateTimePoint>(Values = eventsPerSecond, Name = "Events per Second", GeometryFill = null, GeometryStroke = null) :> ISeries
-                    ColumnSeries<DateTimePoint>(Values = malEventsPerSecond, Name = "MAL Events/Sec") :> ISeries
-                ]
-        }
+        async {
+            let eventsPerSecond = 
+                fetchEventsPerSecondAsync()
+                |> Async.RunSynchronously
+                |> List.map (fun (time, count) -> DateTimePoint(time, float count))
+                |> ObservableCollection<_>
+    
+            let malEventsPerSecond = 
+                fetchMALEventsPerSecondAsync()
+                |> Async.RunSynchronously
+                |> List.map (fun (time, count) -> DateTimePoint(time, float count))
+                |> ObservableCollection<_>
+                
+            //let! events =
+                //fetchEventsAsync()
+    
+            return {
+                Series = ObservableCollection<ISeries>
+                    [
+                        LineSeries<DateTimePoint>(Values = eventsPerSecond, Name = "Events per Second", GeometryFill = null, GeometryStroke = null) :> ISeries
+                        ColumnSeries<DateTimePoint>(Values = malEventsPerSecond, Name = "MAL Events/Sec") :> ISeries
+                    ]
+                //Events = events
+            }
+        } |> Async.RunSynchronously
+        
 
     let update (msg: Msg) (model: Model) =
         match msg with
@@ -253,6 +275,11 @@ module Chart =
                 | None -> values2.Insert(values2.Count, point))
 
             model
+        //| UpdateDataGrid ->
+            //let events =
+                //fetchEventsAsync()
+                //|> Async.RunSynchronously
+            //{ model with Events = events }
         | Terminate ->
             model
 
@@ -263,6 +290,7 @@ module Chart =
                 .Subscribe(fun _ ->
                     dispatch UpdateSeries
                     dispatch RemoveOldSeries
+                    //dispatch UpdateDataGrid
                 )
         [
             [ nameof autoUpdateSub ], autoUpdateSub
@@ -285,6 +313,8 @@ type ChartViewModel() as this =
         |> Program.mkStoreWithTerminate this Terminate 
 
     member this.Series = local.Model.Series
+    
+    //member this.Events = local.Model.Events
 
     member this.XAxes = this.Bind (local, fun _ -> XAxes)
 
