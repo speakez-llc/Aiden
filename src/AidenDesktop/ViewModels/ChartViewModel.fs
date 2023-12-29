@@ -2,7 +2,6 @@ namespace AidenDesktop.ViewModels
 
 open System
 open System.IO
-open System.Net
 open System.Collections.Generic
 open System.Collections.ObjectModel
 open System.Reactive.Linq
@@ -10,10 +9,12 @@ open System.Text.Json
 open ReactiveElmish
 open ReactiveElmish.Avalonia
 open Elmish
+open SkiaSharp
 open LiveChartsCore
 open LiveChartsCore.Kernel.Sketches
 open LiveChartsCore.SkiaSharpView
 open LiveChartsCore.Defaults
+open LiveChartsCore.SkiaSharpView.Painting
 open Npgsql
 
 module Chart =
@@ -39,7 +40,6 @@ module Chart =
         }
 
     type Msg =
-       | RemoveOldSeries
        | UpdateSeries
        | UpdateDataGrid
        | Terminate
@@ -161,7 +161,7 @@ module Chart =
                     $@"SELECT event_time, src_ip::text, src_port, dst_ip::text, dst_port, upper(cc) as cc, vpn, proxy, tor, malware
                         FROM events_hourly
                         WHERE event_time >= now() AT TIME ZONE 'UTC' - INTERVAL '1 minute'
-                        ORDER BY event_time ASC;"
+                        ORDER BY event_time DESC;"
 
                 use cmd = new NpgsqlCommand(query, connection)
 
@@ -186,7 +186,7 @@ module Chart =
                 return results
             with
             | ex ->
-                printfn "Error in fetchEventsAsync: %s" ex.Message
+                printfn $"Error in fetchEventsAsync: %s{ex.Message}"
                 return []
         }
 
@@ -203,11 +203,24 @@ module Chart =
                         $"{timeAgo.TotalHours:F0} hours ago"),
                 LabelsRotation = 10,
                 UnitWidth = float(TimeSpan.FromSeconds(1).Ticks),
-                MinStep = float(TimeSpan.FromSeconds(1).Ticks)
+                MinStep = float(TimeSpan.FromSeconds(1).Ticks),
+                NamePaint = new SolidColorPaint(SKColors.LightSlateGray),
+                LabelsPaint = new SolidColorPaint(SKColors.LightSlateGray),
+                TextSize = 12.0
             )
         |]
-
-
+        
+    let YAxes : IEnumerable<ICartesianAxis> =
+        [| Axis (
+                Labeler = (fun value -> $"{value:F0}"),
+                MinStep = 1.0,
+                NamePaint = new SolidColorPaint(SKColors.LightSlateGray),
+                LabelsPaint = new SolidColorPaint(SKColors.LightSlateGray),
+                SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#808080"))
+            )
+        |]
+        
+    
     let init() =
         let eventsPerSecond = 
             fetchEventsPerSecondAsync()
@@ -229,8 +242,18 @@ module Chart =
         {
             Series = ObservableCollection<ISeries>
                 [
-                    LineSeries<DateTimePoint>(Values = eventsPerSecond, Name = "Events per Second", GeometryFill = null, GeometryStroke = null) :> ISeries
-                    ColumnSeries<DateTimePoint>(Values = malEventsPerSecond, Name = "MAL Events/Sec") :> ISeries
+                    LineSeries<DateTimePoint>(Values = eventsPerSecond,
+                                              Name = "Total Events",
+                                              GeometryFill = null,
+                                              GeometryStroke = null,
+                                              Stroke = new SolidColorPaint(SKColors.LightSlateGray, StrokeThickness = 4.0f)
+                                              ) :> ISeries
+                    LineSeries<DateTimePoint>(Values = malEventsPerSecond,
+                                              Name = "Possible Threat",
+                                              GeometryFill = null,
+                                              GeometryStroke = null,
+                                              Stroke = new SolidColorPaint(SKColor.FromHsv(30.0f, 100.0f, 100.0f, byte 190), StrokeThickness = 4.0f)
+                                              ) :> ISeries
                 ]
             Events = events
         }
@@ -238,20 +261,6 @@ module Chart =
 
     let update (msg: Msg) (model: Model) =
         match msg with
-        | RemoveOldSeries ->
-            let cutoff = DateTime.UtcNow.AddSeconds(-60.0)
-            let values1 = model.Series.[0].Values :?> ObservableCollection<DateTimePoint>
-            let values2 = model.Series.[1].Values :?> ObservableCollection<DateTimePoint>
-
-            // Find the elements to remove
-            let oldValues1 = values1 |> Seq.filter (fun point -> point.DateTime < cutoff) |> Seq.toList
-            let oldValues2 = values2 |> Seq.filter (fun point -> point.DateTime < cutoff) |> Seq.toList
-
-            // Remove the old elements
-            oldValues1 |> List.iter (fun point -> ignore (values1.Remove point))
-            oldValues2 |> List.iter (fun point -> ignore (values2.Remove point))
-
-            model
         | UpdateSeries ->
             let latestEvents =
                 fetchEventsPerSecondAsync()
@@ -264,8 +273,10 @@ module Chart =
                 |> List.map (fun (time, count) -> DateTimePoint(time, float count))
 
             // Update existing data points and add new ones
-            let values1 = model.Series.[0].Values :?> ObservableCollection<DateTimePoint>
-            let values2 = model.Series.[1].Values :?> ObservableCollection<DateTimePoint>
+
+            let cutoff = DateTime.UtcNow.AddSeconds(-60.0)
+            let values1 = model.Series[0].Values :?> ObservableCollection<DateTimePoint>
+            let values2 = model.Series[1].Values :?> ObservableCollection<DateTimePoint>
             latestEvents
             |> List.iter (fun point ->
                 match Seq.tryFind (fun (p: DateTimePoint) -> p.DateTime = point.DateTime) values1 with
@@ -278,6 +289,14 @@ module Chart =
                 | Some existingPoint -> existingPoint.Value <- point.Value
                 | None -> values2.Insert(values2.Count, point))
 
+            // Find the elements to remove
+            let oldValues1 = values1 |> Seq.filter (fun point -> point.DateTime < cutoff) |> Seq.toList
+            let oldValues2 = values2 |> Seq.filter (fun point -> point.DateTime < cutoff) |> Seq.toList
+
+            // Remove the old elements
+            oldValues1 |> List.iter (fun point -> ignore (values1.Remove point))
+            oldValues2 |> List.iter (fun point -> ignore (values2.Remove point))
+            
             model
         | UpdateDataGrid ->
             let events =
@@ -296,18 +315,18 @@ module Chart =
                 |> Seq.toList
 
             oldEvents |> List.iter (fun oldEvent -> ignore (model.Events.Remove oldEvent))
+            oldEvents |> List.sortByDescending (fun event -> event.EventTime) |> ignore
 
             model
         | Terminate ->
             model
 
-    let subscriptions (model: Model) : Sub<Msg> =
+    let subscriptions (_: Model) : Sub<Msg> =
         let autoUpdateSub (dispatch: Msg -> unit) = 
             Observable
-                .Interval(TimeSpan.FromSeconds(3))
+                .Interval(TimeSpan.FromMilliseconds(100))
                 .Subscribe(fun _ ->
                     dispatch UpdateSeries
-                    dispatch RemoveOldSeries
                     dispatch UpdateDataGrid
                 )
         [
@@ -319,16 +338,15 @@ open Chart
 type ChartViewModel() as this =
     inherit ReactiveElmishViewModel()
 
-    let app = App.app
-
     let local = 
         Program.mkAvaloniaSimple init update
-        |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
+        |> Program.withErrorHandler (fun (_, ex) -> printfn $"Error: %s{ex.Message}")
         //|> Program.withConsoleTrace
         |> Program.withSubscription subscriptions
         //|> Program.mkStore
         //Terminate all Elmish subscriptions on dispose (view is registered as Transient).
         |> Program.mkStoreWithTerminate this Terminate 
+
 
     member this.Series = local.Model.Series
     
@@ -336,5 +354,6 @@ type ChartViewModel() as this =
 
     member this.XAxes = this.Bind (local, fun _ -> XAxes)
 
+    member this.YAxes = this.Bind (local, fun _ -> YAxes)
 
     static member DesignVM = new ChartViewModel()
