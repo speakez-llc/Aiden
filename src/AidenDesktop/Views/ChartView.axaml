@@ -14,16 +14,6 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBlock Grid.Column="0" 
-                       Text="Events/Second" 
-                       FontSize="16" 
-                       Foreground="LightSlateGray" 
-                       VerticalAlignment="Center" 
-                       RenderTransformOrigin="0.25,0.5">
-                <TextBlock.RenderTransform>
-                    <RotateTransform Angle="-90"/>
-                </TextBlock.RenderTransform>
-            </TextBlock>
             <lvc:CartesianChart 
                 Grid.Row="0" 
                 Height="450"
@@ -32,7 +22,8 @@
                 XAxes="{Binding XAxes}"
                 YAxes="{Binding YAxes}"
                 EasingFunction="{Binding Source={x:Null}}"
-                UpdaterThrottler="00:00:00.500">
+                UpdaterThrottler="00:00:00.500"
+                Margin="0, -20,0,20">
             </lvc:CartesianChart>
             <Border Grid.Row="1" CornerRadius="10"
                     Background="#010B17"
@@ -44,16 +35,16 @@
                           MaxHeight="350"
                           MaxWidth="1380">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Event Time" Binding="{Binding EventTime }" />
-                        <DataGridTextColumn Header="Source IP" Binding="{Binding SrcIp}"/>
-                        <DataGridTextColumn Header="Source Port" Binding="{Binding SrcPort}"/>
-                        <DataGridTextColumn Header="Dest IP" Binding="{Binding DstIp}"/>
-                        <DataGridTextColumn Header="Dest Port" Binding="{Binding DstPort}"/>
-                        <DataGridTextColumn Header="CC" Binding="{Binding Cc}"/>
-                        <DataGridTextColumn Header="VPN" Binding="{Binding Vpn}"/>
-                        <DataGridTextColumn Header="Proxy" Binding="{Binding Proxy}"/>
-                        <DataGridTextColumn Header="TOR" Binding="{Binding Tor}"/>
-                        <DataGridTextColumn Header="Malware" Binding="{Binding Malware}"/>
+                        <DataGridTextColumn Header="Event Time" Binding="{Binding EventTime }" FontSize="12"/>
+                        <DataGridTextColumn Header="Source IP" Binding="{Binding SrcIp}" FontSize="12"/>
+                        <DataGridTextColumn Header="Source Port" Binding="{Binding SrcPort}" FontSize="12"/>
+                        <DataGridTextColumn Header="Dest IP" Binding="{Binding DstIp}" FontSize="12"/>
+                        <DataGridTextColumn Header="Dest Port" Binding="{Binding DstPort}" FontSize="12"/>
+                        <DataGridTextColumn Header="CC" Binding="{Binding Cc}" FontSize="12"/>
+                        <DataGridTextColumn Header="VPN" Binding="{Binding Vpn}" FontSize="12"/>
+                        <DataGridTextColumn Header="Proxy" Binding="{Binding Proxy}" FontSize="12"/>
+                        <DataGridTextColumn Header="TOR" Binding="{Binding Tor}" FontSize="12"/>
+                        <DataGridTextColumn Header="Malware" Binding="{Binding Malware}" FontSize="12"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>
