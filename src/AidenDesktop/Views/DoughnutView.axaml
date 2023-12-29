@@ -77,58 +77,32 @@
                 <Border Grid.Column="1" CornerRadius="20"
                         Background="#010B17"
                         Padding="15, 0, 0 ,30">
-                    <TabControl  HorizontalAlignment="Stretch" 
-                                 VerticalAlignment="Stretch" 
-                                 TabStripPlacement="Top" 
-                                 FontSize="12">
-                        <TabControl.Styles>
-                            <Style Selector="TabItem">
-                                <Setter Property="FontSize" Value="16"/>
-                                <Setter Property="Margin" Value="0,0,0,10"/>
-                                <Setter Property="Padding" Value="10, 0, 10, 8"/>
-                                <Setter Property="CornerRadius" Value="16" />
-                            </Style>
-                        </TabControl.Styles>
-                        <TabItem Header="Map View">
-                            <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="2*" />
-                                    <ColumnDefinition Width="8*" />
-                                </Grid.ColumnDefinitions>
-                                <DataGrid Grid.Column="0" ItemsSource="{Binding COO_GridData}" HorizontalAlignment="Right">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Country" Binding="{Binding Name}" />
-                                        <DataGridTextColumn Header="Count" Binding="{Binding Count}" />
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                                <Border Grid.Column="1" CornerRadius="10"
-                                        Background="LightSlateGray"
-                                        Padding="15"
-                                        MaxWidth="800">
-                                    <lvc:GeoMap Name="GeoMap"
-                                                HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch"
-                                                Height="380    "
-                                                MaxWidth="750"
-                                                Series="{Binding COO_MapSeries}"
-                                                MapProjection="Default"/>
-                                </Border>
-                                
-                            </Grid>
-                        </TabItem>
-                        
-                        <TabItem Header="Data Grid">
-                            <DataGrid ItemsSource="{Binding COO_GridData}" HorizontalAlignment="Stretch">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Country" Binding="{Binding Name}" />
-                                    <DataGridTextColumn Header="Count" Binding="{Binding Count}" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </TabItem>
-                    </TabControl>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="8*" />
+                        </Grid.ColumnDefinitions>
+                        <DataGrid Grid.Column="0" ItemsSource="{Binding COO_GridData}" HorizontalAlignment="Right">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Country" Binding="{Binding Name}" />
+                                <DataGridTextColumn Header="Count" Binding="{Binding Count}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Border Grid.Column="1" CornerRadius="10"
+                                Background="LightSlateGray"
+                                Padding="15"
+                                MaxWidth="800">
+                            <lvc:GeoMap Name="GeoMap"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        Height="450    "
+                                        MaxWidth="750"
+                                        Series="{Binding COO_MapSeries}"
+                                        MapProjection="Default"/>
+                        </Border>
+                    </Grid>
                 </Border>
             </Grid>
         </Grid>
     </StackPanel>
-   
 </UserControl>

@@ -2,6 +2,7 @@ namespace AidenDesktop.ViewModels
 
 open System
 open System.IO
+open System.Net
 open System.Collections.Generic
 open System.Collections.ObjectModel
 open System.Reactive.Linq
@@ -34,13 +35,13 @@ module Chart =
     type Model = 
         {
             Series: ObservableCollection<ISeries>
-            //Events: ObservableCollection<EventsData>
+            Events: ObservableCollection<EventsData>
         }
 
     type Msg =
        | RemoveOldSeries
        | UpdateSeries
-       //| UpdateDataGrid
+       | UpdateDataGrid
        | Terminate
     
 
@@ -57,42 +58,7 @@ module Chart =
             printfn $"Error: File not found: %s{filePath}"
             ""
             
-    let readEventsData (reader: NpgsqlDataReader) =
-        {
-            EventTime = reader.GetDateTime(reader.GetOrdinal("event_time"))
-            SrcIp = reader.GetString(reader.GetOrdinal("src_ip"))
-            SrcPort = reader.GetInt32(reader.GetOrdinal("src_port"))
-            DstIp = reader.GetString(reader.GetOrdinal("dst_ip"))
-            DstPort = reader.GetInt32(reader.GetOrdinal("dst_port"))
-            Cc = reader.GetString(reader.GetOrdinal("cc"))
-            Vpn = reader.GetString(reader.GetOrdinal("vpn"))
-            Proxy = reader.GetString(reader.GetOrdinal("proxy"))
-            Tor = reader.GetString(reader.GetOrdinal("tor"))
-            Malware = reader.GetString(reader.GetOrdinal("malware"))
-        }
-
-    let fetchEventsAsync() =
-        async {
-            use connection = new NpgsqlConnection(connectionString)
-            do! connection.OpenAsync() |> Async.AwaitTask
-            let query =
-                $@"SELECT event_time, src_ip, src_port, dst_ip, dst_port, cc, vpn, proxy, tor, malware
-                   FROM events_hourly
-                   WHERE event_time >= now() AT TIME ZONE 'UTC' - INTERVAL '1 minute'
-                   ORDER BY event_time DESC;"
-
-            use cmd = new NpgsqlCommand(query, connection)
-
-            do! cmd.PrepareAsync() |> Async.AwaitTask
-
-            let! dbReader = cmd.ExecuteReaderAsync() |> Async.AwaitTask
-            use reader = dbReader :?> NpgsqlDataReader
-            let results =
-                [ while reader.Read() do
-                    yield readEventsData reader ]
-            return ObservableCollection<_>(results)
-        }
-        
+     
     let fetchEventsPerSecondAsync() =
         async {
             use connection = new NpgsqlConnection(connectionString)
@@ -185,6 +151,44 @@ module Chart =
                     ) ]
             return results
         }
+        
+    let fetchEventsAsync() =
+        async {
+            try
+                use connection = new NpgsqlConnection(connectionString)
+                do! connection.OpenAsync() |> Async.AwaitTask
+                let query =
+                    $@"SELECT event_time, src_ip::text, src_port, dst_ip::text, dst_port, upper(cc) as cc, vpn, proxy, tor, malware
+                        FROM events_hourly
+                        WHERE event_time >= now() AT TIME ZONE 'UTC' - INTERVAL '1 minute'
+                        ORDER BY event_time ASC;"
+
+                use cmd = new NpgsqlCommand(query, connection)
+
+                do! cmd.PrepareAsync() |> Async.AwaitTask
+
+                let! dbReader = cmd.ExecuteReaderAsync() |> Async.AwaitTask
+                use reader = dbReader
+                let results =
+                    [ while reader.Read() do
+                        yield {
+                            EventTime = reader.GetDateTime(reader.GetOrdinal("event_time"))
+                            SrcIp =  reader.GetString(reader.GetOrdinal("src_ip"))
+                            SrcPort = reader.GetInt32(reader.GetOrdinal("src_port"))
+                            DstIp = reader.GetString(reader.GetOrdinal("dst_ip"))
+                            DstPort = reader.GetInt32(reader.GetOrdinal("dst_port"))
+                            Cc = if reader.GetString(reader.GetOrdinal("cc")) = "BLANK" then "" else reader.GetString(reader.GetOrdinal("cc"))
+                            Vpn = if reader.GetString(reader.GetOrdinal("vpn")) = "BLANK" then "" else reader.GetString(reader.GetOrdinal("vpn"))
+                            Proxy = if reader.GetString(reader.GetOrdinal("proxy")) = "BLANK" then "" else reader.GetString(reader.GetOrdinal("proxy"))
+                            Tor = if reader.GetString(reader.GetOrdinal("tor")) = "BLANK" then "" else reader.GetString(reader.GetOrdinal("tor"))
+                            Malware = if reader.GetString(reader.GetOrdinal("malware")) = "FALSE" then "" else reader.GetString(reader.GetOrdinal("malware"))
+                        } ]
+                return results
+            with
+            | ex ->
+                printfn "Error in fetchEventsAsync: %s" ex.Message
+                return []
+        }
 
     let XAxes : IEnumerable<ICartesianAxis> =
         [| Axis (
@@ -205,32 +209,32 @@ module Chart =
 
 
     let init() =
-        async {
-            let eventsPerSecond = 
-                fetchEventsPerSecondAsync()
-                |> Async.RunSynchronously
-                |> List.map (fun (time, count) -> DateTimePoint(time, float count))
-                |> ObservableCollection<_>
-    
-            let malEventsPerSecond = 
-                fetchMALEventsPerSecondAsync()
-                |> Async.RunSynchronously
-                |> List.map (fun (time, count) -> DateTimePoint(time, float count))
-                |> ObservableCollection<_>
-                
-            //let! events =
-                //fetchEventsAsync()
-    
-            return {
-                Series = ObservableCollection<ISeries>
-                    [
-                        LineSeries<DateTimePoint>(Values = eventsPerSecond, Name = "Events per Second", GeometryFill = null, GeometryStroke = null) :> ISeries
-                        ColumnSeries<DateTimePoint>(Values = malEventsPerSecond, Name = "MAL Events/Sec") :> ISeries
-                    ]
-                //Events = events
-            }
-        } |> Async.RunSynchronously
-        
+        let eventsPerSecond = 
+            fetchEventsPerSecondAsync()
+            |> Async.RunSynchronously
+            |> List.map (fun (time, count) -> DateTimePoint(time, float count))
+            |> ObservableCollection<_>
+
+        let malEventsPerSecond = 
+            fetchMALEventsPerSecondAsync()
+            |> Async.RunSynchronously
+            |> List.map (fun (time, count) -> DateTimePoint(time, float count))
+            |> ObservableCollection<_>
+            
+        let events =
+            fetchEventsAsync()
+            |> Async.RunSynchronously
+            |> ObservableCollection<_>
+
+        {
+            Series = ObservableCollection<ISeries>
+                [
+                    LineSeries<DateTimePoint>(Values = eventsPerSecond, Name = "Events per Second", GeometryFill = null, GeometryStroke = null) :> ISeries
+                    ColumnSeries<DateTimePoint>(Values = malEventsPerSecond, Name = "MAL Events/Sec") :> ISeries
+                ]
+            Events = events
+        }
+
 
     let update (msg: Msg) (model: Model) =
         match msg with
@@ -275,22 +279,36 @@ module Chart =
                 | None -> values2.Insert(values2.Count, point))
 
             model
-        //| UpdateDataGrid ->
-            //let events =
-                //fetchEventsAsync()
-                //|> Async.RunSynchronously
-            //{ model with Events = events }
+        | UpdateDataGrid ->
+            let events =
+                fetchEventsAsync()
+                |> Async.RunSynchronously
+
+            events |> List.iter (fun newEvent ->
+                if not (model.Events |> Seq.exists (fun existingEvent -> existingEvent.EventTime = newEvent.EventTime)) then
+                    model.Events.Add newEvent
+            )
+
+            let cutoff = DateTime.UtcNow.AddSeconds(-60.0)
+            let oldEvents =
+                model.Events
+                |> Seq.filter (fun event -> event.EventTime < cutoff)
+                |> Seq.toList
+
+            oldEvents |> List.iter (fun oldEvent -> ignore (model.Events.Remove oldEvent))
+
+            model
         | Terminate ->
             model
 
     let subscriptions (model: Model) : Sub<Msg> =
         let autoUpdateSub (dispatch: Msg -> unit) = 
             Observable
-                .Interval(TimeSpan.FromSeconds(1))
+                .Interval(TimeSpan.FromSeconds(3))
                 .Subscribe(fun _ ->
                     dispatch UpdateSeries
                     dispatch RemoveOldSeries
-                    //dispatch UpdateDataGrid
+                    dispatch UpdateDataGrid
                 )
         [
             [ nameof autoUpdateSub ], autoUpdateSub
@@ -314,7 +332,7 @@ type ChartViewModel() as this =
 
     member this.Series = local.Model.Series
     
-    //member this.Events = local.Model.Events
+    member this.Events = local.Model.Events
 
     member this.XAxes = this.Bind (local, fun _ -> XAxes)
 

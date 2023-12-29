@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
+             mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="650"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:vm="using:AidenDesktop.ViewModels"
              Design.DataContext="{Binding Source={x:Static vm:ChartViewModel.DesignVM}}"
@@ -14,6 +14,7 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
+            
             <lvc:CartesianChart 
                 Grid.Row="0" 
                 Height="450"
@@ -22,20 +23,29 @@
                 XAxes="{Binding XAxes}"
                 EasingFunction="{Binding Source={x:Null}}">
             </lvc:CartesianChart>
-            <!-- <DataGrid Grid.Row="1" ItemsSource="{Binding Events}" AutoGenerateColumns="False">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Event Time" Binding="{Binding EventTime }"/>
-                    <DataGridTextColumn Header="Source IP" Binding="{Binding SrcIp}"/>
-                    <DataGridTextColumn Header="Source Port" Binding="{Binding SrcPort}"/>
-                    <DataGridTextColumn Header="Dest IP" Binding="{Binding DstIp}"/>
-                    <DataGridTextColumn Header="Dest Port" Binding="{Binding DstPort}"/>
-                    <DataGridTextColumn Header="CC" Binding="{Binding Cc}"/>
-                    <DataGridTextColumn Header="VPN" Binding="{Binding Vpn}"/>
-                    <DataGridTextColumn Header="Proxy" Binding="{Binding Proxy}"/>
-                    <DataGridTextColumn Header="TOR" Binding="{Binding Tor}"/>
-                    <DataGridTextColumn Header="Malware" Binding="{Binding Malware}"/>
-                </DataGrid.Columns>
-            </DataGrid> -->
+            <Border Grid.Row="1" CornerRadius="10"
+                    Background="#010B17"
+                    Padding="10">
+                <DataGrid  ItemsSource="{Binding Events}" 
+                          AutoGenerateColumns="False"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          MaxHeight="350"
+                          MaxWidth="1380">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Event Time" Binding="{Binding EventTime }"/>
+                        <DataGridTextColumn Header="Source IP" Binding="{Binding SrcIp}"/>
+                        <DataGridTextColumn Header="Source Port" Binding="{Binding SrcPort}"/>
+                        <DataGridTextColumn Header="Dest IP" Binding="{Binding DstIp}"/>
+                        <DataGridTextColumn Header="Dest Port" Binding="{Binding DstPort}"/>
+                        <DataGridTextColumn Header="CC" Binding="{Binding Cc}"/>
+                        <DataGridTextColumn Header="VPN" Binding="{Binding Vpn}"/>
+                        <DataGridTextColumn Header="Proxy" Binding="{Binding Proxy}"/>
+                        <DataGridTextColumn Header="TOR" Binding="{Binding Tor}"/>
+                        <DataGridTextColumn Header="Malware" Binding="{Binding Malware}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
         </Grid>
     </StackPanel>
 </UserControl>
