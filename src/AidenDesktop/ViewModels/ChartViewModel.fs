@@ -6,6 +6,7 @@ open System.Collections.Generic
 open System.Collections.ObjectModel
 open System.Reactive.Linq
 open System.Text.Json
+open LiveChartsCore.Drawing
 open LiveChartsCore.Measure
 open ReactiveElmish
 open ReactiveElmish.Avalonia
@@ -192,8 +193,7 @@ module Chart =
         }
 
     let XAxes : IEnumerable<ICartesianAxis> =
-        [| Axis (
-                Name = "",
+        [| Axis (               
                 Labeler = (fun value -> 
                     let eventTime = DateTime(int64 value)
                     let timeAgo = DateTime.UtcNow - eventTime
@@ -217,6 +217,7 @@ module Chart =
                 Name = "Events per Second",
                 Labeler = (fun value -> $"{value:F0}"),
                 MinStep = 1.0,
+                MinLimit = -0.5, 
                 NamePaint = new SolidColorPaint(SKColors.Tan),
                 LabelsPaint = new SolidColorPaint(SKColors.Tan),
                 SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#808080"))
