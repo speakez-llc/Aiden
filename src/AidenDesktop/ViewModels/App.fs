@@ -11,7 +11,6 @@ type Model =
     }
 
 and View = 
-    | CounterView
     | ChartView
     | DoughnutView
     | ZoomView

@@ -53,7 +53,7 @@ type NavItem() =
     
     member this.Icon
         with get() = _icon
-        and set(value) = _icon <- value
+        and set value = _icon <- value
     member val Badge = _badge with get, set
 
     member this.SetBadgeValue(value : int) =
@@ -146,7 +146,8 @@ module MainViewModule =
             | _ -> ()            
             { model with SelectedNavItem = item }
         | ToggleTheme t ->
-            { model with IsDarkThemeEnabled = true } 
+            { model with IsDarkThemeEnabled = t }
+        | _ -> model
     
 open MainViewModule
 
@@ -155,7 +156,7 @@ type MainViewModel(root: CompositionRoot) as self =
 
     let local =
         Program.mkAvaloniaSimple init update
-        |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
+        |> Program.withErrorHandler (fun (_, ex) -> printfn $"Error: %s{ex.Message}")
         |> Program.mkStore
 
     do
@@ -165,7 +166,7 @@ type MainViewModel(root: CompositionRoot) as self =
 
     member self.IsDarkThemeEnabled
         with get() = self.Bind(local, _.IsDarkThemeEnabled)
-        and set(value) = local.Dispatch (ToggleTheme value)
+        and set value = local.Dispatch (ToggleTheme value)
 
     member this.SwitchTheme() =
         if this.IsDarkThemeEnabled then
@@ -177,18 +178,18 @@ type MainViewModel(root: CompositionRoot) as self =
 
     member self.ChatOpen
         with get() = self.Bind(local, _.ChatOpen)
-        and set(value) = local.Dispatch (ToggleChat value)
+        and set value = local.Dispatch (ToggleChat value)
     
     member self.ChatAlertCount
         with get() = self.Bind(local, _.ChatAlertCount)
-        and set(value) = local.Dispatch (SetChatAlertCount value)
+        and set value = local.Dispatch (SetChatAlertCount value)
     
     member self.ShowChatBadge
         with get() = self.Bind(local, _.ShowChatBadge)
 
     member self.SelectedNavItem
         with get() = self.Bind(local, _.SelectedNavItem)
-        and set(value) = local.Dispatch (SelectedNavItemChanged value)
+        and set value = local.Dispatch (SelectedNavItemChanged value)
 
     member self.NavigationList = self.Bind(local, _.NavigationList)
     

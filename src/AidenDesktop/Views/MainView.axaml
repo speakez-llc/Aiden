@@ -15,16 +15,9 @@
         Title="Rower :: Aiden Sample">
     
     <DockPanel LastChildFill="true">
-        <con:NavigationView AlwaysShowHeader="False"
-                            OpenPaneLength="150"
-                            PaneDisplayMode="Left"
-                            IsPaneOpen="False"
-                            Name="NavView"
-                            IsSettingsVisible="True"
-                            IsBackEnabled="False"
-                            MenuItemsSource="{Binding NavigationList}"
-                            SelectedItem="{Binding SelectedNavItem}"
-                            CompactModeThresholdWidth="100">
+        <con:NavigationView AlwaysShowHeader="False" OpenPaneLength="150" PaneDisplayMode="Left" IsPaneOpen="False" Name="NavView"
+                            IsSettingsVisible="True" IsBackEnabled="False" MenuItemsSource="{Binding NavigationList}"
+                            SelectedItem="{Binding SelectedNavItem}" CompactModeThresholdWidth="100">
             <con:NavigationView.Background>
                 <LinearGradientBrush StartPoint="0,1" EndPoint="0,1200">
                     <GradientStop Color="Black" Offset="0.3" />
