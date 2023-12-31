@@ -10,6 +10,7 @@
         <Folder Include="Models\" />
         <AvaloniaResource Include="Assets\**" />    
         <Compile Include="Controls\RadialSlider.axaml.fs" />
+        <Compile Include="Controls\BadgeIcon.fs" />
         <Compile Include="Models\BaseTypes.fs" />
         <Compile Include="Converters\SeriesBoxConverters.fs" />
         <Compile Include="Controls\SeriesBox.axaml.fs" />

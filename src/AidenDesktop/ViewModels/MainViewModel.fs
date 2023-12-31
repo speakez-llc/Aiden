@@ -40,23 +40,21 @@ type NavItem() =
         b.Padding <- Thickness(0, 4, 0, 0)
         b.Foreground <- SolidColorBrush(Colors.Black)
         b.Background <- SolidColorBrush(Colors.Tan)
-        b.HorizontalAlignment <- HorizontalAlignment.Stretch
-        b.VerticalAlignment <- VerticalAlignment.Bottom
+        b.HorizontalAlignment <- HorizontalAlignment.Left
+        b.VerticalAlignment <- VerticalAlignment.Top
         b.IsVisible <- false
         b
 
-    let mutable _testIcon = FluentIcons.Common.Symbol
+    let mutable _testIcon = FluentIcons.Common.Symbol.Home
                 
     let mutable _icon = FluentIcons.Common.Symbol.Home
         
     let mutable _badge = createBadge()
-
-    member val Name = "" with get, set
-    member val Badge = _badge with get, set
     
     member this.Icon
         with get() = _icon
         and set(value) = _icon <- value
+    member val Badge = _badge with get, set
 
     member this.SetBadgeValue(value : int) =
         this.Badge.Value <- value
@@ -64,6 +62,8 @@ type NavItem() =
             this.Badge.IsVisible <- true
         else
             this.Badge.IsVisible <- false
+
+    member val Name = "" with get, set
         
     
     new(name : string, icon : FluentIcons.Common.Symbol) as self =
