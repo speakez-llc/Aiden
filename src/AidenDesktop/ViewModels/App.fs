@@ -14,6 +14,7 @@ and View =
     | CounterView
     | ChartView
     | DoughnutView
+    | ZoomView
     | AboutView
     | FilePickerView
     | DashboardView

@@ -2,11 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:fluent="using:FluentAvalonia.UI.Controls"
+             xmlns:ic="using:FluentIcons.FluentAvalonia"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="850"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:vm="using:AidenDesktop.ViewModels"
-             xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
              Design.DataContext="{Binding Source={x:Static vm:DoughnutViewModel.DesignVM}}"
              x:DataType="vm:DoughnutViewModel"
              x:Class="AidenDesktop.Views.DoughnutView">

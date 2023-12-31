@@ -9,6 +9,7 @@ open Avalonia.Layout
 open Elmish
 open ReactiveElmish
 open ReactiveElmish.Avalonia
+open FluentIcons.FluentAvalonia
 open App
 
 
@@ -26,8 +27,8 @@ type NavItem() =
      *)
     
     let createTestIcon() =
-        let i = new BitmapIconSource()
-        i.UriSource <- System.Uri("avares://AidenDesktop/Assets/Home.png")
+        let i = SymbolIcon()
+        i.Symbol <- FluentIcons.Common.Symbol.Home
         i
         
     let createBadge() =
@@ -44,9 +45,9 @@ type NavItem() =
         b.IsVisible <- false
         b
 
-    let mutable _testIcon = createTestIcon()
+    let mutable _testIcon = FluentIcons.Common.Symbol
                 
-    let mutable _icon = createTestIcon()
+    let mutable _icon = FluentIcons.Common.Symbol.Home
         
     let mutable _badge = createBadge()
 
@@ -65,21 +66,17 @@ type NavItem() =
             this.Badge.IsVisible <- false
         
     
-    new(name : string, icon : string) as self =
+    new(name : string, icon : FluentIcons.Common.Symbol) as self =
         NavItem() then
         do
             self.Name <- name
-            let i = new BitmapIconSource()
-            i.UriSource <- System.Uri(sprintf "avares://AidenDesktop/Assets/%s.png" icon)
-            self.Icon <- i
+            self.Icon <- icon
     
-    new(name: string, icon: string, badgeValue: int) as self =
+    new(name: string, icon: FluentIcons.Common.Symbol, badgeValue: int) as self =
         NavItem() then
         do
             self.Name <- name
-            let i = new BitmapIconSource()
-            i.UriSource <- System.Uri(sprintf "avares://AidenDesktop/Assets/%s.png" icon)
-            self.Icon <- i
+            self.Icon <- icon
             self.SetBadgeValue(badgeValue)
             
 (*     new(name : string, icon : Symbol) as self =
@@ -113,13 +110,14 @@ module MainViewModule =
             ChatOpen = false 
             ChatAlertCount = 2
             ShowChatBadge = true
-            SelectedNavItem = NavItem("Home", "Home_Rower")
+            SelectedNavItem = NavItem("Home", FluentIcons.Common.Symbol.Home)
             NavigationList = [ 
-                NavItem("Home", "Home_Rower")
-                NavItem("Timeline", "FA_Chart_Rower")
-                NavItem("Map View", "FA_Map_Rower", 2)
-                NavItem("Load Files", "FA_File_Rower")
-                NavItem("About", "FA_Info_Rower")
+                NavItem("Home", FluentIcons.Common.Symbol.Home)
+                NavItem("Timeline", FluentIcons.Common.Symbol.ChartMultiple)
+                NavItem("Map View", FluentIcons.Common.Symbol.GlobeSearch, 2)
+                NavItem("Zoom View", FluentIcons.Common.Symbol.ScreenSearch)
+                NavItem("Load Files", FluentIcons.Common.Symbol.DocumentTableSearch)
+                NavItem("About", FluentIcons.Common.Symbol.Info)
             ]
             IsDarkThemeEnabled = true
         }
@@ -142,12 +140,13 @@ module MainViewModule =
             | "Home" -> app.Dispatch (SetView HomeView)
             | "Timeline" -> app.Dispatch (SetView ChartView)
             | "Map View" -> app.Dispatch (SetView DoughnutView)
+            | "Zoom View" -> app.Dispatch (SetView ZoomView)
             | "Load Files" -> app.Dispatch (SetView FilePickerView)
             | "About" -> app.Dispatch (SetView AboutView)
             | _ -> ()            
             { model with SelectedNavItem = item }
         | ToggleTheme t ->
-            { model with IsDarkThemeEnabled = t } 
+            { model with IsDarkThemeEnabled = true } 
     
 open MainViewModule
 
@@ -193,10 +192,9 @@ type MainViewModel(root: CompositionRoot) as self =
 
     member self.NavigationList = self.Bind(local, _.NavigationList)
     
-    member self.createIcon(iconKey: string) =
-        let fontIcon = FontIconSource()
-        fontIcon.FontFamily <- FontFamily("FontAwesome")
-        fontIcon.Glyph <- iconKey
+    member self.createIcon(iconKey: FluentIcons.Common.Symbol) =
+        let fontIcon = SymbolIcon()
+        fontIcon.Symbol <- iconKey
         fontIcon
       
     member self.ChatView = root.GetView<ChatViewModel>()
@@ -207,6 +205,7 @@ type MainViewModel(root: CompositionRoot) as self =
             | ChartView -> root.GetView<ChartViewModel>()
             | FilePickerView -> root.GetView<FilePickerViewModel>()
             | DashboardView -> root.GetView<DashboardViewModel>()
+            | ZoomView -> root.GetView<ZoomViewModel>()
             | AboutView -> root.GetView<AboutViewModel>()
             | HomeView -> root.GetView<HomeViewModel>()
         )

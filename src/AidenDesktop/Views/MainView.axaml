@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:con="using:FluentAvalonia.UI.Controls"
-        xmlns:i="https://github.com/projektanker/icons.avalonia"
+        xmlns:ic="using:FluentIcons.FluentAvalonia"
         mc:Ignorable="d" d:DesignWidth="1512" d:DesignHeight="850"
         Width="1512" Height="850"
         x:Class="AidenDesktop.Views.MainView"
@@ -49,13 +49,14 @@
             </con:NavigationView.Resources>
 
             <con:NavigationView.MenuItemTemplate>
-                <DataTemplate DataType="{x:Type vm:NavItem}">
-                    <con:NavigationViewItem Content="{Binding Name}"
-                                            IconSource="{Binding Icon}"
-                                            InfoBadge="{Binding Badge}">
-                    </con:NavigationViewItem>
-                </DataTemplate>
-            </con:NavigationView.MenuItemTemplate>
+            <DataTemplate DataType="{x:Type vm:NavItem}">
+                <con:NavigationViewItem Content="{Binding Name}" InfoBadge="{Binding Badge}">
+                    <con:NavigationViewItem.IconSource>
+                        <ic:SymbolIconSource Symbol="{Binding Icon}" FontSize="32" IsFilled="True" Foreground="#C18E3A" />
+                    </con:NavigationViewItem.IconSource>
+                </con:NavigationViewItem>
+            </DataTemplate>
+        </con:NavigationView.MenuItemTemplate>
 
             <con:NavigationView.Content>
 
