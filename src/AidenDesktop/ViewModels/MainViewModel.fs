@@ -114,10 +114,10 @@ module MainViewModule =
             NavigationList = [ 
                 NavItem("Home", FluentIcons.Common.Symbol.Home)
                 NavItem("Timeline", FluentIcons.Common.Symbol.ChartMultiple)
-                NavItem("Map View", FluentIcons.Common.Symbol.GlobeSearch, 2)
-                NavItem("Zoom View", FluentIcons.Common.Symbol.ScreenSearch)
-                NavItem("Load Files", FluentIcons.Common.Symbol.DocumentTableSearch)
-                NavItem("About", FluentIcons.Common.Symbol.Info)
+                NavItem("Map View", FluentIcons.Common.Symbol.Globe, 2)
+                NavItem("Zoom View", FluentIcons.Common.Symbol.SearchSquare)
+                NavItem("Load Files", FluentIcons.Common.Symbol.DocumentArrowRight)
+                NavItem("About", FluentIcons.Common.Symbol.BookInformation)
             ]
             IsDarkThemeEnabled = true
         }

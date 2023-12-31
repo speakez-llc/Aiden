@@ -52,7 +52,7 @@
             <DataTemplate DataType="{x:Type vm:NavItem}">
                 <con:NavigationViewItem Content="{Binding Name}" InfoBadge="{Binding Badge}">
                     <con:NavigationViewItem.IconSource>
-                        <ic:SymbolIconSource Symbol="{Binding Icon}" FontSize="32" IsFilled="True" Foreground="#C18E3A" />
+                        <ic:SymbolIconSource Symbol="{Binding Icon}" IsFilled="True" Foreground="#C18E3A" />
                     </con:NavigationViewItem.IconSource>
                 </con:NavigationViewItem>
             </DataTemplate>
