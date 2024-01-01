@@ -1,15 +1,18 @@
 namespace AidenDesktop.ViewModels
 
 open System
+open System.Linq
 open System.IO
 open System.Collections.Generic
 open System.Collections.ObjectModel
 open System.Reactive.Linq
 open System.Text.Json
+open Avalonia.Controls
 open LiveChartsCore.Drawing
 open LiveChartsCore.Kernel.Events
 open LiveChartsCore.Measure
 open LiveChartsCore.SkiaSharpView.Drawing
+open LiveChartsCore.VisualElements
 open ReactiveUI
 open ReactiveElmish
 open ReactiveElmish.Avalonia
@@ -29,7 +32,7 @@ module Zoom =
        | PointerDown
        | PointerUp
        | PointerMove of PointerCommandArgs
-       | ZoomChanged of ChartCommandArgs
+       | ChartUpdated of ChartCommandArgs
        | Terminate
       
     type Model = 
@@ -174,7 +177,7 @@ module Zoom =
                 Name = "Events per Minute",
                 Labeler = (fun value -> $"{value:F0}"),
                 MinStep = 1.0,
-                MinLimit = -0.5, 
+                MinLimit = 0.0,
                 NamePaint = new SolidColorPaint(SKColors.Tan),
                 LabelsPaint = new SolidColorPaint(SKColors.Tan),
                 SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#808080"))
@@ -232,8 +235,8 @@ module Zoom =
                 [
                     RectangularSection(Xi = float minTime.DateTime.Ticks,
                                        Xj = float maxTime.DateTime.Ticks,
-                                       Yi = 0.0,
-                                       Yj = 100.0,
+                                       Yi = 20.0,
+                                       Yj = 120.0,
                                        Fill = new SolidColorPaint(SKColors.Aqua),
                                        Stroke = new SolidColorPaint(SKColors.Fuchsia))
                 ]
@@ -241,9 +244,9 @@ module Zoom =
             InvisibleX = ObservableCollection<Axis> [ Axis(IsVisible = false) ]
             InvisibleY = ObservableCollection<Axis> [ Axis(IsVisible = false) ]
             IsDown = false
-            Margin = Margin(100f, 0f, 50f, 0f)
+            Margin = Margin(100f, 0f, 50f, 50f)
         }
-        
+
         
     let update (msg: Msg) (model: Model) =
         match msg with
@@ -254,26 +257,46 @@ module Zoom =
             printfn $"{DateTime.Now} pointer is down"
             { model with IsDown = true }
         | PointerMove args ->
-            printfn $"{DateTime.Now} pointer is moved"
+            if not model.IsDown then
+                model
+            else
+                printfn $"{DateTime.Now} pointer is moved"
+                let chart = args.Chart :?> ICartesianChartView<SkiaSharpDrawingContext>
+                let positionInData = chart.ScalePixelsToData(args.PointerPosition)
+
+                let thumb = model.Thumbs.[0]
+                let currentRange = thumb.Xj.Value - thumb.Xi.Value
+
+                // update the scroll bar thumb when the user is dragging the chart
+                thumb.Xi <- positionInData.X - currentRange / 2.0
+                thumb.Xj <- positionInData.X + currentRange / 2.0
+
+                // update the chart visible range
+                model.ScrollableAxes.[0].MinLimit <- thumb.Xi.Value
+                model.ScrollableAxes.[0].MaxLimit <- thumb.Xj.Value
+
+                // update the thumb rectangle's Xi and Xj properties
+                thumb.Xi <- model.ScrollableAxes.[0].MinLimit
+                thumb.Xj <- model.ScrollableAxes.[0].MaxLimit
+                model
+
+        | ChartUpdated args ->
+            printfn $"{DateTime.Now} chart updated"
             let chart = args.Chart :?> ICartesianChartView<SkiaSharpDrawingContext>
-            let positionInData = chart.ScalePixelsToData(args.PointerPosition)
+            let xAxis = (chart.XAxes.OfType<Axis>()).FirstOrDefault()
+
+            let zoomLevel = xAxis.MaxLimit.Value - xAxis.MinLimit.Value
 
             let thumb = model.Thumbs.[0]
-            let currentRange = thumb.Xj.Value - thumb.Xi.Value
 
-            // update the scroll bar thumb when the user is dragging the chart
-            thumb.Xi <- positionInData.X - currentRange / 2.0
-            thumb.Xj <- positionInData.X + currentRange / 2.0
+            // Calculate the new size of the Thumb rectangle based on the zoom level
+            let newSize = thumb.Xj.Value / zoomLevel
 
-            // update the chart visible range
-            model.ScrollableAxes.[0].MinLimit <- thumb.Xi.Value
-            model.ScrollableAxes.[0].MaxLimit <- thumb.Xj.Value
-            
-            // update the thumb rectangle's Xi and Xj properties
-            thumb.Xi <- model.ScrollableAxes.[0].MinLimit
-            thumb.Xj <- model.ScrollableAxes.[0].MaxLimit
+            // Update the Xi and Xj properties of the Thumb rectangle
+            thumb.Xi <- thumb.Xi.Value * newSize
+            thumb.Xj <- thumb.Xj.Value * newSize
+
             model
-            
         | UpdateSeries ->
             let latestEvents =
                 fetchEventsPerHourAsync()
@@ -324,9 +347,9 @@ type ZoomViewModel() as this =
         |> Program.withErrorHandler (fun (_, ex) -> printfn $"Error: %s{ex.Message}")
         //|> Program.withConsoleTrace
         //|> Program.withSubscription subscriptions
-        |> Program.mkStore
+        //|> Program.mkStore
         //Terminate all Elmish subscriptions on dispose (view is registered as Transient).
-        //|> Program.mkStoreWithTerminate this Terminate
+        |> Program.mkStoreWithTerminate this Terminate
 
     member this.Series = local.Model.Series
     member this.ScrollbarSeries = local.Model.ScrollbarSeries
@@ -335,6 +358,7 @@ type ZoomViewModel() as this =
     member val PointerDownCommand = ReactiveCommand.Create<obj, unit> (fun _ -> local.Dispatch PointerDown) with get, set
     member val PointerMoveCommand = ReactiveCommand.Create<PointerCommandArgs, unit> (fun args -> local.Dispatch (PointerMove args)) with get, set
     member val PointerUpCommand = ReactiveCommand.Create<obj, unit> (fun _ -> local.Dispatch PointerUp) with get, set
+    member val ChartUpdatedCommand = ReactiveCommand.Create<ChartCommandArgs, unit> (fun args -> local.Dispatch (ChartUpdated args)) with get, set
 
     member this.Thumbs = local.Model.Thumbs
     member this.Margin = local.Model.Margin

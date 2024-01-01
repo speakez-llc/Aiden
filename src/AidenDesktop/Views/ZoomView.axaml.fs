@@ -1,5 +1,6 @@
 namespace AidenDesktop.Views
 
+open AidenDesktop.ViewModels
 open Avalonia
 open Avalonia.Controls
 open Avalonia.Markup.Xaml
@@ -12,3 +13,4 @@ type ZoomView () as this =
         
     member private this.InitializeComponent() =
         AvaloniaXamlLoader.Load(this)
+       

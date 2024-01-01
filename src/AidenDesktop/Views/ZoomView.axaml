@@ -13,7 +13,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
-                <RowDefinition Height="100"/>
+                <RowDefinition Height="200"/>
             </Grid.RowDefinitions>
             <lvc:CartesianChart 
                 x:Name="MainChart"
@@ -25,7 +25,8 @@
                 YAxes="{Binding YAxes}"
                 ZoomMode="X"
                 DrawMargin="{Binding Margin}"
-                EasingFunction="{Binding Source={x:Null}}">
+                EasingFunction="{Binding Source={x:Null}}"
+                UpdateStartedCommand="{Binding ChartUpdatedCommand}">
             </lvc:CartesianChart>
             <lvc:CartesianChart
                 x:Name="ScrollbarChart"

@@ -15,9 +15,6 @@
         <StyleInclude Source="avares://AidenDesktop/Controls/EZPie.axaml" />
         <StyleInclude Source="avares://AidenDesktop/Controls/EZGeo.axaml" />
         <Style>
-            <Style.Resources>
-                <ResourceInclude x:Key="IconGeometries" Source="avares://AidenDesktop/Assets/IconGeometries.axaml"/>
-            </Style.Resources>
         </Style>
     </Application.Styles>
 </Application>
