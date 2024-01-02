@@ -43,14 +43,14 @@ type EZPie() =
     
 
     member private this.NotifyPropertyChanged(propertyName : string) =
-        printfn $"EZPie NotifyPropertyChanged: {propertyName}"
+        //printfn $"EZPie NotifyPropertyChanged: {propertyName}"
         propertyChanged.Trigger(this, PropertyChangedEventArgs(propertyName))
 
     member this.Value
         with get() = this.GetValue(ValueProperty)
         and set(value) =
             this.SetValue(ValueProperty, value) |> ignore
-            printfn $"Setter: EZPie Value set {value}"
+            //printfn $"Setter: EZPie Value set {value}"
             this.NotifyPropertyChanged("Value")
             
     
@@ -64,7 +64,7 @@ type EZPie() =
         with get() = this.GetValue(SeriesListProperty)
         and set(value) =
             this.SetValue(SeriesListProperty, value) |> ignore
-            printfn "Setting Series List..."
+            //printfn "Setting Series List..."
             
     member this.ChartWidth
         with get() = this.GetValue(ChartWidthProperty)
@@ -158,8 +158,6 @@ type EZPie() =
             // This gets called once at initialization, but not when items in the collection change
             this.NotifyPropertyChanged("SeriesList")
             let value = this.GetValue(SeriesListProperty)
-            for item in value do
-                printfn $"EZ PropertyChanged: Item: {item.Name}: {item.Count}"
             // Initialize ISeries list
             _seriesValues.Clear()
             let series = this.SeriesList

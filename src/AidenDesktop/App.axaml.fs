@@ -24,3 +24,4 @@ type App() =
             ()
 
         base.OnFrameworkInitializationCompleted()
+        

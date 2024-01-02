@@ -15,10 +15,10 @@
 
     <Grid Name="DragZone" >
         <!-- <controls:EZGeo SeriesList="{Binding COOSeries}" /> -->
-        <ItemsControl ItemsSource="{Binding Panels}">
+        <ItemsControl ItemsSource="{Binding Panels, Mode=TwoWay}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <Canvas />
+                    <Canvas Background="Transparent" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
 
@@ -35,8 +35,10 @@
                         <controls:SeriesBox SeriesName="{Binding SeriesName}"
                                             SeriesList="{Binding SeriesList}" 
                                             SelectedChartType="{Binding ChartType}"
-                                            Width="{Binding Width}" 
-                                            Height="{Binding Height}" />
+                                            Width="{Binding Width, Mode=TwoWay}" 
+                                            Height="{Binding Height, Mode=TwoWay}"
+                                            PosX="{Binding PosX, Mode=TwoWay}"
+                                            PosY="{Binding PosY, Mode=TwoWay}" />
                     </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

@@ -57,7 +57,7 @@ type EZGeo() =
     member this.remove_PropertyChanged(handler) = propertyChanged.Publish.RemoveHandler(handler)
 
     member private this.NotifyPropertyChanged(propertyName : string) =
-        printfn $"EZGeo NotifyPropertyChanged: {propertyName}"
+        //printfn $"EZGeo NotifyPropertyChanged: {propertyName}"
         propertyChanged.Trigger(this, PropertyChangedEventArgs(propertyName))
 
     member this.SeriesList
@@ -77,19 +77,19 @@ type EZGeo() =
         let targetCollection = _seriesValues.[0].Lands |> ResizeArray
         match e.Action with
         | NotifyCollectionChangedAction.Add ->
-            printfn $"EZGeo Sync:Add"
+            //printfn $"EZGeo Sync:Add"
             e.NewItems |> Seq.cast<SeriesData> |> Seq.iter (fun item ->
-                printfn $"{item.Name} : {item.Count}"
+                //printfn $"{item.Name} : {item.Count}"
                 let heatland = HeatLand(Name = item.Name, Value = item.Count) :> IWeigthedMapLand
                 targetCollection.Add(heatland)
             )
             _seriesValues.[0].Lands <- targetCollection.ToArray()
             ()
         | NotifyCollectionChangedAction.Remove ->
-            printfn "EZGeo Sync:Remove"
+            //printfn "EZGeo Sync:Remove"
             let oldItems = e.OldItems |> Seq.cast<SeriesData>
             for item in oldItems do
-                printfn $"{item.Name} : {item.Count}"
+                //printfn $"{item.Name} : {item.Count}"
                 let index = targetCollection |> Seq.tryFindIndex (fun s -> s.Name = item.Name)
                 match index with
                 | Some i -> targetCollection.RemoveAt(i)
@@ -97,10 +97,10 @@ type EZGeo() =
             _seriesValues.[0].Lands <- targetCollection.ToArray()
             ()
         | NotifyCollectionChangedAction.Replace ->
-            printfn "EZGeo Sync:Replace"
+            //printfn "EZGeo Sync:Replace"
             let newItems = e.NewItems |> Seq.cast<SeriesData>
             for item in newItems do
-                printfn $"{item.Name} : {item.Count}"
+                //printfn $"{item.Name} : {item.Count}"
                 let index = targetCollection |> Seq.tryFindIndex (fun s -> s.Name = item.Name)
                 match index with
                 | Some i -> targetCollection.[i] <- HeatLand(Name = item.Name, Value = item.Count) :> IWeigthedMapLand

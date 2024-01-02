@@ -40,6 +40,9 @@
                             <GradientStop Color="#333333" Offset="1" />
                         </LinearGradientBrush>
                     </Border.Background>
+
+                    
+
                 <Grid >
                     
                     <Grid.RowDefinitions>
@@ -47,6 +50,7 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>                    
                 
+                    <!-- Title Bar Border -->
                     <Border Grid.Row="0" 
                             Grid.Column="0"
                             Grid.ColumnSpan="2" 
@@ -62,6 +66,7 @@
                             </LinearGradientBrush>
                         </Border.Background>
                         
+                        <!-- Title Bar -->
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
@@ -127,6 +132,20 @@
                         <controls:EZGeo SeriesList="{Binding SeriesList, RelativeSource={RelativeSource TemplatedParent}}" />
                     </Viewbox>
 
+                    <i:Icon IsVisible="{Binding IsResizable, RelativeSource={RelativeSource TemplatedParent}}"
+                            Grid.Row="1" 
+                            Value="fa fa-grip" 
+                            FontSize="24"
+                            Foreground="#dddddd"
+                            HorizontalAlignment="Right" 
+                            VerticalAlignment="Bottom" />
+                    <StackPanel HorizontalAlignment="Left" Grid.Row="1" 
+                                VerticalAlignment="Bottom">
+                        <TextBlock Text="{Binding PosX, RelativeSource={RelativeSource TemplatedParent}}" />
+                        <TextBlock Text="{Binding PosY, RelativeSource={RelativeSource TemplatedParent}}" />
+                        <TextBlock Text="{Binding Width, RelativeSource={RelativeSource TemplatedParent}}" />
+                        <TextBlock Text="{Binding Height, RelativeSource={RelativeSource TemplatedParent}}" />
+                    </StackPanel>
                 </Grid>
                 </Border>
             </ControlTemplate>

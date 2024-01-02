@@ -47,6 +47,8 @@ module Dashboard =
         | OpenPanel of String
         | ClosePanel of int
         | SetPanelSeries
+        | PanelsListChanged of DragPanel List
+        | DragPanelChanged of DragPanel
         | DragStart of bool
         | UpdateVPNSeries of (string * int) list
         | UpdateTORSeries of (string * int) list
@@ -209,7 +211,7 @@ module Dashboard =
                             DragPanel(SeriesName="TOR", PosX=220.0, PosY=10.0)
                             DragPanel(SeriesName="PRX", PosX=430.0, PosY=10.0)
                             DragPanel(SeriesName="MAL", PosX=640.0, PosY=10.0)
-                            //DragPanel(SeriesName="COO", PosX=850.0, PosY=10.0)
+                            DragPanel(SeriesName="COO", PosX=850.0, PosY=10.0)
                             DragPanel(SeriesName="COO", PosX=10.0, PosY=220.0, Width=830.0, Height=550.0, ChartType=EZChartType.GeoMap)
                         ]
                 VPNSeries = vpnSeries                
@@ -243,6 +245,31 @@ module Dashboard =
                     printfn $"{item.Name} : {item.Count} : {item.Geography}"
             
             model, Cmd.none
+        | PanelsListChanged panels ->
+            printfn "PanelsListChanged..."
+            // Update panels list
+            { model with Panels = panels }
+            //, Cmd.none
+            , Cmd.ofEffect (fun dispatch ->
+                dispatch SetPanelSeries
+            )
+
+        | DragPanelChanged panel ->
+            for p in model.Panels do
+                if p = panel then
+                    printfn $"MODEL: {p.SeriesName} {p.PosX} {p.PosY} {p.Width} {p.Height}"
+            //let newPanels = model.Panels |> List.map (fun p -> if p = panel then panel else p)
+            //printfn $"DragPanelChanged: {panel.SeriesName} {panel.PosX} {panel.PosY}"
+            //for p in newPanels do
+            //    if p = panel then
+            //        printfn $"NEW PANEL: {p.SeriesName} {p.PosX} {p.PosY}"
+            
+            model, Cmd.none
+            (* { model with Panels = model.Panels}
+            , Cmd.ofEffect (fun dispatch ->
+                dispatch (PanelsListChanged model.Panels)
+            ) *)
+
         | DragStart bDragging ->
             { model with IsDragging = bDragging }, Cmd.none
 
@@ -295,8 +322,28 @@ type DashboardViewModel() =
     
     member this.Panels
         with get() = this.Bind(local, _.Panels)
-        
+        and set(value) = local.Dispatch (PanelsListChanged value)
     
+    member this.OnPanelChanged (panel: DragPanel) =
+        local.Dispatch(PanelsListChanged this.Panels)
+        local.Dispatch (DragPanelChanged panel)
+        (* let newPanels = this.Panels |> List.map (fun p -> 
+            if p = panel then 
+                p.PosX <- panel.PosX
+                p.PosY <- panel.PosY
+                p.Width <- panel.Width
+                p.Height <- panel.Height
+                p *)
+                (* DragPanel(
+                    SeriesName = p.SeriesName,
+                    SeriesList = p.SeriesList,
+                    PosX = panel.PosX,
+                    PosY = panel.PosY,
+                    Width = panel.Width,
+                    Height = panel.Height,
+                    ChartType = panel.ChartType) *)
+           (*  else p)
+        this.Panels <- newPanels *)
     member this.VPNSeries
         with get() = this.Bind(local, _.VPNSeries)
     member this.TORSeries
