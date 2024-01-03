@@ -21,7 +21,7 @@
                 Height="450"
                 Width="1200"
                 Series="{Binding Series}" 
-                XAxes="{Binding XAxes}"
+                XAxes="{Binding ScrollableAxes}"
                 YAxes="{Binding YAxes}"
                 ZoomMode="X"
                 DrawMargin="{Binding Margin}"

@@ -254,7 +254,7 @@ module Zoom =
             printfn $"{DateTime.Now} pointer is up"
             { model with IsDown = false }
         | PointerDown ->
-            printfn $"{DateTime.Now} pointer is down"
+            printfn $"{DateTime.Now} pointer is down in Elmish"
             { model with IsDown = true }
         | PointerMove args ->
             if not model.IsDown then
@@ -266,7 +266,6 @@ module Zoom =
 
                 let thumb = model.Thumbs.[0]
                 let currentRange = thumb.Xj.Value - thumb.Xi.Value
-
                 // update the scroll bar thumb when the user is dragging the chart
                 thumb.Xi <- positionInData.X - currentRange / 2.0
                 thumb.Xj <- positionInData.X + currentRange / 2.0
@@ -275,28 +274,40 @@ module Zoom =
                 model.ScrollableAxes.[0].MinLimit <- thumb.Xi.Value
                 model.ScrollableAxes.[0].MaxLimit <- thumb.Xj.Value
 
+                let axis = Axis(MinLimit = thumb.Xi.Value, MaxLimit = thumb.Xj.Value)
+                model.ScrollableAxes.[0] <- axis
+
                 // update the thumb rectangle's Xi and Xj properties
-                thumb.Xi <- model.ScrollableAxes.[0].MinLimit
-                thumb.Xj <- model.ScrollableAxes.[0].MaxLimit
+                thumb.Xi <- model.ScrollableAxes.[0].MinLimit.Value
+                thumb.Xj <- model.ScrollableAxes.[0].MaxLimit.Value
+                
+
+                //{ model with ScrollableAxes = ObservableCollection<Axis> [ axis ]}
                 model
 
         | ChartUpdated args ->
             printfn $"{DateTime.Now} chart updated"
             let chart = args.Chart :?> ICartesianChartView<SkiaSharpDrawingContext>
+            //let xAxis = XAxes.FirstOrDefault()
             let xAxis = (chart.XAxes.OfType<Axis>()).FirstOrDefault()
+            if System.Nullable<float>.Equals(xAxis.MaxLimit, null) then
+                printfn "xAxis.MaxLimit is null"
+                model
+            else
+                printfn $"xAxis.MaxLimit is {xAxis.MaxLimit.Value}, xAxis.MinLimit is {xAxis.MinLimit.Value}"
+                let zoomLevel = xAxis.MaxLimit.Value - xAxis.MinLimit.Value
 
-            let zoomLevel = xAxis.MaxLimit.Value - xAxis.MinLimit.Value
+                let thumb = model.Thumbs.[0]
 
-            let thumb = model.Thumbs.[0]
+                // Calculate the new size of the Thumb rectangle based on the zoom level
+                let newSize = thumb.Xj.Value / zoomLevel
+                printfn $"newSize is {newSize} = {thumb.Xj.Value} / {zoomLevel}"
 
-            // Calculate the new size of the Thumb rectangle based on the zoom level
-            let newSize = thumb.Xj.Value / zoomLevel
-
-            // Update the Xi and Xj properties of the Thumb rectangle
-            thumb.Xi <- thumb.Xi.Value * newSize
-            thumb.Xj <- thumb.Xj.Value * newSize
-
-            model
+                // Update the Xi and Xj properties of the Thumb rectangle
+                thumb.Xi <- xAxis.MinLimit.Value // thumb.Xi.Value * newSize
+                thumb.Xj <- xAxis.MaxLimit.Value // thumb.Xj.Value * newSize
+                {model with Thumbs = ObservableCollection<RectangularSection> [ thumb ]}
+                //model
         | UpdateSeries ->
             let latestEvents =
                 fetchEventsPerHourAsync()
@@ -338,6 +349,7 @@ module Zoom =
             model
             
 open Zoom
+open Avalonia.Threading
 
 type ZoomViewModel() as this =
     inherit ReactiveElmishViewModel()
@@ -353,9 +365,13 @@ type ZoomViewModel() as this =
 
     member this.Series = local.Model.Series
     member this.ScrollbarSeries = local.Model.ScrollbarSeries
+    member this.ScrollableAxes = local.Model.ScrollableAxes
     member this.InvisibleX = local.Model.InvisibleX
     member this.InvisibleY = local.Model.InvisibleY
-    member val PointerDownCommand = ReactiveCommand.Create<obj, unit> (fun _ -> local.Dispatch PointerDown) with get, set
+    
+    member val PointerDownCommand = ReactiveCommand.Create<obj, unit> (fun _ -> 
+        //printfn $"{DateTime.Now} pointer is down"
+        local.Dispatch PointerDown) with get, set
     member val PointerMoveCommand = ReactiveCommand.Create<PointerCommandArgs, unit> (fun args -> local.Dispatch (PointerMove args)) with get, set
     member val PointerUpCommand = ReactiveCommand.Create<obj, unit> (fun _ -> local.Dispatch PointerUp) with get, set
     member val ChartUpdatedCommand = ReactiveCommand.Create<ChartCommandArgs, unit> (fun args -> local.Dispatch (ChartUpdated args)) with get, set
