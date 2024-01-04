@@ -240,7 +240,23 @@ module Zoom =
                                        Fill = new SolidColorPaint(SKColors.Aqua),
                                        Stroke = new SolidColorPaint(SKColors.Fuchsia))
                 ]
-            ScrollableAxes = ObservableCollection<Axis> [ Axis() ]
+            ScrollableAxes = ObservableCollection<Axis> [ Axis(
+                Labeler = (fun value -> 
+                    let eventTime = DateTime(int64 value)
+                    let timeAgo = DateTime.UtcNow - eventTime
+                    if timeAgo.TotalSeconds < 60.0 then
+                        $"{timeAgo.TotalSeconds:F0} seconds ago"
+                    elif timeAgo.TotalMinutes < 60.0 then
+                        $"{timeAgo.TotalMinutes:F0} minutes ago"
+                    else
+                        $"{timeAgo.TotalHours:F0} hours ago"),
+                LabelsRotation = 10,
+                UnitWidth = float(TimeSpan.FromSeconds(1).Ticks),
+                MinStep = float(TimeSpan.FromSeconds(1).Ticks),
+                NamePaint = new SolidColorPaint(SKColors.Tan),
+                LabelsPaint = new SolidColorPaint(SKColors.Tan),
+                TextSize = 12.0
+            ) ]
             InvisibleX = ObservableCollection<Axis> [ Axis(IsVisible = false) ]
             InvisibleY = ObservableCollection<Axis> [ Axis(IsVisible = false) ]
             IsDown = false
@@ -251,16 +267,16 @@ module Zoom =
     let update (msg: Msg) (model: Model) =
         match msg with
         | PointerUp ->
-            printfn $"{DateTime.Now} pointer is up"
+            //printfn $"{DateTime.Now} pointer is up"
             { model with IsDown = false }
         | PointerDown ->
-            printfn $"{DateTime.Now} pointer is down in Elmish"
+            //printfn $"{DateTime.Now} pointer is down in Elmish"
             { model with IsDown = true }
         | PointerMove args ->
             if not model.IsDown then
                 model
             else
-                printfn $"{DateTime.Now} pointer is moved"
+                //printfn $"{DateTime.Now} pointer is moved"
                 let chart = args.Chart :?> ICartesianChartView<SkiaSharpDrawingContext>
                 let positionInData = chart.ScalePixelsToData(args.PointerPosition)
 
@@ -274,40 +290,46 @@ module Zoom =
                 model.ScrollableAxes.[0].MinLimit <- thumb.Xi.Value
                 model.ScrollableAxes.[0].MaxLimit <- thumb.Xj.Value
 
-                let axis = Axis(MinLimit = thumb.Xi.Value, MaxLimit = thumb.Xj.Value)
+                // TODO: Duplication of code, but needed to get model to update
+                let axis = Axis(
+                    Labeler = (fun value -> 
+                    let eventTime = DateTime(int64 value)
+                    let timeAgo = DateTime.UtcNow - eventTime
+                    if timeAgo.TotalSeconds < 60.0 then
+                        $"{timeAgo.TotalSeconds:F0} seconds ago"
+                    elif timeAgo.TotalMinutes < 60.0 then
+                        $"{timeAgo.TotalMinutes:F0} minutes ago"
+                    else
+                        $"{timeAgo.TotalHours:F0} hours ago"),
+                    LabelsRotation = 10,
+                    UnitWidth = float(TimeSpan.FromSeconds(1).Ticks),
+                    MinStep = float(TimeSpan.FromSeconds(1).Ticks),
+                    NamePaint = new SolidColorPaint(SKColors.Tan),
+                    LabelsPaint = new SolidColorPaint(SKColors.Tan),
+                    TextSize = 12.0,
+                        MinLimit = thumb.Xi.Value,
+                        MaxLimit = thumb.Xj.Value
+                )
                 model.ScrollableAxes.[0] <- axis
 
                 // update the thumb rectangle's Xi and Xj properties
                 thumb.Xi <- model.ScrollableAxes.[0].MinLimit.Value
                 thumb.Xj <- model.ScrollableAxes.[0].MaxLimit.Value
                 
-
-                //{ model with ScrollableAxes = ObservableCollection<Axis> [ axis ]}
                 model
 
         | ChartUpdated args ->
-            printfn $"{DateTime.Now} chart updated"
+            //printfn $"{DateTime.Now} chart updated"
             let chart = args.Chart :?> ICartesianChartView<SkiaSharpDrawingContext>
-            //let xAxis = XAxes.FirstOrDefault()
             let xAxis = (chart.XAxes.OfType<Axis>()).FirstOrDefault()
             if System.Nullable<float>.Equals(xAxis.MaxLimit, null) then
-                printfn "xAxis.MaxLimit is null"
                 model
             else
-                printfn $"xAxis.MaxLimit is {xAxis.MaxLimit.Value}, xAxis.MinLimit is {xAxis.MinLimit.Value}"
-                let zoomLevel = xAxis.MaxLimit.Value - xAxis.MinLimit.Value
-
                 let thumb = model.Thumbs.[0]
-
-                // Calculate the new size of the Thumb rectangle based on the zoom level
-                let newSize = thumb.Xj.Value / zoomLevel
-                printfn $"newSize is {newSize} = {thumb.Xj.Value} / {zoomLevel}"
-
                 // Update the Xi and Xj properties of the Thumb rectangle
-                thumb.Xi <- xAxis.MinLimit.Value // thumb.Xi.Value * newSize
-                thumb.Xj <- xAxis.MaxLimit.Value // thumb.Xj.Value * newSize
-                {model with Thumbs = ObservableCollection<RectangularSection> [ thumb ]}
-                //model
+                thumb.Xi <- xAxis.MinLimit.Value 
+                thumb.Xj <- xAxis.MaxLimit.Value
+                model
         | UpdateSeries ->
             let latestEvents =
                 fetchEventsPerHourAsync()
