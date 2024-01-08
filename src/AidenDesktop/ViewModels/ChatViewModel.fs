@@ -12,7 +12,7 @@ open OllamaSharp
 module Chat =
     type ChatMessage = { User: string; Text: string; Alignment: string; Color: string; BorderColor: string; IsMe: bool }
 
-    type Model = { Messages: SourceList<ChatMessage>; IsProcessing: bool; MessageText: string }
+    type Model = { Messages: SourceList<ChatMessage>; IsProcessing: bool; MessageText: string; ChatHandle: Chat }
 
     type Msg =
         | SendMessage of string
@@ -25,7 +25,7 @@ module Chat =
         
     let ollamaUri = Uri("http://aiden.speakez.dev:22161")
     let ollamaClient = OllamaApiClient(ollamaUri)
-    
+    ollamaClient.SelectedModel <- "llama2:latest"
     let init() =
         let initialMessages =
             [
@@ -38,7 +38,8 @@ module Chat =
                 { User = "Aiden"; Text = "Countries of origin and source IP subnets are a high-confidence match to two attacks in the last three months."
                   Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             ]
-        { Messages = SourceList.createFrom initialMessages; IsProcessing = false; MessageText = ""}
+        let handle = ollamaClient.Chat(fun stream -> ( printfn $"Streaming: {stream.Message.Content}"))
+        { Messages = SourceList.createFrom initialMessages; IsProcessing = false; MessageText = ""; ChatHandle = handle}
 
     let update (msg: Msg) (model: Model) =
         match msg with
@@ -109,23 +110,26 @@ type ChatViewModel() =
                 } |> Async.StartImmediate
 
             let responseTask = async {
-                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
+                //Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
                     // Replace the content of the last message in the SourceList
-                    local.Dispatch(StartProcessing)
-                ) |> ignore
+                local.Dispatch(StartProcessing)
+                //) |> ignore
                 
                 let chatRequest = ChatRequest()
                 chatRequest.Model <- "llama2:latest"
                 chatRequest.Messages <- [| Message(ChatRole.User, message)|]
                 chatRequest.Stream <- true
-                let! messages = ollamaClient.SendChat(chatRequest, streamer, cts.Token) |> Async.AwaitTask
-                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
+                printfn $"Sending message: %s{message}"
+                let it = local.Model.ChatHandle.Send(message)
+                printfn $"Done sending {it.ToString()}"
+                //let! messages = ollamaClient.SendChat(chatRequest, streamer, cts.Token) |> Async.AwaitTask
+                //Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
                     // Replace the content of the last message in the SourceList
-                    local.Dispatch(StopProcessing)
-                ) |> ignore
+                local.Dispatch(StopProcessing) 
+                //) |> ignore
 
                 // Process the returned messages here
-                messages |> Seq.iter (fun msg -> this.FeedMessage(msg))
+                //messages |> Seq.iter (fun msg -> this.FeedMessage(msg))
             }
 
             // Post the task to the UI thread
@@ -143,6 +147,7 @@ type ChatViewModel() =
             ) |> ignore
             
             let fullMessage = message.Content
+            printfn $"Full message: %s{fullMessage}"
             let updatedMsg = { User = "Aiden"; Text = fullMessage; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange"; IsMe = false }
 
             // Run the UI update code on the UI thread
