@@ -23,7 +23,7 @@ module Chat =
         | ClearMessageText
         | CancelResponseStream
         
-    let ollamaUri = Uri("http://192.168.1.173:11434")
+    let ollamaUri = Uri("http://aiden.speakez.dev:22161")
     let ollamaClient = OllamaApiClient(ollamaUri)
     
     let init() =
@@ -109,14 +109,21 @@ type ChatViewModel() =
                 } |> Async.StartImmediate
 
             let responseTask = async {
-                local.Dispatch(StartProcessing)
+                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
+                    // Replace the content of the last message in the SourceList
+                    local.Dispatch(StartProcessing)
+                ) |> ignore
+                
                 let chatRequest = ChatRequest()
                 chatRequest.Model <- "llama2:latest"
                 chatRequest.Messages <- [| Message(ChatRole.User, message)|]
                 chatRequest.Stream <- true
                 let! messages = ollamaClient.SendChat(chatRequest, streamer, cts.Token) |> Async.AwaitTask
-                local.Dispatch(StopProcessing)
-                local.Dispatch(SendAidenMessage)
+                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
+                    // Replace the content of the last message in the SourceList
+                    local.Dispatch(StopProcessing)
+                ) |> ignore
+
                 // Process the returned messages here
                 messages |> Seq.iter (fun msg -> this.FeedMessage(msg))
             }
@@ -130,6 +137,11 @@ type ChatViewModel() =
 
     member this.FeedMessage(message: Message) =
         try
+            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
+                // Replace the content of the last message in the SourceList
+                local.Dispatch(SendAidenMessage)
+            ) |> ignore
+            
             let fullMessage = message.Content
             let updatedMsg = { User = "Aiden"; Text = fullMessage; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange"; IsMe = false }
 
