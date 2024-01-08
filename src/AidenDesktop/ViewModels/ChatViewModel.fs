@@ -44,25 +44,30 @@ module Chat =
         match msg with
         | SendMessage text ->
             let msg = { User = "Houston"; Text = text; Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue" ; IsMe  = true }
-            // printfn "Message: %A" msg
+            printfn "Message: %A" msg
             {
                 model with Messages = model.Messages |> SourceList.add msg
             }
         | SendAidenMessage ->
+            printfn "Message: %A" msg
             let msg = { User = "Aiden"; Text = ""; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             {                
                 model with Messages = model.Messages |> SourceList.add msg
             }
         | FeedMessage (text, index) ->
+            printfn "FeedMessage: %A" text
             let messages = model.Messages
             let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             messages.ReplaceAt (index, msg)
             { model with Messages = messages }
         | StartProcessing ->
+            printfn "StartProcessing"
             { model with IsProcessing = true }
         | StopProcessing ->
+            printfn "StopProcessing"
             { model with IsProcessing = false }
         | ClearMessageText ->
+            printfn "ClearMessageText"
             { model with MessageText = "" }
             
 open Chat
@@ -91,44 +96,49 @@ type ChatViewModel() =
     member this.IsProcessing = this.Bind(local, _.IsProcessing)
         
     member this.SendMessage(message: string) =
-        local.Dispatch (SendMessage message)
-        local.Dispatch ClearMessageText
-        let cts = new CancellationTokenSource() // For cancellation support
+        try
+            local.Dispatch (SendMessage message)
+            local.Dispatch ClearMessageText
+            let cts = new CancellationTokenSource() // For cancellation support
 
-        let streamer = fun (stream: ChatResponseStream) ->
-            async {
-                while not stream.Done do // Use stream.Done to control the loop
-                    let messageChunk = stream.Message // Handle each word as a chunk
-                    this.FeedMessage(messageChunk) // Process each chunk
-            } |> Async.StartImmediate
+            let streamer = fun (stream: ChatResponseStream) ->
+                async {
+                    while not stream.Done do // Use stream.Done to control the loop
+                        let messageChunk = stream.Message // Handle each word as a chunk
+                        this.FeedMessage(messageChunk) // Process each chunk
+                } |> Async.StartImmediate
 
-        let responseTask = async {
-            local.Dispatch(StartProcessing)
-            let chatRequest = ChatRequest()
-            chatRequest.Model <- "llama2:latest"
-            chatRequest.Messages <- [| Message(ChatRole.User, message)|]
-            chatRequest.Stream <- true
-            let! messages = ollamaClient.SendChat(chatRequest, streamer, cts.Token) |> Async.AwaitTask
-            local.Dispatch(StopProcessing)
-            local.Dispatch(SendAidenMessage)
-            // Process the returned messages here
-            messages |> Seq.iter (fun msg -> this.FeedMessage(msg))
-        }
+            let responseTask = async {
+                local.Dispatch(StartProcessing)
+                let chatRequest = ChatRequest()
+                chatRequest.Model <- "llama2:latest"
+                chatRequest.Messages <- [| Message(ChatRole.User, message)|]
+                chatRequest.Stream <- true
+                let! messages = ollamaClient.SendChat(chatRequest, streamer, cts.Token) |> Async.AwaitTask
+                local.Dispatch(StopProcessing)
+                local.Dispatch(SendAidenMessage)
+                // Process the returned messages here
+                messages |> Seq.iter (fun msg -> this.FeedMessage(msg))
+            }
 
-        // Start the async task
-        responseTask |> Async.StartAsTask |> ignore
-
-        // Post the task to the UI thread
-        Avalonia.Threading.Dispatcher.UIThread.Post(fun () ->
-            responseTask |> Async.StartAsTask |> ignore
-        )
+            // Post the task to the UI thread
+            Avalonia.Threading.Dispatcher.UIThread.Post(fun () ->
+                responseTask |> Async.StartAsTask |> ignore
+            )
+        with
+        | ex -> printfn $"Error in SendMessage: %s{ex.Message}"
 
     member this.FeedMessage(message: Message) =
-        let fullMessage = message.Content 
-        let updatedMsg = { User = "Aiden"; Text = fullMessage; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange"; IsMe = false }
+        try
+            let fullMessage = message.Content
+            let updatedMsg = { User = "Aiden"; Text = fullMessage; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange"; IsMe = false }
 
-
-        // Replace the content of the last message in the SourceList
-        local.Model.Messages.ReplaceAt(local.Model.Messages.Count - 1, updatedMsg)
+            // Run the UI update code on the UI thread
+            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
+                // Replace the content of the last message in the SourceList
+                local.Model.Messages.ReplaceAt(local.Model.Messages.Count - 1, updatedMsg)
+            ) |> ignore
+        with
+        | ex -> printfn $"Error in FeedMessage: %s{ex.Message}"
        
     static member DesignVM = new ChatViewModel()
