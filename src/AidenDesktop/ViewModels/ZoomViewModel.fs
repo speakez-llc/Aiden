@@ -5,24 +5,20 @@ open System.Linq
 open System.IO
 open System.Collections.Generic
 open System.Collections.ObjectModel
-open System.Reactive.Linq
 open System.Text.Json
-open Avalonia.Controls
-open LiveChartsCore.Drawing
-open LiveChartsCore.Kernel.Events
+open SkiaSharp
+open Elmish
+open LiveChartsCore
+open LiveChartsCore.Defaults
 open LiveChartsCore.Measure
+open LiveChartsCore.Kernel.Events
+open LiveChartsCore.Kernel.Sketches
+open LiveChartsCore.SkiaSharpView
+open LiveChartsCore.SkiaSharpView.Painting
 open LiveChartsCore.SkiaSharpView.Drawing
-open LiveChartsCore.VisualElements
 open ReactiveUI
 open ReactiveElmish
 open ReactiveElmish.Avalonia
-open Elmish
-open SkiaSharp
-open LiveChartsCore
-open LiveChartsCore.Kernel.Sketches
-open LiveChartsCore.SkiaSharpView
-open LiveChartsCore.Defaults
-open LiveChartsCore.SkiaSharpView.Painting
 open Npgsql
 
 module Zoom =
@@ -235,10 +231,9 @@ module Zoom =
                 [
                     RectangularSection(Xi = float minTime.DateTime.Ticks,
                                        Xj = float maxTime.DateTime.Ticks,
-                                       Yi = 20.0,
-                                       Yj = 120.0,
-                                       Fill = new SolidColorPaint(SKColors.Aqua),
-                                       Stroke = new SolidColorPaint(SKColors.Fuchsia))
+                                       Yi = 0.0,
+                                       Yj = 150.0,
+                                       Fill = new SolidColorPaint(SKColor.Parse("#888888cc")))
                 ]
             ScrollableAxes = ObservableCollection<Axis> [ Axis(
                 Labeler = (fun value -> 

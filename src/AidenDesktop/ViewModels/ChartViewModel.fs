@@ -6,8 +6,6 @@ open System.Collections.Generic
 open System.Collections.ObjectModel
 open System.Reactive.Linq
 open System.Text.Json
-open LiveChartsCore.Drawing
-open LiveChartsCore.Measure
 open ReactiveElmish
 open ReactiveElmish.Avalonia
 open Elmish

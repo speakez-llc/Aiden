@@ -1,24 +1,31 @@
 ﻿namespace AidenDesktop.ViewModels
 
+open System
+open System.Threading
 open Elmish
+open OllamaSharp.Models.Chat
 open ReactiveElmish
 open ReactiveElmish.Avalonia
 open DynamicData
-open System
+open OllamaSharp
 
 module Chat =
-    type Message = { User: string; Text: string; Alignment: string; Color: string; BorderColor: string; IsMe: bool }
+    type ChatMessage = { User: string; Text: string; Alignment: string; Color: string; BorderColor: string; IsMe: bool }
 
-    type Model = { Messages: SourceList<Message>; IsProcessing: bool; MessageText: string }
+    type Model = { Messages: SourceList<ChatMessage>; IsProcessing: bool; MessageText: string }
 
     type Msg =
         | SendMessage of string
-        | SendAidenMessage of string
+        | SendAidenMessage
         | FeedMessage of string * int
         | StartProcessing
         | StopProcessing
         | ClearMessageText
-
+        | CancelResponseStream
+        
+    let ollamaUri = Uri("http://192.168.1.173:11434")
+    let ollamaClient = OllamaApiClient(ollamaUri)
+    
     let init() =
         let initialMessages =
             [
@@ -41,8 +48,8 @@ module Chat =
             {
                 model with Messages = model.Messages |> SourceList.add msg
             }
-        | SendAidenMessage text ->
-            let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
+        | SendAidenMessage ->
+            let msg = { User = "Aiden"; Text = ""; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             {                
                 model with Messages = model.Messages |> SourceList.add msg
             }
@@ -60,11 +67,10 @@ module Chat =
             
 open Chat
 
-type ChatViewModel() as this =
+type ChatViewModel() =
     inherit ReactiveElmishViewModel()
-    let newMessageEvent = new Event<_>()
+    let newMessageEvent = Event<_>()
     
-
     let local =
         Program.mkAvaloniaSimple init update
         |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
@@ -76,7 +82,7 @@ type ChatViewModel() as this =
             .Subscribe(fun _ -> 
                 newMessageEvent.Trigger())
             |> ignore
-
+    
     member this.MessagesView = this.BindSourceList(local.Model.Messages)
     
     member this.MessageText = this.Bind(local, _.MessageText)
@@ -87,46 +93,42 @@ type ChatViewModel() as this =
     member this.SendMessage(message: string) =
         local.Dispatch (SendMessage message)
         local.Dispatch ClearMessageText
+        let cts = new CancellationTokenSource() // For cancellation support
+
+        let streamer = fun (stream: ChatResponseStream) ->
+            async {
+                while not stream.Done do // Use stream.Done to control the loop
+                    let messageChunk = stream.Message // Handle each word as a chunk
+                    this.FeedMessage(messageChunk) // Process each chunk
+            } |> Async.StartImmediate
+
         let responseTask = async {
             local.Dispatch(StartProcessing)
-            let waitTime = Random().Next(3000, 5000) 
-            do! Async.Sleep waitTime
+            let chatRequest = ChatRequest()
+            chatRequest.Model <- "llama2:latest"
+            chatRequest.Messages <- [| Message(ChatRole.User, message)|]
+            chatRequest.Stream <- true
+            let! messages = ollamaClient.SendChat(chatRequest, streamer, cts.Token) |> Async.AwaitTask
             local.Dispatch(StopProcessing)
-            this.FeedMessage ("This is a very long test message that plays out word by word which is a very useful thing for being able to eventually interrupt a generated message that goes on for too long.")
+            local.Dispatch(SendAidenMessage)
+            // Process the returned messages here
+            messages |> Seq.iter (fun msg -> this.FeedMessage(msg))
         }
 
         // Start the async task
-        Async.StartImmediate(responseTask)
+        responseTask |> Async.StartAsTask |> ignore
 
-    
-    member this.FeedMessage(message: string) =
-        // Break up message into chunks and deliver at slightly varied cadence
-        let index = local.Model.Messages.Count
-        let len = message.Length
-        let mutable i = 0
-        let mutable waitTime = 0
-        let mutable fullMessage = ""
-        let updateFeed(msg : string) (wait : int) =
-            async {
-                    do! Async.Sleep (wait)                    
-                    //printfn $"Feeding message: {msg}"
-                    local.Dispatch (FeedMessage (msg, index))
-                } |> Async.StartImmediate
+        // Post the task to the UI thread
+        Avalonia.Threading.Dispatcher.UIThread.Post(fun () ->
+            responseTask |> Async.StartAsTask |> ignore
+        )
 
-        while i < len do
-            let chunkSize = Random().Next(8, 12)
-            let chunk = message.Substring(i, Math.Min(chunkSize, len - i))
-            i <- i + chunkSize
-            // NOTE: Due to the lack of a get for SourceList, we have to maintain the memory here
-            fullMessage <- fullMessage + chunk
-            if fullMessage = chunk then
-                //printfn $"Sending message: {fullMessage}"
-                local.Dispatch (SendAidenMessage fullMessage)
-            else
-                waitTime <- waitTime + Random().Next(100, 300)
-                updateFeed(fullMessage) (waitTime)
-                
-   
+    member this.FeedMessage(message: Message) =
+        let fullMessage = message.Content 
+        let updatedMsg = { User = "Aiden"; Text = fullMessage; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange"; IsMe = false }
 
 
+        // Replace the content of the last message in the SourceList
+        local.Model.Messages.ReplaceAt(local.Model.Messages.Count - 1, updatedMsg)
+       
     static member DesignVM = new ChatViewModel()
