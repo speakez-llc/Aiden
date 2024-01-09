@@ -21,6 +21,7 @@ module Chat =
         | StartProcessing
         | StopProcessing
         | ClearMessageText
+        | SetMessageText of string
         | CancelResponseStream
         
     let ollamaUri = Uri("http://aiden.speakez.dev:22161")
@@ -71,6 +72,9 @@ module Chat =
         | ClearMessageText ->
             printfn "ClearMessageText"
             { model with MessageText = "" }
+        | SetMessageText text ->
+            printfn "SetMessageText"
+            { model with MessageText = text }
             
 open Chat
 
@@ -96,7 +100,10 @@ type ChatViewModel() as this =
     
     member this.MessagesView = this.BindSourceList(local.Model.Messages)
     
-    member this.MessageText = this.Bind(local, _.MessageText)
+    member this.MessageText 
+        with get() = this.Bind(local, _.MessageText)
+        and set(value) = local.Dispatch(SetMessageText value)
+
     member this.NewMessageEvent = newMessageEvent.Publish
     
     member this.IsProcessing = this.Bind(local, _.IsProcessing)
