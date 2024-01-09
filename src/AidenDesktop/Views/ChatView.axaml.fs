@@ -7,6 +7,7 @@ open Avalonia.Controls
 open Avalonia.Markup.Xaml
 open Avalonia.Threading
 open AidenDesktop.ViewModels
+open System.Collections.Specialized
 
 type ChatView() as this =
     inherit UserControl ()

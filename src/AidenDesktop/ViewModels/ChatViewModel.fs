@@ -115,17 +115,12 @@ type ChatViewModel() as this =
                 } |> Async.StartImmediate
 
             let responseTask = async {
-                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
+                //Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
                     // Replace the content of the last message in the SourceList
-                    local.Dispatch(StartProcessing)
-                    local.Dispatch(ClearMessageText)
-                ) |> ignore
+                local.Dispatch(StartProcessing)
+                local.Dispatch(ClearMessageText)
+                //) |> ignore
                 handle.Send(message) |> ignore
-                (* let chatRequest = ChatRequest()
-                chatRequest.Model <- "llama2:latest"
-                chatRequest.Messages <- [| Message(ChatRole.User, message)|]
-                chatRequest.Stream <- true *)
-                // printfn $"Sending message: %s{message}"
             }
 
             // DO NOT POST THIS TASK ON THE UI THREAD
@@ -137,12 +132,8 @@ type ChatViewModel() as this =
     member this.FeedMessage(message: string * int) =
         try
             if (local.Model.Messages.Items |> List.ofSeq |> List.last).User <> "Aiden" then
-                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
-                    // Replace the content of the last message in the SourceList
-                    local.Dispatch(SendAidenMessage)
-                    local.Dispatch(StopProcessing)
-                ) |> ignore
-
+                local.Dispatch(SendAidenMessage)
+                local.Dispatch(StopProcessing)
             let token = message |> fst
             printfn $"Streamed token: %s{token}"
             // get text from last message in SourceList and add the token to it
@@ -156,5 +147,6 @@ type ChatViewModel() as this =
             //) |> ignore
         with
         | ex -> printfn $"Error in FeedMessage: %s{ex.Message}"
+        
        
     static member DesignVM = new ChatViewModel()
