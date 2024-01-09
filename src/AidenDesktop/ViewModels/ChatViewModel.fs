@@ -150,10 +150,10 @@ type ChatViewModel() as this =
             let updatedMsg = { User = "Aiden"; Text = fullMessage; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange"; IsMe = false }
 
             // Run the UI update code on the UI thread
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
+            //Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
                 // Replace the content of the last message in the SourceList
-                local.Model.Messages.ReplaceAt(local.Model.Messages.Count - 1, updatedMsg)
-            ) |> ignore
+            local.Model.Messages.ReplaceAt(local.Model.Messages.Count - 1, updatedMsg)
+            //) |> ignore
         with
         | ex -> printfn $"Error in FeedMessage: %s{ex.Message}"
        
