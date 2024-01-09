@@ -79,6 +79,7 @@ type ChatViewModel() as this =
     let newMessageEvent = Event<_>()
     let handle = ollamaClient.Chat(Action<ChatResponseStream>(fun (stream: ChatResponseStream) -> 
         let message = stream.Message
+        printfn $"Received message: %s{message.Content}"
         this.FeedMessage (message.Content, 0)
     ))
     let local =
@@ -119,11 +120,11 @@ type ChatViewModel() as this =
                     local.Dispatch(StartProcessing)
                     local.Dispatch(ClearMessageText)
                 ) |> ignore
-                
-                let chatRequest = ChatRequest()
+                handle.Send(message) |> ignore
+                (* let chatRequest = ChatRequest()
                 chatRequest.Model <- "llama2:latest"
                 chatRequest.Messages <- [| Message(ChatRole.User, message)|]
-                chatRequest.Stream <- true
+                chatRequest.Stream <- true *)
                 // printfn $"Sending message: %s{message}"
             }
 
