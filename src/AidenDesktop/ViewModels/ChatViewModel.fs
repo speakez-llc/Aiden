@@ -134,7 +134,11 @@ type ChatViewModel() as this =
             //printfn $"Streamed token: %s{token}"
             // get text from last message in SourceList and add the token to it
             let fullMessage = (messages |> List.ofSeq |> List.last).Text + token
-            let updatedMsg = { User = "Aiden"; Text = fullMessage; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange"; IsMe = false }
+            let user = (messages |> List.ofSeq |> List.last).User
+            let alignment = (messages |> List.ofSeq |> List.last).Alignment
+            let borderColor = (messages |> List.ofSeq |> List.last).BorderColor
+            let isMeValue = (messages |> List.ofSeq |> List.last).IsMe
+            let updatedMsg = { User = user ; Text = fullMessage; Alignment = alignment; Color = "Glaucous"; BorderColor = borderColor; IsMe = isMeValue }
 
             local.Model.Messages.ReplaceAt(local.Model.Messages.Count - 1, updatedMsg)
 
