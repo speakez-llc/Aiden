@@ -73,7 +73,6 @@ module Chat =
             printfn "ClearMessageText"
             { model with MessageText = "" }
         | SetMessageText text ->
-            printfn "SetMessageText"
             { model with MessageText = text }
             
 open Chat
