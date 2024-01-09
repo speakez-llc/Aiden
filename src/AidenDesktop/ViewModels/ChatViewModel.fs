@@ -111,7 +111,7 @@ type ChatViewModel() as this =
                 async {
                     while not stream.Done do // Use stream.Done to control the loop
                         let messageChunk = stream.Message // Handle each word as a chunk
-                        this.FeedMessage(messageChunk.Content, 0) // Process each chunk
+                        this.FeedMessage(messageChunk.Content, 0)
                 } |> Async.StartImmediate
 
             let responseTask = async {
@@ -126,13 +126,14 @@ type ChatViewModel() as this =
 
     member this.FeedMessage(message: string * int) =
         try
-            if (local.Model.Messages.Items |> List.ofSeq |> List.last).User <> "Aiden" then
+            let messages = local.Model.Messages.Items |> List.ofSeq
+            if (messages |> List.last).User <> "Aiden" then
                 local.Dispatch(SendAidenMessage)
                 local.Dispatch(StopProcessing)
             let token = message |> fst
             //printfn $"Streamed token: %s{token}"
             // get text from last message in SourceList and add the token to it
-            let fullMessage = (local.Model.Messages.Items |> List.ofSeq |> List.last).Text + token
+            let fullMessage = (messages |> List.ofSeq |> List.last).Text + token
             let updatedMsg = { User = "Aiden"; Text = fullMessage; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange"; IsMe = false }
 
             local.Model.Messages.ReplaceAt(local.Model.Messages.Count - 1, updatedMsg)
