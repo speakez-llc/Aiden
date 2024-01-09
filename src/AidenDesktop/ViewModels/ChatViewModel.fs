@@ -79,7 +79,7 @@ type ChatViewModel() as this =
     let newMessageEvent = Event<_>()
     let handle = ollamaClient.Chat(Action<ChatResponseStream>(fun (stream: ChatResponseStream) -> 
         let message = stream.Message
-        printfn $"Received message: %s{message.Content}"
+        // printfn $"Received message: %s{message.Content}"
         this.FeedMessage (message.Content, 0)
     ))
     let local =
@@ -115,15 +115,10 @@ type ChatViewModel() as this =
                 } |> Async.StartImmediate
 
             let responseTask = async {
-                //Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
-                    // Replace the content of the last message in the SourceList
                 local.Dispatch(StartProcessing)
                 local.Dispatch(ClearMessageText)
-                //) |> ignore
                 handle.Send(message) |> ignore
             }
-
-            // DO NOT POST THIS TASK ON THE UI THREAD
             responseTask |> Async.StartAsTask |> ignore
 
         with
@@ -135,16 +130,13 @@ type ChatViewModel() as this =
                 local.Dispatch(SendAidenMessage)
                 local.Dispatch(StopProcessing)
             let token = message |> fst
-            printfn $"Streamed token: %s{token}"
+            //printfn $"Streamed token: %s{token}"
             // get text from last message in SourceList and add the token to it
             let fullMessage = (local.Model.Messages.Items |> List.ofSeq |> List.last).Text + token
             let updatedMsg = { User = "Aiden"; Text = fullMessage; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange"; IsMe = false }
 
-            // Run the UI update code on the UI thread
-            //Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
-                // Replace the content of the last message in the SourceList
             local.Model.Messages.ReplaceAt(local.Model.Messages.Count - 1, updatedMsg)
-            //) |> ignore
+
         with
         | ex -> printfn $"Error in FeedMessage: %s{ex.Message}"
         
