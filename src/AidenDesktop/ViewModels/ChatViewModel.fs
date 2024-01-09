@@ -12,7 +12,7 @@ open OllamaSharp
 module Chat =
     type ChatMessage = { User: string; Text: string; Alignment: string; Color: string; BorderColor: string; IsMe: bool }
 
-    type Model = { Messages: SourceList<ChatMessage>; IsProcessing: bool; MessageText: string; ChatHandle: Chat }
+    type Model = { Messages: SourceList<ChatMessage>; IsProcessing: bool; MessageText: string }
 
     type Msg =
         | SendMessage of string
@@ -26,6 +26,7 @@ module Chat =
     let ollamaUri = Uri("http://aiden.speakez.dev:22161")
     let ollamaClient = OllamaApiClient(ollamaUri)
     ollamaClient.SelectedModel <- "llama2:latest"
+    
     let init() =
         let initialMessages =
             [
@@ -38,8 +39,8 @@ module Chat =
                 { User = "Aiden"; Text = "Countries of origin and source IP subnets are a high-confidence match to two attacks in the last three months."
                   Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             ]
-        let handle = ollamaClient.Chat(fun stream -> ( printfn $"Streaming: {stream.Message.Content}"))
-        { Messages = SourceList.createFrom initialMessages; IsProcessing = false; MessageText = ""; ChatHandle = handle}
+        
+        { Messages = SourceList.createFrom initialMessages; IsProcessing = false; MessageText = ""}
 
     let update (msg: Msg) (model: Model) =
         match msg with
@@ -73,10 +74,13 @@ module Chat =
             
 open Chat
 
-type ChatViewModel() =
+type ChatViewModel() as this =
     inherit ReactiveElmishViewModel()
     let newMessageEvent = Event<_>()
-    
+    let handle = ollamaClient.Chat(Action<ChatResponseStream>(fun (stream: ChatResponseStream) -> 
+        let message = stream.Message
+        this.FeedMessage (message.Content, 0)
+    ))
     let local =
         Program.mkAvaloniaSimple init update
         |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
@@ -106,48 +110,42 @@ type ChatViewModel() =
                 async {
                     while not stream.Done do // Use stream.Done to control the loop
                         let messageChunk = stream.Message // Handle each word as a chunk
-                        this.FeedMessage(messageChunk) // Process each chunk
+                        this.FeedMessage(messageChunk.Content, 0) // Process each chunk
                 } |> Async.StartImmediate
 
             let responseTask = async {
-                //Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
+                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
                     // Replace the content of the last message in the SourceList
-                local.Dispatch(StartProcessing)
-                //) |> ignore
+                    local.Dispatch(StartProcessing)
+                    local.Dispatch(ClearMessageText)
+                ) |> ignore
                 
                 let chatRequest = ChatRequest()
                 chatRequest.Model <- "llama2:latest"
                 chatRequest.Messages <- [| Message(ChatRole.User, message)|]
                 chatRequest.Stream <- true
-                printfn $"Sending message: %s{message}"
-                let it = local.Model.ChatHandle.Send(message)
-                printfn $"Done sending {it.ToString()}"
-                //let! messages = ollamaClient.SendChat(chatRequest, streamer, cts.Token) |> Async.AwaitTask
-                //Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
-                    // Replace the content of the last message in the SourceList
-                local.Dispatch(StopProcessing) 
-                //) |> ignore
-
-                // Process the returned messages here
-                //messages |> Seq.iter (fun msg -> this.FeedMessage(msg))
+                // printfn $"Sending message: %s{message}"
             }
 
-            // Post the task to the UI thread
-            Avalonia.Threading.Dispatcher.UIThread.Post(fun () ->
-                responseTask |> Async.StartAsTask |> ignore
-            )
+            // DO NOT POST THIS TASK ON THE UI THREAD
+            responseTask |> Async.StartAsTask |> ignore
+
         with
         | ex -> printfn $"Error in SendMessage: %s{ex.Message}"
 
-    member this.FeedMessage(message: Message) =
+    member this.FeedMessage(message: string * int) =
         try
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
-                // Replace the content of the last message in the SourceList
-                local.Dispatch(SendAidenMessage)
-            ) |> ignore
-            
-            let fullMessage = message.Content
-            printfn $"Full message: %s{fullMessage}"
+            if (local.Model.Messages.Items |> List.ofSeq |> List.last).User <> "Aiden" then
+                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(fun () ->
+                    // Replace the content of the last message in the SourceList
+                    local.Dispatch(SendAidenMessage)
+                    local.Dispatch(StopProcessing)
+                ) |> ignore
+
+            let token = message |> fst
+            printfn $"Streamed token: %s{token}"
+            // get text from last message in SourceList and add the token to it
+            let fullMessage = (local.Model.Messages.Items |> List.ofSeq |> List.last).Text + token
             let updatedMsg = { User = "Aiden"; Text = fullMessage; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange"; IsMe = false }
 
             // Run the UI update code on the UI thread
