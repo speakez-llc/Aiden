@@ -117,7 +117,9 @@ type ChatViewModel() as this =
             let responseTask = async {
                 local.Dispatch(StartProcessing)
                 local.Dispatch(ClearMessageText)
+                local.Dispatch(SendAidenMessage)
                 handle.Send(message) |> ignore
+                local.Dispatch(StopProcessing)
             }
             responseTask |> Async.StartAsTask |> ignore
 
@@ -127,9 +129,9 @@ type ChatViewModel() as this =
     member this.FeedMessage(message: string * int) =
         try
             let messages = local.Model.Messages.Items |> List.ofSeq
-            if (messages |> List.last).User <> "Aiden" then
-                local.Dispatch(SendAidenMessage)
-                local.Dispatch(StopProcessing)
+            //if (messages |> List.last).User <> "Aiden" then
+                //local.Dispatch(SendAidenMessage)
+                //local.Dispatch(StopProcessing)
             let token = message |> fst
             //printfn $"Streamed token: %s{token}"
             // get text from last message in SourceList and add the token to it
