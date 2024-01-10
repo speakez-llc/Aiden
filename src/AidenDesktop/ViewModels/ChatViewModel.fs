@@ -113,12 +113,12 @@ type ChatViewModel() as this =
             local.Dispatch ClearMessageText
             let cts = new CancellationTokenSource() // For cancellation support
 
-            let streamer = fun (stream: ChatResponseStream) ->
+            (* let streamer = fun (stream: ChatResponseStream) ->
                 async {
                     while not stream.Done do // Use stream.Done to control the loop
                         let messageChunk = stream.Message // Handle each word as a chunk
                         this.FeedMessage(messageChunk.Content, 0)
-                } |> Async.StartImmediate
+                } |> Async.StartImmediate *)
 
             let responseTask = async {
                 local.Dispatch(StartProcessing)
@@ -133,22 +133,24 @@ type ChatViewModel() as this =
 
     member this.FeedMessage(message: string * int) =
         try
-            let messages = local.Model.Messages.Items |> List.ofSeq
-            //if (messages |> List.last).User <> "Aiden" then
-                //local.Dispatch(SendAidenMessage)
-                //local.Dispatch(StopProcessing)
-            let token = message |> fst
-            //printfn $"Streamed token: %s{token}"
-            // get text from last message in SourceList and add the token to it
-            let fullMessage = (messages |> List.ofSeq |> List.last).Text + token
-            let user = (messages |> List.ofSeq |> List.last).User
-            let alignment = (messages |> List.ofSeq |> List.last).Alignment
-            let borderColor = (messages |> List.ofSeq |> List.last).BorderColor
-            let isMeValue = (messages |> List.ofSeq |> List.last).IsMe
-            let updatedMsg = { User = user ; Text = fullMessage; Alignment = alignment; Color = "Glaucous"; BorderColor = borderColor; IsMe = isMeValue }
-            if local.Model.IsProcessing then
-                local.Dispatch(StopProcessing)
-            local.Model.Messages.ReplaceAt(local.Model.Messages.Count - 1, updatedMsg)
+            match message with
+            | (str, _) when str = "" -> 
+                if local.Model.IsProcessing then
+                    local.Dispatch(StopProcessing)
+            | _ -> 
+                let messages = local.Model.Messages.Items |> List.ofSeq
+
+                let token = message |> fst
+                //printfn $"Streamed token: %s{token}"
+                // get text from last message in SourceList and add the token to it
+                let fullMessage = (messages |> List.ofSeq |> List.last).Text + token
+                let user = (messages |> List.ofSeq |> List.last).User
+                let alignment = (messages |> List.ofSeq |> List.last).Alignment
+                let borderColor = (messages |> List.ofSeq |> List.last).BorderColor
+                let isMeValue = (messages |> List.ofSeq |> List.last).IsMe
+                let updatedMsg = { User = user ; Text = fullMessage; Alignment = alignment; Color = "Glaucous"; BorderColor = borderColor; IsMe = isMeValue }
+
+                local.Model.Messages.ReplaceAt(local.Model.Messages.Count - 1, updatedMsg)
 
         with
         | ex -> printfn $"Error in FeedMessage: %s{ex.Message}"

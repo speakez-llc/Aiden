@@ -4,10 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="325" d:DesignHeight="650"
              xmlns:fluent="using:FluentAvalonia.UI.Controls"
+             xmlns:converters="using:AidenDesktop.Converters"
              xmlns:vm="using:AidenDesktop.ViewModels"
              Design.DataContext="{x:Static vm:ChatViewModel.DesignVM}"
              x:DataType="vm:ChatViewModel"
              x:Class="AidenDesktop.Views.ChatView">
+    <UserControl.Resources>
+        <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
+    </UserControl.Resources>
 
     <DockPanel DockPanel.Dock="Top" LastChildFill="True">
         <DockPanel DockPanel.Dock="Bottom">
@@ -44,12 +48,22 @@
                             Height="40"
                             Margin="8,0,2,10"
                             CornerRadius="10"
+                            IsVisible="{Binding IsProcessing, Converter={StaticResource BooleanNegationConverter}}"
                             Command="{Binding SendMessage}"
                             CommandParameter="{Binding Text, ElementName=MessageTextBox}">
                         <fluent:SymbolIcon Symbol="SendFilled" FontSize="20" VerticalAlignment="Center" Foreground="#C18E3A" />
                         <Button.RenderTransform>
                             <RotateTransform Angle="-90" />
                         </Button.RenderTransform>
+                    </Button>
+                    <Button Grid.Row="1" Grid.Column="0"
+                            VerticalAlignment="Bottom"
+                            Width="40"
+                            Height="40"
+                            Margin="8,0,2,10"
+                            CornerRadius="10"
+                            IsVisible="{Binding IsProcessing}">
+                        <fluent:SymbolIcon Symbol="Stop" FontSize="20" VerticalAlignment="Center" Foreground="#d53535" />
                     </Button>
                     <TextBox Grid.Row="1" Grid.Column="1"  x:Name="MessageTextBox" 
                              MinHeight="40"

@@ -13,6 +13,7 @@
         <Compile Include="Controls\BadgeIcon.fs" />
         <Compile Include="Models\BaseTypes.fs" />
         <Compile Include="Converters\SeriesBoxConverters.fs" />
+        <Compile Include="Converters\BooleanNegationConverter.fs" />
         <Compile Include="Controls\SeriesBox.axaml.fs" />
         <Compile Include="Controls\EZPie.axaml.fs"/>
         <Compile Include="Controls\EZGeo.axaml.fs"/>
