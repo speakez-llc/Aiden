@@ -85,7 +85,7 @@ type ChatViewModel() as this =
         // printfn $"Received message: %s{message.Content}"
         this.FeedMessage (message.Content, 0)
     ))
-    let cts = new CancellationTokenSource() // For cancellation support
+    let mutable cts = new CancellationTokenSource() // For cancellation support
     let local =
         Program.mkAvaloniaSimple init update
         |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
@@ -112,8 +112,7 @@ type ChatViewModel() as this =
         try
             local.Dispatch (SendMessage message)
             local.Dispatch ClearMessageText
-            
-
+            cts <- new CancellationTokenSource()
             (* let streamer = fun (stream: ChatResponseStream) ->
                 async {
                     while not stream.Done do // Use stream.Done to control the loop
