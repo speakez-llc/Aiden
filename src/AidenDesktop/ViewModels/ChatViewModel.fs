@@ -125,7 +125,6 @@ type ChatViewModel() as this =
                 local.Dispatch(ClearMessageText)
                 local.Dispatch(SendAidenMessage)
                 handle.Send(message) |> ignore
-                local.Dispatch(StopProcessing)
             }
             responseTask |> Async.StartAsTask |> ignore
 
@@ -147,7 +146,8 @@ type ChatViewModel() as this =
             let borderColor = (messages |> List.ofSeq |> List.last).BorderColor
             let isMeValue = (messages |> List.ofSeq |> List.last).IsMe
             let updatedMsg = { User = user ; Text = fullMessage; Alignment = alignment; Color = "Glaucous"; BorderColor = borderColor; IsMe = isMeValue }
-
+            if local.Model.IsProcessing then
+                local.Dispatch(StopProcessing)
             local.Model.Messages.ReplaceAt(local.Model.Messages.Count - 1, updatedMsg)
 
         with
