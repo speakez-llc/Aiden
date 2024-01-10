@@ -2,13 +2,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:AidenDesktop"
              xmlns:sty="using:FluentAvalonia.Styling"
-             xmlns:icons="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia.FluentIcons"
+             xmlns:icons="clr-namespace:Projektanker.Icons.Avalonia.FontAwesome;assembly=Projektanker.Icons.Avalonia.FontAwesome"
              x:Class="AidenDesktop.App"
-             RequestedThemeVariant="Light">
+             RequestedThemeVariant="Dark">
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
     <Application.Styles>
-        <sty:FluentAvaloniaTheme PreferUserAccentColor="True" />
+        <sty:FluentAvaloniaTheme PreferUserAccentColor="True" CustomAccentColor="#C18E3A" />
+        <StyleInclude Source="avares://AidenDesktop/Controls/RadialSlider.axaml"/>
+        <StyleInclude Source="avares://AidenDesktop/Controls/SeriesBox.axaml" />
+        <StyleInclude Source="avares://AidenDesktop/Controls/EZPie.axaml" />
+        <StyleInclude Source="avares://AidenDesktop/Controls/EZGeo.axaml" />
+        <Style>
+        </Style>
     </Application.Styles>
 </Application>

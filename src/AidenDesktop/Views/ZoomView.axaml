@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ic="using:FluentIcons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="800"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:vm="using:AidenDesktop.ViewModels"
+             Design.DataContext="{Binding Source={x:Static vm:ChartViewModel.DesignVM}}"
+             x:DataType="vm:ZoomViewModel"
+             x:Class="AidenDesktop.Views.ZoomView">
+    <StackPanel HorizontalAlignment="Center" Margin="10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="200"/>
+            </Grid.RowDefinitions>
+            <lvc:CartesianChart 
+                x:Name="MainChart"
+                Grid.Row="0" 
+                Height="450"
+                Width="1200"
+                Series="{Binding Series}" 
+                XAxes="{Binding ScrollableAxes}"
+                YAxes="{Binding YAxes}"
+                ZoomMode="X"
+                DrawMargin="{Binding Margin}"
+                EasingFunction="{Binding Source={x:Null}}"
+                UpdateStartedCommand="{Binding ChartUpdatedCommand}">
+            </lvc:CartesianChart>
+            <lvc:CartesianChart
+                x:Name="ScrollbarChart"
+                Grid.Row="1"
+                Series="{Binding ScrollbarSeries}"
+                DrawMargin="{Binding Margin}"
+                Sections="{Binding Thumbs}"
+                XAxes="{Binding InvisibleX}"
+                YAxes="{Binding InvisibleY}"
+                PointerPressedCommand="{Binding PointerDownCommand}"
+                PointerMoveCommand="{Binding PointerMoveCommand}"
+                PointerReleasedCommand="{Binding PointerUpCommand}"
+                TooltipPosition="Hidden">
+            </lvc:CartesianChart>
+        </Grid>
+    </StackPanel>
+</UserControl>

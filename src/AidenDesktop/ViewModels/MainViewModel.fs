@@ -1,15 +1,16 @@
 ﻿namespace AidenDesktop.ViewModels
 
+
+open Avalonia
+open Avalonia.Styling
+open Avalonia.Media
+open FluentAvalonia.UI.Controls
+open Avalonia.Layout
 open Elmish
 open ReactiveElmish
 open ReactiveElmish.Avalonia
-open FluentAvalonia.UI.Controls
-open FluentAvalonia.FluentIcons
-open ReactiveUI
-open Avalonia.Media
-open System.Threading.Tasks
+open FluentIcons.FluentAvalonia
 open App
-open Avalonia.Layout
 
 
 // TODO: Move to a shared module - I have a Models folder in my branch for base types, which is where I'd put this... thoughts?
@@ -24,38 +25,36 @@ type NavItem() =
     (* TODO: If we want multiple icon type support, a converter may be a better option
         at the moment, it can be only one type, so for the short term we'll have to choose one
      *)
+    
     let createTestIcon() =
-        (* let symbolIcon = SymbolIconSource()
-        symbolIcon.Symbol <- Symbol.Home
-        symbolIcon *)
-
-        (* let pathIcon = PathIconSource()
-        pathIcon.Data <- Geometry.Parse("M0,0 L0,1 1,1 1,0 z M0.5,0.5 L0.5,0 L0,0.5 L0.5,1 L1,0.5 L0.5,0 z")
-        pathIcon *)
-
-        let i = new BitmapIconSource()
-        i.UriSource <- System.Uri("avares://AidenDesktop/Assets/test.png")
+        let i = SymbolIcon()
+        i.Symbol <- FluentIcons.Common.Symbol.Home
         i
         
     let createBadge() =
         let b = InfoBadge()
         b.Value <- 0
         b.FontSize <- 8.0
-        b.Foreground <- SolidColorBrush(Colors.White)
-        b.Background <- SolidColorBrush(Colors.DarkOrange)
+        b.Width <- 16.0
+        b.Height <- 16.0
+        b.Padding <- Thickness(0, 4, 0, 0)
+        b.Foreground <- SolidColorBrush(Colors.Black)
+        b.Background <- SolidColorBrush(Colors.Tan)
         b.HorizontalAlignment <- HorizontalAlignment.Left
         b.VerticalAlignment <- VerticalAlignment.Top
         b.IsVisible <- false
         b
 
-    let mutable _testIcon  = createTestIcon()
+    let mutable _testIcon = FluentIcons.Common.Symbol.Home
+                
+    let mutable _icon = FluentIcons.Common.Symbol.Home
+        
     let mutable _badge = createBadge()
-    member val Name = "" with get, set
-    member val Badge = _badge with get, set
     
     member this.Icon
-        with get() = _testIcon
-        and set(value) = _testIcon <- value
+        with get() = _icon
+        and set value = _icon <- value
+    member val Badge = _badge with get, set
 
     member this.SetBadgeValue(value : int) =
         this.Badge.Value <- value
@@ -63,23 +62,21 @@ type NavItem() =
             this.Badge.IsVisible <- true
         else
             this.Badge.IsVisible <- false
+
+    member val Name = "" with get, set
         
     
-    new(name : string, icon : string) as self =
+    new(name : string, icon : FluentIcons.Common.Symbol) as self =
         NavItem() then
         do
             self.Name <- name
-            let i = new BitmapIconSource()
-            i.UriSource <- System.Uri(sprintf "avares://AidenDesktop/Assets/%s.png" icon)
-            self.Icon <- i
+            self.Icon <- icon
     
-    new(name: string, icon: string, badgeValue: int) as self =
+    new(name: string, icon: FluentIcons.Common.Symbol, badgeValue: int) as self =
         NavItem() then
         do
             self.Name <- name
-            let i = new BitmapIconSource()
-            i.UriSource <- System.Uri(sprintf "avares://AidenDesktop/Assets/%s.png" icon)
-            self.Icon <- i
+            self.Icon <- icon
             self.SetBadgeValue(badgeValue)
             
 (*     new(name : string, icon : Symbol) as self =
@@ -98,27 +95,31 @@ module MainViewModule =
             ShowChatBadge: bool
             SelectedNavItem: NavItem
             NavigationList: NavItem list
+            IsDarkThemeEnabled: bool
         }
     
     type Msg =
     | ToggleChat of bool
     | SetChatAlertCount of int
     | SelectedNavItemChanged of NavItem
+    | IsDarkThemeEnabled of bool
+    | ToggleTheme of bool
 
     let init() = 
         { 
             ChatOpen = false 
             ChatAlertCount = 2
             ShowChatBadge = true
-            SelectedNavItem = NavItem("Home", "Home")
+            SelectedNavItem = NavItem("Home", FluentIcons.Common.Symbol.Home)
             NavigationList = [ 
-                NavItem("Home", "FA_Home")
-                NavItem("Counter", "FA_Counter")
-                NavItem("Chart", "FA_Chart")
-                NavItem("Dashboard", "FA_Map", 2)
-                NavItem("File Picker", "FA_File")
-                NavItem("About", "FA_Info")
+                NavItem("Home", FluentIcons.Common.Symbol.Home)
+                NavItem("Timeline", FluentIcons.Common.Symbol.ChartMultiple)
+                NavItem("Map View", FluentIcons.Common.Symbol.Globe, 2)
+                NavItem("Zoom View", FluentIcons.Common.Symbol.SearchSquare)
+                NavItem("Load Files", FluentIcons.Common.Symbol.DocumentArrowRight)
+                NavItem("About", FluentIcons.Common.Symbol.BookInformation)
             ]
+            IsDarkThemeEnabled = true
         }
 
     let update (msg: Msg) (model: Model) =
@@ -136,58 +137,78 @@ module MainViewModule =
             { model with ChatAlertCount = count }
         | SelectedNavItemChanged item ->
             match item.Name with
-            | "Counter" -> app.Dispatch (SetView CounterView)
-            | "Chart" -> app.Dispatch (SetView ChartView)
-            | "Dashboard" -> app.Dispatch (SetView DoughnutView)
-            | "File Picker" -> app.Dispatch (SetView FilePickerView)
-            | "About" -> app.Dispatch (SetView AboutView)
             | "Home" -> app.Dispatch (SetView HomeView)
+            | "Timeline" -> app.Dispatch (SetView ChartView)
+            | "Map View" -> app.Dispatch (SetView DoughnutView)
+            | "Zoom View" -> app.Dispatch (SetView ZoomView)
+            | "Load Files" -> app.Dispatch (SetView FilePickerView)
+            | "About" -> app.Dispatch (SetView AboutView)
             | _ -> ()            
             { model with SelectedNavItem = item }
+        | ToggleTheme t ->
+            { model with IsDarkThemeEnabled = t }
+        | _ -> model
     
 open MainViewModule
 
-
-    
-
-
-type MainViewModel(root: CompositionRoot) =
+type MainViewModel(root: CompositionRoot) as self =
     inherit ReactiveElmishViewModel()
-    
+
     let local =
         Program.mkAvaloniaSimple init update
-        |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
+        |> Program.withErrorHandler (fun (_, ex) -> printfn $"Error: %s{ex.Message}")
         |> Program.mkStore
-    
+
+    do
+        self.PropertyChanged.Add(fun args ->
+            if args.PropertyName = "IsDarkThemeEnabled" then
+                self.SwitchTheme())
+
+    member self.IsDarkThemeEnabled
+        with get() = self.Bind(local, _.IsDarkThemeEnabled)
+        and set value = local.Dispatch (ToggleTheme value)
+
+    member this.SwitchTheme() =
+        if this.IsDarkThemeEnabled then
+            Application.Current.RequestedThemeVariant <- ThemeVariant.Dark
+        else
+            Application.Current.RequestedThemeVariant <- ThemeVariant.Light
+
+    // Other code...
 
     member self.ChatOpen
         with get() = self.Bind(local, _.ChatOpen)
-        and set(value) = local.Dispatch (ToggleChat value)
+        and set value = local.Dispatch (ToggleChat value)
     
     member self.ChatAlertCount
         with get() = self.Bind(local, _.ChatAlertCount)
-        and set(value) = local.Dispatch (SetChatAlertCount value)
+        and set value = local.Dispatch (SetChatAlertCount value)
     
     member self.ShowChatBadge
         with get() = self.Bind(local, _.ShowChatBadge)
 
     member self.SelectedNavItem
         with get() = self.Bind(local, _.SelectedNavItem)
-        and set(value) = local.Dispatch (SelectedNavItemChanged value)
+        and set value = local.Dispatch (SelectedNavItemChanged value)
 
     member self.NavigationList = self.Bind(local, _.NavigationList)
-
+    
+    member self.createIcon(iconKey: FluentIcons.Common.Symbol) =
+        let fontIcon = SymbolIcon()
+        fontIcon.Symbol <- iconKey
+        fontIcon
+      
     member self.ChatView = root.GetView<ChatViewModel>()
     member self.ContentView =
         self.BindOnChanged (app, _.View, fun m ->
             match m.View with
-            | CounterView -> root.GetView<CounterViewModel>()
             | DoughnutView -> root.GetView<DoughnutViewModel>()
             | ChartView -> root.GetView<ChartViewModel>()
             | FilePickerView -> root.GetView<FilePickerViewModel>()
+            | DashboardView -> root.GetView<DashboardViewModel>()
+            | ZoomView -> root.GetView<ZoomViewModel>()
             | AboutView -> root.GetView<AboutViewModel>()
             | HomeView -> root.GetView<HomeViewModel>()
         )
-
 
     static member DesignVM = new MainViewModel(Design.stub)

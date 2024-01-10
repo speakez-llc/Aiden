@@ -2,42 +2,52 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
-             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="650"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:vm="using:AidenDesktop.ViewModels"
              Design.DataContext="{Binding Source={x:Static vm:ChartViewModel.DesignVM}}"
-			 x:DataType="vm:ChartViewModel"
+             x:DataType="vm:ChartViewModel"
              x:Class="AidenDesktop.Views.ChartView">
     <StackPanel HorizontalAlignment="Center" Margin="10">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
+                <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <Button Margin="6" Command="{Binding AddItem}">Add Last</Button>
-                <Button Margin="6" Command="{Binding RemoveItem}">Remove First</Button>
-                <Button Margin="6" Command="{Binding UpdateItem}">Update Random</Button>
-                <Button Margin="6" Command="{Binding ReplaceItem}">Replace Last</Button>
-                <Button Margin="6" Command="{Binding Reset}">Reset All</Button>
-                <ToggleButton Margin="6" IsChecked="{Binding IsAutoUpdateChecked}">AutoUpdate</ToggleButton>
-
-            </StackPanel>
             <lvc:CartesianChart 
-                Grid.Row="1" 
-                Height="325"
-                Width="800"
+                Grid.Row="0" 
+                Height="450"
+                Width="1200"
                 Series="{Binding Series}" 
                 XAxes="{Binding XAxes}"
-                EasingFunction="{Binding Source={x:Null}}">
+                YAxes="{Binding YAxes}"
+                EasingFunction="{Binding Source={x:Null}}"
+                UpdaterThrottler="00:00:00.500"
+                Margin="0, -20,0,20">
             </lvc:CartesianChart>
+            <Border Grid.Row="1" CornerRadius="10"
+                    Background="#010B17"
+                    Padding="10">
+                <DataGrid  ItemsSource="{Binding Events}" 
+                          AutoGenerateColumns="False"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          MaxHeight="350"
+                          MaxWidth="1380">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Event Time" Binding="{Binding EventTime }" FontSize="12"/>
+                        <DataGridTextColumn Header="Source IP" Binding="{Binding SrcIp}" FontSize="12"/>
+                        <DataGridTextColumn Header="Source Port" Binding="{Binding SrcPort}" FontSize="12"/>
+                        <DataGridTextColumn Header="Dest IP" Binding="{Binding DstIp}" FontSize="12"/>
+                        <DataGridTextColumn Header="Dest Port" Binding="{Binding DstPort}" FontSize="12"/>
+                        <DataGridTextColumn Header="CC" Binding="{Binding Cc}" FontSize="12"/>
+                        <DataGridTextColumn Header="VPN" Binding="{Binding Vpn}" FontSize="12"/>
+                        <DataGridTextColumn Header="Proxy" Binding="{Binding Proxy}" FontSize="12"/>
+                        <DataGridTextColumn Header="TOR" Binding="{Binding Tor}" FontSize="12"/>
+                        <DataGridTextColumn Header="Malware" Binding="{Binding Malware}" FontSize="12"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
         </Grid>
-        <DataGrid ItemsSource="{Binding Actions}" Height="200" Width="350" >
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="TimeStamp" Binding="{Binding Timestamp}" />
-                <DataGridTextColumn Header="Event" Binding="{Binding Description}" />
-            </DataGrid.Columns>
-        </DataGrid>
-        <Button Content="Ok" Command="{Binding Ok}" HorizontalAlignment="Center" />
     </StackPanel>
 </UserControl>

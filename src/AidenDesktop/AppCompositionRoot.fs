@@ -23,7 +23,9 @@ type AppCompositionRoot() =
             VM.Key<AboutViewModel>(), View.Singleton<AboutView>()
             VM.Key<ChartViewModel>(), View.Transient<ChartView>()
             VM.Key<DoughnutViewModel>(), View.Transient<DoughnutView>()
+            VM.Key<ZoomViewModel>(), View.Transient<ZoomView>()
             VM.Key<FilePickerViewModel>(), View.Singleton<FilePickerView>()
+            VM.Key<DashboardViewModel>(), View.Transient<DashboardView>()
             VM.Key<HomeViewModel>(), View.Singleton<HomeView>()
         ]
         

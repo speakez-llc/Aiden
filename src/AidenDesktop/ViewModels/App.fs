@@ -11,11 +11,12 @@ type Model =
     }
 
 and View = 
-    | CounterView
     | ChartView
     | DoughnutView
+    | ZoomView
     | AboutView
     | FilePickerView
+    | DashboardView
     | HomeView
 
 type Msg = 

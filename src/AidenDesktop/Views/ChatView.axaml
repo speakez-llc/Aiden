@@ -46,7 +46,7 @@
                             CornerRadius="10"
                             Command="{Binding SendMessage}"
                             CommandParameter="{Binding Text, ElementName=MessageTextBox}">
-                        <fluent:SymbolIcon Symbol="SendFilled" FontSize="20" VerticalAlignment="Center" Foreground="MidnightBlue" />
+                        <fluent:SymbolIcon Symbol="SendFilled" FontSize="20" VerticalAlignment="Center" Foreground="#C18E3A" />
                         <Button.RenderTransform>
                             <RotateTransform Angle="-90" />
                         </Button.RenderTransform>
@@ -55,7 +55,7 @@
                              MinHeight="40"
                              MaxHeight="150"
                              AcceptsReturn="True" 
-                             BorderBrush="MidnightBlue"
+                             BorderBrush="Gray"
                              TextWrapping="Wrap"
                              Text="{Binding MessageText, Mode=TwoWay}"
                              BorderThickness="3" CornerRadius="10" Margin="0, 0, 0, 10"
@@ -89,7 +89,7 @@
                                 </Style>
                                 <Style Selector="Border.isMe">
                                     <Setter Property="Margin" Value="50,5,0,5" />
-                                    <Setter Property="BorderBrush" Value="MidnightBlue" />
+                                    <Setter Property="BorderBrush" Value="Gray" />
                                     <Setter Property="Background" />
                                 </Style>							
                             </StackPanel.Styles>
@@ -98,7 +98,7 @@
                                     BorderThickness="2"
                                     Classes.isMe="{Binding IsMe}">
                                 <StackPanel>
-                                    <TextBlock FontWeight="Bold" Text="{Binding User}" />
+                                    <TextBlock FontWeight="Bold" Text="{Binding User}" Foreground="Tan" />
                                     <TextBlock TextWrapping="Wrap" Text="{Binding Text}" />
                                 </StackPanel>
                             </Border>

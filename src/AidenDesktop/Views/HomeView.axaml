@@ -6,7 +6,7 @@
              x:Class="AidenDesktop.Views.HomeView">
     <Grid>
         <Border Name="MyBorder" >
-            <Image Name="MyImage" Source="/Assets/SpeakEZ_defaultBanner.png"
+            <Image Name="MyImage" Source="/Assets/Rower_defaultBanner.png"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
                    Stretch="UniformToFill">

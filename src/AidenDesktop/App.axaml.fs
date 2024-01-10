@@ -4,6 +4,7 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.Markup.Xaml
 open Avalonia.Controls.ApplicationLifetimes
+open Projektanker.Icons.Avalonia
 
 type App() =
     inherit Application()
@@ -11,6 +12,7 @@ type App() =
     override this.Initialize() =
         // Initialize Avalonia controls from NuGet packages:
         let _ = typeof<Avalonia.Controls.DataGrid>
+        
 
         AvaloniaXamlLoader.Load(this)
 
