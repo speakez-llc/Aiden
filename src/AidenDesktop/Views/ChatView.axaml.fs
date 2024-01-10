@@ -17,16 +17,28 @@ type ChatView() as this =
     do
         this.InitializeComponent()
         this.DataContextChanged.Add(fun args ->
+            printfn $"DataContextChanged: {args}"
+            
+            //listBox.PropertyChanged.AddHandler(AvaloniaPropertyChangedEventHandler(this.ScrollToBottomSmooth) |> ignore
+
             viewModel <- this.DataContext :?> ChatViewModel |> Some
             match viewModel with
             | Some viewModel ->
-                viewModel.NewMessageEvent
+                let listBox = this.FindControl<ListBox>("ChatWindow")
+                listBox.GetPropertyChangedObservable(ListBox.BoundsProperty)
+                |> Observable.subscribe (fun _ -> this.ScrollToBottomSmooth()) |> ignore
+
+
+                (* viewModel.NewMessageEvent
                 |> Observable.subscribe (fun _ ->
+                    printfn "Scrolling to bottom"
                     this.ScrollToBottomSmooth())
-                |> ignore
-            | None -> ())
+                |> ignore *)
+            | None -> ()
+            )
 
     member private this.ScrollToBottomSmooth() =
+        printfn "ScrollToBottomSmooth"
         let listBox = this.FindControl<ListBox>("ChatWindow")
         if listBox.ItemCount > 0 then
             let item = listBox.ContainerFromIndex(listBox.ItemCount - 1)
@@ -34,6 +46,7 @@ type ChatView() as this =
             let scrollViewerOption = listBox.GetVisualDescendants() |> Seq.tryFind (fun v -> v :? ScrollViewer) |> Option.map (fun v -> v :?> ScrollViewer)
             match scrollViewerOption with
             | Some scrollViewer ->
+                //scrollViewer.Offset <- new Vector(scrollViewer.Offset.X, target)
                 let sw = Stopwatch.StartNew()
                 let timer = new DispatcherTimer(DispatcherPriority.Render)
                 let start = scrollViewer.Offset.Y
