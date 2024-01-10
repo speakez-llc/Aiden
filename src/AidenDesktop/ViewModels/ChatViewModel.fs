@@ -85,6 +85,7 @@ type ChatViewModel() as this =
         // printfn $"Received message: %s{message.Content}"
         this.FeedMessage (message.Content, 0)
     ))
+    let cts = new CancellationTokenSource() // For cancellation support
     let local =
         Program.mkAvaloniaSimple init update
         |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
@@ -111,7 +112,7 @@ type ChatViewModel() as this =
         try
             local.Dispatch (SendMessage message)
             local.Dispatch ClearMessageText
-            let cts = new CancellationTokenSource() // For cancellation support
+            
 
             (* let streamer = fun (stream: ChatResponseStream) ->
                 async {
@@ -124,12 +125,17 @@ type ChatViewModel() as this =
                 local.Dispatch(StartProcessing)
                 local.Dispatch(ClearMessageText)
                 local.Dispatch(SendAidenMessage)
-                handle.Send(message) |> ignore
+                handle.Send(message, cts.Token) |> ignore
+                
             }
             responseTask |> Async.StartAsTask |> ignore
 
         with
         | ex -> printfn $"Error in SendMessage: %s{ex.Message}"
+
+    member this.StopProcessing() =
+        cts.Cancel()
+        local.Dispatch(StopProcessing)
 
     member this.FeedMessage(message: string * int) =
         try
