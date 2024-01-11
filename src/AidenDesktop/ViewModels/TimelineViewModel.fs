@@ -298,20 +298,9 @@ module Chart =
             oldValues2 |> List.iter (fun point -> ignore (values2.Remove point))
             model
         | UpdateDataGrid ->
-            let newEvents = fetchEventsAsync() |> Async.RunSynchronously
-            let cutoff = DateTime.UtcNow.AddSeconds(-60.0)
-            let oldEventsKeys = 
-                model.Events.Items
-                |> Seq.filter (fun event -> event.EventTime < cutoff)
-                |> Seq.toList
-            for oldEvent in oldEventsKeys do
-                model.Events.Remove(oldEvent) |> ignore
-                
-            let existingEventsSet = model.Events.Items |> Seq.map (fun event -> event.EventTime) |> Set.ofSeq   
-            newEvents |> List.iter (fun newEvent ->
-                    if not (existingEventsSet |> Set.contains newEvent.EventTime) then
-                        model.Events.Add newEvent
-                    )
+            let newEvents = fetchEventsAsync() |> Async.RunSynchronously |> List.toSeq
+            model.Events.Clear()
+            model.Events.AddRange(newEvents)
             model
         | Terminate ->
             model
