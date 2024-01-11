@@ -15,9 +15,7 @@ type ChatView() as this =
 
     do
         this.InitializeComponent()
-        this.DataContextChanged.Add(fun args ->
-            printfn $"DataContextChanged: {args}"
-
+        this.DataContextChanged.Add(fun _ ->
             viewModel <- this.DataContext :?> ChatViewModel |> Some
             match viewModel with
             | Some viewModel ->
@@ -27,7 +25,6 @@ type ChatView() as this =
 
                 viewModel.NewMessageEvent
                 |> Observable.subscribe (fun _ ->
-                    printfn "Scrolling to bottom"
                     this.ScrollToBottomSmooth())
                 |> ignore
             | None -> ()

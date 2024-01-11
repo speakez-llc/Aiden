@@ -70,7 +70,7 @@
                              MinHeight="40"
                              MaxHeight="150"
                              KeyDown="MessageTextBox_KeyDown"
-                             AcceptsReturn="True" 
+                             AcceptsReturn="False" 
                              BorderBrush="Gray"
                              TextWrapping="Wrap"
                              Text="{Binding MessageText, Mode=TwoWay}"
