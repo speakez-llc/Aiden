@@ -26,7 +26,7 @@
         <Compile Include="ViewModels\ChatViewModel.fs" />
         <Compile Include="ViewModels\AboutViewModel.fs" />
         <Compile Include="ViewModels\CounterViewModel.fs" />
-        <Compile Include="ViewModels\ChartViewModel.fs" />
+        <Compile Include="ViewModels\TimelineViewModel.fs" />
         <Compile Include="ViewModels\DoughnutViewModel.fs" />
         <Compile Include="ViewModels\ZoomViewModel.fs" />
         <Compile Include="ViewModels\HomeViewModel.fs" />
@@ -37,7 +37,7 @@
         <Compile Include="Views\HomeView.axaml.fs" />
         <Compile Include="Views\ZoomView.axaml.fs" />
         <Compile Include="Views\ChatView.axaml.fs" />
-        <Compile Include="Views\ChartView.axaml.fs" />
+        <Compile Include="Views\TimelineView.axaml.fs" />
         <Compile Include="Views\DoughnutView.axaml.fs" />
         <Compile Include="Views\CounterView.axaml.fs" />
         <Compile Include="Views\FilePickerView.axaml.fs" /> 

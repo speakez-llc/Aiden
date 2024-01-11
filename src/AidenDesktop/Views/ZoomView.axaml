@@ -6,7 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="800"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:vm="using:AidenDesktop.ViewModels"
-             Design.DataContext="{Binding Source={x:Static vm:ChartViewModel.DesignVM}}"
+             Design.DataContext="{Binding Source={x:Static vm:TimelineViewModel.DesignVM}}"
              x:DataType="vm:ZoomViewModel"
              x:Class="AidenDesktop.Views.ZoomView">
     <StackPanel HorizontalAlignment="Center" Margin="10">
