@@ -17,7 +17,7 @@ module Chat =
 
     type Msg =
         | SendMessage of string
-        | SendAidenMessage
+        | CreateEmptyAidenMessage
         | FeedMessage of string * int
         | StartProcessing
         | StopProcessing
@@ -52,18 +52,12 @@ module Chat =
             {
                 model with Messages = model.Messages |> SourceList.add msg
             }
-        | SendAidenMessage ->
+        | CreateEmptyAidenMessage ->
             printfn "Message: %A" msg
             let msg = { User = "Aiden"; Text = ""; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             {                
                 model with Messages = model.Messages |> SourceList.add msg
             }
-        | FeedMessage (text, index) ->
-            printfn "FeedMessage: %A" text
-            let messages = model.Messages
-            let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
-            messages.ReplaceAt (index, msg)
-            { model with Messages = messages }
         | StartProcessing ->
             printfn "StartProcessing"
             { model with IsProcessing = true }
@@ -111,14 +105,12 @@ type ChatViewModel() as this =
     member this.SendMessage(message: string) =
         try
             local.Dispatch (SendMessage message)
-            local.Dispatch ClearMessageText
             cts <- new CancellationTokenSource()
             let responseTask = async {
                 local.Dispatch(StartProcessing)
                 local.Dispatch(ClearMessageText)
-                local.Dispatch(SendAidenMessage)
+                local.Dispatch(CreateEmptyAidenMessage)
                 handle.Send(message, cts.Token) |> ignore
-                
             }
             responseTask |> Async.StartAsTask |> ignore
 
@@ -135,8 +127,12 @@ type ChatViewModel() as this =
             | (str, _) when str = "" -> 
                 if local.Model.IsProcessing then
                     local.Dispatch(StopProcessing)
-            | _ -> 
+            | _ ->
                 let messages = local.Model.Messages.Items |> List.ofSeq
+                // If the last message is new/empty we're at the start and need to turn off "Processing..."
+                //if (messages |> List.ofSeq |> List.last).Text = "" then
+                //    Dispatcher.UIThread.InvokeAsync(fun () ->
+                //        local.Dispatch(StopProcessing)) |> ignore
                 let token = message |> fst
                 let fullMessage = (messages |> List.ofSeq |> List.last).Text + token
                 let user = (messages |> List.ofSeq |> List.last).User
