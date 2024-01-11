@@ -8,6 +8,7 @@ open System.Reactive.Linq
 open System.Text.Json
 open ReactiveElmish
 open ReactiveElmish.Avalonia
+open DynamicData
 open Elmish
 open SkiaSharp
 open LiveChartsCore
@@ -36,7 +37,7 @@ module Chart =
     type Model = 
         {
             Series: ObservableCollection<ISeries>
-            Events: ObservableCollection<EventsData>
+            Events: SourceList<EventsData>
         }
 
     type Msg =
@@ -183,7 +184,7 @@ module Chart =
                             Tor = if reader.GetString(reader.GetOrdinal("tor")) = "BLANK" then "" else reader.GetString(reader.GetOrdinal("tor"))
                             Malware = if reader.GetString(reader.GetOrdinal("malware")) = "FALSE" then "" else reader.GetString(reader.GetOrdinal("malware"))
                         } ]
-                return results
+                return results |> List.sortByDescending (fun event -> event.EventTime)
             with
             | ex ->
                 printfn $"Error in fetchEventsAsync: %s{ex.Message}"
@@ -236,10 +237,7 @@ module Chart =
             |> List.map (fun (time, count) -> DateTimePoint(time, float count))
             |> ObservableCollection<_>
             
-        let events =
-            fetchEventsAsync()
-            |> Async.RunSynchronously
-            |> ObservableCollection<_>
+        let events = fetchEventsAsync() |> Async.RunSynchronously |> SourceList.createFrom
 
         {
             Series = ObservableCollection<ISeries>
@@ -298,27 +296,22 @@ module Chart =
             // Remove the old elements
             oldValues1 |> List.iter (fun point -> ignore (values1.Remove point))
             oldValues2 |> List.iter (fun point -> ignore (values2.Remove point))
-            
             model
         | UpdateDataGrid ->
-            let events =
-                fetchEventsAsync()
-                |> Async.RunSynchronously
-
-            events |> List.iter (fun newEvent ->
-                if not (model.Events |> Seq.exists (fun existingEvent -> existingEvent.EventTime = newEvent.EventTime)) then
-                    model.Events.Add newEvent
-            )
-
+            let newEvents = fetchEventsAsync() |> Async.RunSynchronously
             let cutoff = DateTime.UtcNow.AddSeconds(-60.0)
-            let oldEvents =
-                model.Events
+            let oldEventsKeys = 
+                model.Events.Items
                 |> Seq.filter (fun event -> event.EventTime < cutoff)
                 |> Seq.toList
-
-            oldEvents |> List.iter (fun oldEvent -> ignore (model.Events.Remove oldEvent))
-            oldEvents |> List.sortByDescending (fun event -> event.EventTime) |> ignore
-
+            for oldEvent in oldEventsKeys do
+                model.Events.Remove(oldEvent) |> ignore
+                
+            let existingEventsSet = model.Events.Items |> Seq.map (fun event -> event.EventTime) |> Set.ofSeq   
+            newEvents |> List.iter (fun newEvent ->
+                    if not (existingEventsSet |> Set.contains newEvent.EventTime) then
+                        model.Events.Add newEvent
+                    )
             model
         | Terminate ->
             model
@@ -337,7 +330,7 @@ module Chart =
 
 open Chart
 
-type ChartViewModel() as this =
+type TimelineViewModel() as this =
     inherit ReactiveElmishViewModel()
 
     let local = 
@@ -358,4 +351,4 @@ type ChartViewModel() as this =
 
     member this.YAxes = this.Bind (local, fun _ -> YAxes)
 
-    static member DesignVM = new ChartViewModel()
+    static member DesignVM = new TimelineViewModel()

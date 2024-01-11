@@ -4,7 +4,7 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.Markup.Xaml
 
-type ChartView () as this = 
+type TimelineView () as this = 
     inherit UserControl ()
 
     do this.InitializeComponent()

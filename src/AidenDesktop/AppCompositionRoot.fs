@@ -21,7 +21,7 @@ type AppCompositionRoot() =
             VM.Key<ChatViewModel>(), View.Singleton<ChatView>()
             VM.Key<CounterViewModel>(), View.Singleton<CounterView>()
             VM.Key<AboutViewModel>(), View.Singleton<AboutView>()
-            VM.Key<ChartViewModel>(), View.Transient<ChartView>()
+            VM.Key<TimelineViewModel>(), View.Transient<TimelineView>()
             VM.Key<DoughnutViewModel>(), View.Transient<DoughnutView>()
             VM.Key<ZoomViewModel>(), View.Transient<ZoomView>()
             VM.Key<FilePickerViewModel>(), View.Singleton<FilePickerView>()
