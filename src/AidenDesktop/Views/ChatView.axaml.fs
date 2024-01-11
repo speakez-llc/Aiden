@@ -28,7 +28,11 @@ type ChatView() as this =
                 listBox.GetPropertyChangedObservable(ListBox.BoundsProperty)
                 |> Observable.subscribe (fun _ -> this.ScrollToBottomSmooth()) |> ignore
 
-
+                viewModel.NewMessageEvent
+                |> Observable.subscribe (fun _ ->
+                    printfn "Scrolling to bottom"
+                    this.ScrollToBottomSmooth())
+                |> ignore
                 (* viewModel.NewMessageEvent
                 |> Observable.subscribe (fun _ ->
                     printfn "Scrolling to bottom"
@@ -36,8 +40,23 @@ type ChatView() as this =
                 |> ignore *)
             | None -> ()
             )
-
+        
     member private this.ScrollToBottomSmooth() =
+        let listBox = this.FindControl<ListBox>("ChatWindow")
+        if listBox.ItemCount > 0 then
+            let item = listBox.ContainerFromIndex(listBox.ItemCount - 1)
+            if not (isNull item) then
+                let target = (item :?> ListBoxItem).Bounds.Bottom
+                let scrollViewerOption = listBox.GetVisualDescendants() |> Seq.tryFind (fun v -> v :? ScrollViewer) |> Option.map (fun v -> v :?> ScrollViewer)
+                match scrollViewerOption with
+                | Some scrollViewer ->
+                    let targetOffset = target - scrollViewer.Bounds.Height
+                    if targetOffset > scrollViewer.Offset.Y then
+                        scrollViewer.Offset <- new Vector(scrollViewer.Offset.X, targetOffset)
+                | None -> ()
+    
+
+    (* member private this.ScrollToBottomSmooth() =
         printfn "ScrollToBottomSmooth"
         let listBox = this.FindControl<ListBox>("ChatWindow")
         if listBox.ItemCount > 0 then
@@ -62,6 +81,6 @@ type ChatView() as this =
                 )
                 timer.Start()
             | None -> ()
-
+*)
     member private this.InitializeComponent() =
         AvaloniaXamlLoader.Load(this)
