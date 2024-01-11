@@ -18,12 +18,10 @@ module Chat =
     type Msg =
         | SendMessage of string
         | CreateEmptyAidenMessage
-        | FeedMessage of string * int
         | StartProcessing
         | StopProcessing
         | ClearMessageText
         | SetMessageText of string
-        | CancelResponseStream
         
     let ollamaUri = Uri("http://aiden.speakez.dev:22161")
     let ollamaClient = OllamaApiClient(ollamaUri)
@@ -96,7 +94,7 @@ type ChatViewModel() as this =
     
     member this.MessageText 
         with get() = this.Bind(local, _.MessageText)
-        and set(value) = local.Dispatch(SetMessageText value)
+        and set value = local.Dispatch(SetMessageText value)
 
     member this.NewMessageEvent = newMessageEvent.Publish
     
@@ -124,7 +122,7 @@ type ChatViewModel() as this =
     member this.FeedMessage(message: string * int) =
         try
             match message with
-            | (str, _) when str = "" -> 
+            | str, _ when str = "" -> 
                 if local.Model.IsProcessing then
                     local.Dispatch(StopProcessing)
             | _ ->
