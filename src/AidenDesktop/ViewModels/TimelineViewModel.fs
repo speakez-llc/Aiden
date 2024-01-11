@@ -38,12 +38,14 @@ module Chart =
         {
             Series: ObservableCollection<ISeries>
             Events: ObservableCollection<EventsData>
+            IsFreezeChecked: bool
         }
 
     type Msg =
        | UpdateSeries
        | UpdateDataGrid
        | Terminate
+       | SetIsFreezeChecked of bool
     
 
     let rnd = Random()
@@ -259,11 +261,16 @@ module Chart =
                                               ) :> ISeries
                 ]
             Events = events
+            IsFreezeChecked = false
         }
 
 
     let update (msg: Msg) (model: Model) =
         match msg with
+        | SetIsFreezeChecked isChecked ->
+            { model with 
+                IsFreezeChecked = isChecked
+            }
         | UpdateSeries ->
             let latestEvents =
                 fetchEventsPerSecondAsync()
@@ -308,16 +315,17 @@ module Chart =
         | Terminate ->
             model
 
-    let subscriptions (_: Model) : Sub<Msg> =
+    let subscriptions (model: Model) : Sub<Msg> =
         let autoUpdateSub (dispatch: Msg -> unit) = 
             Observable
-                .Interval(TimeSpan.FromMilliseconds(100))
+                .Interval(TimeSpan.FromMilliseconds(250))
                 .Subscribe(fun _ ->
                     dispatch UpdateSeries
                     dispatch UpdateDataGrid
                 )
         [
-            [ nameof autoUpdateSub ], autoUpdateSub
+            if model.IsFreezeChecked = false then
+                [ nameof autoUpdateSub ], autoUpdateSub
         ]
 
 open Chart
@@ -332,12 +340,15 @@ type TimelineViewModel() as this =
         |> Program.withSubscription subscriptions
         //|> Program.mkStore
         //Terminate all Elmish subscriptions on dispose (view is registered as Transient).
-        |> Program.mkStoreWithTerminate this Terminate 
-
+        |> Program.mkStoreWithTerminate this Terminate
 
     member this.Series = local.Model.Series
     
     member this.Events = local.Model.Events
+    
+    member this.IsFreezeChecked 
+        with get () = this.Bind (local, _.IsFreezeChecked)
+        and set value = local.Dispatch (SetIsFreezeChecked value)
 
     member this.XAxes = this.Bind (local, fun _ -> XAxes)
 
