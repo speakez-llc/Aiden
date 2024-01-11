@@ -69,6 +69,7 @@
                     <TextBox Grid.Row="1" Grid.Column="1"  x:Name="MessageTextBox" 
                              MinHeight="40"
                              MaxHeight="150"
+                             KeyDown="MessageTextBox_KeyDown"
                              AcceptsReturn="True" 
                              BorderBrush="Gray"
                              TextWrapping="Wrap"
