@@ -6,10 +6,10 @@ open System.Collections.Generic
 open System.Collections.ObjectModel
 open System.Reactive.Linq
 open System.Text.Json
+open Elmish
 open ReactiveElmish
 open ReactiveElmish.Avalonia
 open DynamicData
-open Elmish
 open SkiaSharp
 open LiveChartsCore
 open LiveChartsCore.Kernel.Sketches
@@ -37,7 +37,7 @@ module Chart =
     type Model = 
         {
             Series: ObservableCollection<ISeries>
-            Events: SourceList<EventsData>
+            Events: ObservableCollection<EventsData>
         }
 
     type Msg =
@@ -237,7 +237,10 @@ module Chart =
             |> List.map (fun (time, count) -> DateTimePoint(time, float count))
             |> ObservableCollection<_>
             
-        let events = fetchEventsAsync() |> Async.RunSynchronously |> SourceList.createFrom
+        let events =
+            fetchEventsAsync()
+            |> Async.RunSynchronously
+            |> ObservableCollection<_>
 
         {
             Series = ObservableCollection<ISeries>

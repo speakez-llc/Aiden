@@ -28,7 +28,7 @@
             <Border Grid.Row="1" CornerRadius="10"
                     Background="#010B17"
                     Padding="10">
-                <DataGrid  ItemsSource="{Binding Events.Items}" 
+                <DataGrid  ItemsSource="{Binding Events}" 
                           AutoGenerateColumns="False"
                           HorizontalAlignment="Stretch"
                           VerticalAlignment="Stretch"
