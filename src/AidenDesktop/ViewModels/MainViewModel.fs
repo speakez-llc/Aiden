@@ -113,9 +113,9 @@ module MainViewModule =
             SelectedNavItem = NavItem("Home", FluentIcons.Common.Symbol.Home)
             NavigationList = [ 
                 NavItem("Home", FluentIcons.Common.Symbol.Home)
-                NavItem("Timeline", FluentIcons.Common.Symbol.ChartMultiple)
+                NavItem("Timeline", FluentIcons.Common.Symbol.ArrowTrendingLines)
                 NavItem("Map View", FluentIcons.Common.Symbol.Globe, 2)
-                NavItem("Zoom View", FluentIcons.Common.Symbol.SearchSquare)
+                NavItem("Zoom View", FluentIcons.Common.Symbol.ZoomIn)
                 NavItem("Load Files", FluentIcons.Common.Symbol.DocumentArrowRight)
                 NavItem("About", FluentIcons.Common.Symbol.BookInformation)
             ]
