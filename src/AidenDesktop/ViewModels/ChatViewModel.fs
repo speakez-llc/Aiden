@@ -2,6 +2,7 @@
 
 open System
 open System.Threading
+open Avalonia.Threading
 open Elmish
 open OllamaSharp.Models.Chat
 open ReactiveElmish
@@ -16,13 +17,11 @@ module Chat =
 
     type Msg =
         | SendMessage of string
-        | SendAidenMessage
-        | FeedMessage of string * int
+        | CreateEmptyAidenMessage
         | StartProcessing
         | StopProcessing
         | ClearMessageText
         | SetMessageText of string
-        | CancelResponseStream
         
     let ollamaUri = Uri("http://aiden.speakez.dev:22161")
     let ollamaClient = OllamaApiClient(ollamaUri)
@@ -51,18 +50,12 @@ module Chat =
             {
                 model with Messages = model.Messages |> SourceList.add msg
             }
-        | SendAidenMessage ->
+        | CreateEmptyAidenMessage ->
             printfn "Message: %A" msg
             let msg = { User = "Aiden"; Text = ""; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             {                
                 model with Messages = model.Messages |> SourceList.add msg
             }
-        | FeedMessage (text, index) ->
-            printfn "FeedMessage: %A" text
-            let messages = model.Messages
-            let msg = { User = "Aiden"; Text = text; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
-            messages.ReplaceAt (index, msg)
-            { model with Messages = messages }
         | StartProcessing ->
             printfn "StartProcessing"
             { model with IsProcessing = true }
@@ -82,9 +75,9 @@ type ChatViewModel() as this =
     let newMessageEvent = Event<_>()
     let handle = ollamaClient.Chat(Action<ChatResponseStream>(fun (stream: ChatResponseStream) -> 
         let message = stream.Message
-        // printfn $"Received message: %s{message.Content}"
         this.FeedMessage (message.Content, 0)
     ))
+    let mutable cts = new CancellationTokenSource() // For cancellation support
     let local =
         Program.mkAvaloniaSimple init update
         |> Program.withErrorHandler (fun (_, ex) -> printfn "Error: %s" ex.Message)
@@ -101,7 +94,7 @@ type ChatViewModel() as this =
     
     member this.MessageText 
         with get() = this.Bind(local, _.MessageText)
-        and set(value) = local.Dispatch(SetMessageText value)
+        and set value = local.Dispatch(SetMessageText value)
 
     member this.NewMessageEvent = newMessageEvent.Publish
     
@@ -110,48 +103,45 @@ type ChatViewModel() as this =
     member this.SendMessage(message: string) =
         try
             local.Dispatch (SendMessage message)
-            local.Dispatch ClearMessageText
-            let cts = new CancellationTokenSource() // For cancellation support
-
-            let streamer = fun (stream: ChatResponseStream) ->
-                async {
-                    while not stream.Done do // Use stream.Done to control the loop
-                        let messageChunk = stream.Message // Handle each word as a chunk
-                        this.FeedMessage(messageChunk.Content, 0)
-                } |> Async.StartImmediate
-
+            cts <- new CancellationTokenSource()
             let responseTask = async {
                 local.Dispatch(StartProcessing)
                 local.Dispatch(ClearMessageText)
-                local.Dispatch(SendAidenMessage)
-                handle.Send(message) |> ignore
+                local.Dispatch(CreateEmptyAidenMessage)
+                handle.Send(message, cts.Token) |> ignore
             }
             responseTask |> Async.StartAsTask |> ignore
 
         with
         | ex -> printfn $"Error in SendMessage: %s{ex.Message}"
 
+    member this.StopProcessing() =
+        cts.Cancel()
+        local.Dispatch(StopProcessing)
+
     member this.FeedMessage(message: string * int) =
         try
-            let messages = local.Model.Messages.Items |> List.ofSeq
-            //if (messages |> List.last).User <> "Aiden" then
-                //local.Dispatch(SendAidenMessage)
-                //local.Dispatch(StopProcessing)
-            let token = message |> fst
-            //printfn $"Streamed token: %s{token}"
-            // get text from last message in SourceList and add the token to it
-            let fullMessage = (messages |> List.ofSeq |> List.last).Text + token
-            let user = (messages |> List.ofSeq |> List.last).User
-            let alignment = (messages |> List.ofSeq |> List.last).Alignment
-            let borderColor = (messages |> List.ofSeq |> List.last).BorderColor
-            let isMeValue = (messages |> List.ofSeq |> List.last).IsMe
-            let updatedMsg = { User = user ; Text = fullMessage; Alignment = alignment; Color = "Glaucous"; BorderColor = borderColor; IsMe = isMeValue }
-            if local.Model.IsProcessing then
-                local.Dispatch(StopProcessing)
-            local.Model.Messages.ReplaceAt(local.Model.Messages.Count - 1, updatedMsg)
-
+            match message with
+            | str, _ when str = "" -> 
+                if local.Model.IsProcessing then
+                    local.Dispatch(StopProcessing)
+            | _ ->
+                let messages = local.Model.Messages.Items |> List.ofSeq
+                // If the last message is new/empty we're at the start and need to turn off "Processing..."
+                //if (messages |> List.ofSeq |> List.last).Text = "" then
+                //    Dispatcher.UIThread.InvokeAsync(fun () ->
+                //        local.Dispatch(StopProcessing)) |> ignore
+                let token = message |> fst
+                let fullMessage = (messages |> List.ofSeq |> List.last).Text + token
+                let user = (messages |> List.ofSeq |> List.last).User
+                let alignment = (messages |> List.ofSeq |> List.last).Alignment
+                let borderColor = (messages |> List.ofSeq |> List.last).BorderColor
+                let isMeValue = (messages |> List.ofSeq |> List.last).IsMe
+                let updatedMsg = { User = user ; Text = fullMessage; Alignment = alignment; Color = "Glaucous"; BorderColor = borderColor; IsMe = isMeValue }
+                local.Model.Messages.ReplaceAt(local.Model.Messages.Count - 1, updatedMsg)
+                Dispatcher.UIThread.InvokeAsync(fun () ->
+                    newMessageEvent.Trigger()) |> ignore
         with
         | ex -> printfn $"Error in FeedMessage: %s{ex.Message}"
         
-       
     static member DesignVM = new ChatViewModel()

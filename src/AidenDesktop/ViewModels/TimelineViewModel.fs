@@ -6,9 +6,10 @@ open System.Collections.Generic
 open System.Collections.ObjectModel
 open System.Reactive.Linq
 open System.Text.Json
+open Elmish
 open ReactiveElmish
 open ReactiveElmish.Avalonia
-open Elmish
+open DynamicData
 open SkiaSharp
 open LiveChartsCore
 open LiveChartsCore.Kernel.Sketches
@@ -37,12 +38,14 @@ module Chart =
         {
             Series: ObservableCollection<ISeries>
             Events: ObservableCollection<EventsData>
+            IsFreezeChecked: bool
         }
 
     type Msg =
        | UpdateSeries
        | UpdateDataGrid
        | Terminate
+       | SetIsFreezeChecked of bool
     
 
     let rnd = Random()
@@ -183,7 +186,7 @@ module Chart =
                             Tor = if reader.GetString(reader.GetOrdinal("tor")) = "BLANK" then "" else reader.GetString(reader.GetOrdinal("tor"))
                             Malware = if reader.GetString(reader.GetOrdinal("malware")) = "FALSE" then "" else reader.GetString(reader.GetOrdinal("malware"))
                         } ]
-                return results
+                return results |> List.sortByDescending (fun event -> event.EventTime)
             with
             | ex ->
                 printfn $"Error in fetchEventsAsync: %s{ex.Message}"
@@ -258,11 +261,16 @@ module Chart =
                                               ) :> ISeries
                 ]
             Events = events
+            IsFreezeChecked = false
         }
 
 
     let update (msg: Msg) (model: Model) =
         match msg with
+        | SetIsFreezeChecked isChecked ->
+            { model with 
+                IsFreezeChecked = isChecked
+            }
         | UpdateSeries ->
             let latestEvents =
                 fetchEventsPerSecondAsync()
@@ -298,46 +306,31 @@ module Chart =
             // Remove the old elements
             oldValues1 |> List.iter (fun point -> ignore (values1.Remove point))
             oldValues2 |> List.iter (fun point -> ignore (values2.Remove point))
-            
             model
         | UpdateDataGrid ->
-            let events =
-                fetchEventsAsync()
-                |> Async.RunSynchronously
-
-            events |> List.iter (fun newEvent ->
-                if not (model.Events |> Seq.exists (fun existingEvent -> existingEvent.EventTime = newEvent.EventTime)) then
-                    model.Events.Add newEvent
-            )
-
-            let cutoff = DateTime.UtcNow.AddSeconds(-60.0)
-            let oldEvents =
-                model.Events
-                |> Seq.filter (fun event -> event.EventTime < cutoff)
-                |> Seq.toList
-
-            oldEvents |> List.iter (fun oldEvent -> ignore (model.Events.Remove oldEvent))
-            oldEvents |> List.sortByDescending (fun event -> event.EventTime) |> ignore
-
+            let newEvents = fetchEventsAsync() |> Async.RunSynchronously |> List.toSeq
+            model.Events.Clear()
+            model.Events.AddRange(newEvents)
             model
         | Terminate ->
             model
 
-    let subscriptions (_: Model) : Sub<Msg> =
+    let subscriptions (model: Model) : Sub<Msg> =
         let autoUpdateSub (dispatch: Msg -> unit) = 
             Observable
-                .Interval(TimeSpan.FromMilliseconds(100))
+                .Interval(TimeSpan.FromMilliseconds(250))
                 .Subscribe(fun _ ->
                     dispatch UpdateSeries
                     dispatch UpdateDataGrid
                 )
         [
-            [ nameof autoUpdateSub ], autoUpdateSub
+            if model.IsFreezeChecked = false then
+                [ nameof autoUpdateSub ], autoUpdateSub
         ]
 
 open Chart
 
-type ChartViewModel() as this =
+type TimelineViewModel() as this =
     inherit ReactiveElmishViewModel()
 
     let local = 
@@ -347,15 +340,18 @@ type ChartViewModel() as this =
         |> Program.withSubscription subscriptions
         //|> Program.mkStore
         //Terminate all Elmish subscriptions on dispose (view is registered as Transient).
-        |> Program.mkStoreWithTerminate this Terminate 
-
+        |> Program.mkStoreWithTerminate this Terminate
 
     member this.Series = local.Model.Series
     
     member this.Events = local.Model.Events
+    
+    member this.IsFreezeChecked 
+        with get () = this.Bind (local, _.IsFreezeChecked)
+        and set value = local.Dispatch (SetIsFreezeChecked value)
 
     member this.XAxes = this.Bind (local, fun _ -> XAxes)
 
     member this.YAxes = this.Bind (local, fun _ -> YAxes)
 
-    static member DesignVM = new ChartViewModel()
+    static member DesignVM = new TimelineViewModel()

@@ -203,7 +203,7 @@ type MainViewModel(root: CompositionRoot) as self =
         self.BindOnChanged (app, _.View, fun m ->
             match m.View with
             | DoughnutView -> root.GetView<DoughnutViewModel>()
-            | ChartView -> root.GetView<ChartViewModel>()
+            | ChartView -> root.GetView<TimelineViewModel>()
             | FilePickerView -> root.GetView<FilePickerViewModel>()
             | DashboardView -> root.GetView<DashboardViewModel>()
             | ZoomView -> root.GetView<ZoomViewModel>()

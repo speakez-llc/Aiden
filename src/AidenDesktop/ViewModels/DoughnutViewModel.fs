@@ -49,6 +49,7 @@ module Doughnut =
             Margin: LiveChartsCore.Measure.Margin
             currentColorSeries: Drawing.LvcColor array
             IsFetchDataForCOOChartActive: bool
+            IsFreezeChecked: bool
         }
 
     type Msg =
@@ -59,6 +60,7 @@ module Doughnut =
         | UpdateCOOChartData of (string * int) list
         | UpdateCOOGridData of (string * int) list
         | SetFetchDataForCOOChartActive of bool
+        | SetIsFreezeChecked of bool
         | Terminate
      
 
@@ -224,14 +226,18 @@ module Doughnut =
                 IsFrozen = false
                 Margin = LiveChartsCore.Measure.Margin(50f, 50f, 50f, 50f)
                 currentColorSeries = blueSeries
-                IsFetchDataForCOOChartActive = true 
+                IsFetchDataForCOOChartActive = true
+                IsFreezeChecked = false
             }
-
         } |> Async.RunSynchronously
 
 
     let rec update (msg: Msg) (model: Model) =
         match msg with
+        | SetIsFreezeChecked isChecked ->
+            { model with 
+                IsFreezeChecked = isChecked
+            }
         | SetFetchDataForCOOChartActive isActive ->
             { model with IsFetchDataForCOOChartActive = isActive }
         | UpdateMALChartData chartData ->
@@ -398,12 +404,13 @@ module Doughnut =
 
     let subscriptions (model: Model) : Sub<Msg> =
         [
-            [ nameof fetchDataForMALChart], fetchDataForMALChart
-            [ nameof fetchDataForVPNChart], fetchDataForVPNChart
-            [ nameof fetchDataForPXYChart], fetchDataForPXYChart
-            [ nameof fetchDataForTORChart], fetchDataForTORChart
-            if model.IsFetchDataForCOOChartActive then
-                [ nameof fetchDataForCOOChart], fetchDataForCOOChart
+            if model.IsFreezeChecked = false then
+                [ nameof fetchDataForMALChart], fetchDataForMALChart
+                [ nameof fetchDataForVPNChart], fetchDataForVPNChart
+                [ nameof fetchDataForPXYChart], fetchDataForPXYChart
+                [ nameof fetchDataForTORChart], fetchDataForTORChart
+                if model.IsFetchDataForCOOChartActive then
+                    [ nameof fetchDataForCOOChart], fetchDataForCOOChart
         ]
         
 open Doughnut
@@ -425,6 +432,10 @@ type DoughnutViewModel() as this =
         |> Program.mkStoreWithTerminate this Terminate
     
     
+    
+    member this.IsFreezeChecked 
+        with get () = this.Bind (local, _.IsFreezeChecked)
+        and set value = local.Dispatch (SetIsFreezeChecked value)
     member this.Dispatch with get() = dispatch
     member this.Margin = this.Bind(local, _.Margin)
     member this.VPN_Series = this.Bind(local, _.VPN_Series)
