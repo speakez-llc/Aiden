@@ -108,6 +108,9 @@
                     <ic:SymbolIcon Symbol="WeatherSnowflake" IsFilled="True" FontSize="24" /> <!-- Replace with the correct Unicode for Snowflake -->
                 </StackPanel>
             </ToggleButton.Content>
+            <ToolTip.Tip>
+                Freeze [Halt Processing]
+            </ToolTip.Tip>
         </ToggleButton>
         </Grid>
     </StackPanel>

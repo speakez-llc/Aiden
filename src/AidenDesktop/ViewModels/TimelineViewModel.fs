@@ -242,6 +242,7 @@ module Chart =
         let events =
             fetchEventsAsync()
             |> Async.RunSynchronously
+            //|> SourceList.createFrom
             |> ObservableCollection<_>
 
         {
