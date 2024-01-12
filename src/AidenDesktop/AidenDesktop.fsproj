@@ -28,7 +28,7 @@
         <Compile Include="ViewModels\AboutViewModel.fs" />
         <Compile Include="ViewModels\CounterViewModel.fs" />
         <Compile Include="ViewModels\TimelineViewModel.fs" />
-        <Compile Include="ViewModels\DoughnutViewModel.fs" />
+        <Compile Include="ViewModels\GeoMapViewModel.fs" />
         <Compile Include="ViewModels\ZoomViewModel.fs" />
         <Compile Include="ViewModels\HomeViewModel.fs" />
         <Compile Include="ViewModels\FilePickerViewModel.fs" />
@@ -39,7 +39,7 @@
         <Compile Include="Views\ZoomView.axaml.fs" />
         <Compile Include="Views\ChatView.axaml.fs" />
         <Compile Include="Views\TimelineView.axaml.fs" />
-        <Compile Include="Views\DoughnutView.axaml.fs" />
+        <Compile Include="Views\GeoMapView.axaml.fs" />
         <Compile Include="Views\CounterView.axaml.fs" />
         <Compile Include="Views\FilePickerView.axaml.fs" /> 
         <Compile Include="Views\DashboardView.axaml.fs" />       

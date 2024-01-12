@@ -12,7 +12,7 @@ type Model =
 
 and View = 
     | ChartView
-    | DoughnutView
+    | GeoMapView
     | ZoomView
     | AboutView
     | FilePickerView

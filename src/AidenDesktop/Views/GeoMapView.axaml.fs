@@ -7,14 +7,14 @@ open Avalonia.Controls
 open Avalonia.Markup.Xaml
 open LiveChartsCore.SkiaSharpView.Avalonia
 
-type DoughnutView () as this =
+type GeoMapView () as this =
     inherit UserControl ()
 
     do
         this.DataContextChanged
             .Subscribe(fun _ ->
                 match this.DataContext with
-                | :? DoughnutViewModel as viewModel ->
+                | :? GeoMapViewModel as viewModel ->
                     printfn "Initializing DoughnutView"
                     this.InitializeComponent()
                     let geoMap = this.FindControl<GeoMap>("GeoMap")

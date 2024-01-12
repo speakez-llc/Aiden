@@ -23,7 +23,7 @@
                 XAxes="{Binding XAxes}"
                 YAxes="{Binding YAxes}"
                 EasingFunction="{Binding Source={x:Null}}"
-                UpdaterThrottler="00:00:00.250"
+                UpdaterThrottler="00:00:00.500"
                 Margin="0, -20,0,20">
             </lvc:CartesianChart>
             <Border Grid.Row="1" CornerRadius="10"

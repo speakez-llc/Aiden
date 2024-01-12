@@ -139,7 +139,7 @@ module MainViewModule =
             match item.Name with
             | "Home" -> app.Dispatch (SetView HomeView)
             | "Timeline" -> app.Dispatch (SetView ChartView)
-            | "Map View" -> app.Dispatch (SetView DoughnutView)
+            | "Map View" -> app.Dispatch (SetView GeoMapView)
             | "Zoom View" -> app.Dispatch (SetView ZoomView)
             | "Load Files" -> app.Dispatch (SetView FilePickerView)
             | "About" -> app.Dispatch (SetView AboutView)
@@ -202,7 +202,7 @@ type MainViewModel(root: CompositionRoot) as self =
     member self.ContentView =
         self.BindOnChanged (app, _.View, fun m ->
             match m.View with
-            | DoughnutView -> root.GetView<DoughnutViewModel>()
+            | GeoMapView -> root.GetView<GeoMapViewModel>()
             | ChartView -> root.GetView<TimelineViewModel>()
             | FilePickerView -> root.GetView<FilePickerViewModel>()
             | DashboardView -> root.GetView<DashboardViewModel>()

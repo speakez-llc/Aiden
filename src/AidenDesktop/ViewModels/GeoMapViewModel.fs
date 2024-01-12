@@ -415,7 +415,7 @@ module Doughnut =
         
 open Doughnut
 
-type DoughnutViewModel() as this =
+type GeoMapViewModel() as this =
     inherit ReactiveElmishViewModel()
     
     let mutable dispatch : Msg -> unit = ignore
@@ -446,4 +446,4 @@ type DoughnutViewModel() as this =
     member this.COO_GridData = this.Bind(local, _.COO_GridData)
     member this.MAL_Series =  this.Bind(local, _.MAL_Series)
     member this.Ok() = app.Dispatch App.GoHome
-    static member DesignVM = new DoughnutViewModel()
+    static member DesignVM = new GeoMapViewModel()
