@@ -70,8 +70,7 @@ module Chat =
             { model with MessageText = text }
         | ClearChat ->
             printfn "clearing chat history"
-            model.Messages |> SourceList.removeAll |> ignore
-            model
+            { model with Messages = model.Messages |> SourceList.removeAll }
             
 open Chat
 
