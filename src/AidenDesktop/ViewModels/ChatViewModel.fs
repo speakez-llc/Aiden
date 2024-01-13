@@ -22,6 +22,7 @@ module Chat =
         | StopProcessing
         | ClearMessageText
         | SetMessageText of string
+        | ClearChat
         
     let ollamaUri = Uri("http://aiden.speakez.dev:22161")
     let ollamaClient = OllamaApiClient(ollamaUri)
@@ -46,12 +47,12 @@ module Chat =
         match msg with
         | SendMessage text ->
             let msg = { User = "Houston"; Text = text; Alignment = "Right"; Color = "White"; BorderColor = "MidnightBlue" ; IsMe  = true }
-            printfn "Message: %A" msg
+            //printfn "Message: %A" msg
             {
                 model with Messages = model.Messages |> SourceList.add msg
             }
         | CreateEmptyAidenMessage ->
-            printfn "Message: %A" msg
+            //printfn "Message: %A" msg
             let msg = { User = "Aiden"; Text = ""; Alignment = "Left"; Color = "Glaucous"; BorderColor = "Orange" ; IsMe = false }
             {                
                 model with Messages = model.Messages |> SourceList.add msg
@@ -67,6 +68,10 @@ module Chat =
             { model with MessageText = "" }
         | SetMessageText text ->
             { model with MessageText = text }
+        | ClearChat ->
+            printfn "clearing chat history"
+            model.Messages |> SourceList.removeAll |> ignore
+            model
             
 open Chat
 
@@ -99,6 +104,10 @@ type ChatViewModel() as this =
     member this.NewMessageEvent = newMessageEvent.Publish
     
     member this.IsProcessing = this.Bind(local, _.IsProcessing)
+        
+        
+    member this.ClearChat() =
+        local.Dispatch(ClearChat)
         
     member this.SendMessage(message: string) =
         try

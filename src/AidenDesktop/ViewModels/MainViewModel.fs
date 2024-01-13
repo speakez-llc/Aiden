@@ -104,6 +104,7 @@ module MainViewModule =
     | SelectedNavItemChanged of NavItem
     | IsDarkThemeEnabled of bool
     | ToggleTheme of bool
+    | ClearChatCommand
 
     let init() = 
         { 
@@ -147,6 +148,9 @@ module MainViewModule =
             { model with SelectedNavItem = item }
         | ToggleTheme t ->
             { model with IsDarkThemeEnabled = t }
+        | ClearChatCommand ->
+            ChatViewModel.DesignVM.ClearChat()
+            model
         | _ -> model
     
 open MainViewModule
@@ -174,7 +178,8 @@ type MainViewModel(root: CompositionRoot) as self =
         else
             Application.Current.RequestedThemeVariant <- ThemeVariant.Light
 
-    // Other code...
+    member this.ClearChatCommand() =
+        local.Dispatch ClearChatCommand
 
     member self.ChatOpen
         with get() = self.Bind(local, _.ChatOpen)
