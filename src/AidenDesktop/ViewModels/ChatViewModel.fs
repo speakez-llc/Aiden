@@ -70,7 +70,8 @@ module Chat =
             { model with MessageText = text }
         | ClearChat ->
             printfn "clearing chat history"
-            { model with Messages = model.Messages |> SourceList.removeAll }
+            model.Messages |> SourceList.removeAll |> ignore
+            model
             
 open Chat
 
@@ -94,7 +95,8 @@ type ChatViewModel() as this =
                 newMessageEvent.Trigger())
             |> ignore
     
-    member this.MessagesView = this.BindSourceList(local.Model.Messages)
+    member this.MessagesView
+        with get() = this.BindSourceList(local.Model.Messages)
     
     member this.MessageText 
         with get() = this.Bind(local, _.MessageText)

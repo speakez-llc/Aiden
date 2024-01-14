@@ -105,6 +105,7 @@ module MainViewModule =
     | IsDarkThemeEnabled of bool
     | ToggleTheme of bool
     | ClearChatCommand
+    | ClearChatBadge
 
     let init() = 
         { 
@@ -114,8 +115,8 @@ module MainViewModule =
             SelectedNavItem = NavItem("Home", FluentIcons.Common.Symbol.Home)
             NavigationList = [ 
                 NavItem("Home", FluentIcons.Common.Symbol.Home)
-                NavItem("Timeline", FluentIcons.Common.Symbol.ArrowTrendingLines)
-                NavItem("Map View", FluentIcons.Common.Symbol.Globe, 2)
+                NavItem("Timeline", FluentIcons.Common.Symbol.ArrowTrendingLines, 2)
+                NavItem("Map View", FluentIcons.Common.Symbol.Globe)
                 NavItem("Zoom View", FluentIcons.Common.Symbol.ZoomIn)
                 NavItem("Load Files", FluentIcons.Common.Symbol.DocumentArrowRight)
                 NavItem("About", FluentIcons.Common.Symbol.BookInformation)
@@ -133,6 +134,8 @@ module MainViewModule =
                 { model with ChatOpen = b; ChatAlertCount = 0; ShowChatBadge = false }
             else
                 { model with ChatOpen = b }
+        | ClearChatBadge ->
+            { model with ChatAlertCount = 0; ShowChatBadge = false }
         | SetChatAlertCount count ->
             // Set badge as active
             { model with ChatAlertCount = count }
@@ -148,9 +151,6 @@ module MainViewModule =
             { model with SelectedNavItem = item }
         | ToggleTheme t ->
             { model with IsDarkThemeEnabled = t }
-        | ClearChatCommand ->
-            ChatViewModel.DesignVM.ClearChat()
-            model
         | _ -> model
     
 open MainViewModule
@@ -179,7 +179,14 @@ type MainViewModel(root: CompositionRoot) as self =
             Application.Current.RequestedThemeVariant <- ThemeVariant.Light
 
     member this.ClearChatCommand() =
-        local.Dispatch ClearChatCommand
+        let chatView = this.ChatView :> StyledElement
+        let chatVM = chatView.DataContext :?> ChatViewModel
+        for item: NavItem in this.NavigationList do
+                    item.SetBadgeValue(0)
+        this.ChatAlertCount <- 0
+        local.Dispatch ClearChatBadge
+        chatVM.ClearChat()
+        
 
     member self.ChatOpen
         with get() = self.Bind(local, _.ChatOpen)
