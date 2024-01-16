@@ -95,6 +95,7 @@ module MainViewModule =
             ShowChatBadge: bool
             SelectedNavItem: NavItem
             NavigationList: NavItem list
+            FooterNavigationList: NavItem list
             IsDarkThemeEnabled: bool
         }
     
@@ -120,6 +121,9 @@ module MainViewModule =
                 NavItem("Zoom View", FluentIcons.Common.Symbol.ZoomIn)
                 NavItem("Load Files", FluentIcons.Common.Symbol.DocumentArrowRight)
                 NavItem("About", FluentIcons.Common.Symbol.BookInformation)
+            ]
+            FooterNavigationList = [ 
+                NavItem("Settings", FluentIcons.Common.Symbol.Settings)
             ]
             IsDarkThemeEnabled = true
         }
@@ -147,6 +151,7 @@ module MainViewModule =
             | "Zoom View" -> app.Dispatch (SetView ZoomView)
             | "Load Files" -> app.Dispatch (SetView FilePickerView)
             | "About" -> app.Dispatch (SetView AboutView)
+            | "Settings" -> app.Dispatch (SetView SettingsView)
             | _ -> ()            
             { model with SelectedNavItem = item }
         | ToggleTheme t ->
@@ -205,6 +210,8 @@ type MainViewModel(root: CompositionRoot) as self =
 
     member self.NavigationList = self.Bind(local, _.NavigationList)
     
+    member self.FooterNavigationList = self.Bind(local, _.FooterNavigationList)
+    
     member self.createIcon(iconKey: FluentIcons.Common.Symbol) =
         let fontIcon = SymbolIcon()
         fontIcon.Symbol <- iconKey
@@ -221,6 +228,7 @@ type MainViewModel(root: CompositionRoot) as self =
             | ZoomView -> root.GetView<ZoomViewModel>()
             | AboutView -> root.GetView<AboutViewModel>()
             | HomeView -> root.GetView<HomeViewModel>()
+            | SettingsView -> root.GetView<SettingsViewModel>()
         )
 
     static member DesignVM = new MainViewModel(Design.stub)

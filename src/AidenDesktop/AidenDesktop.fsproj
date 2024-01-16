@@ -24,6 +24,7 @@
 
     <ItemGroup>
         <Compile Include="ViewModels\App.fs" />
+        <Compile Include="ViewModels\SettingsViewModel.fs" />
         <Compile Include="ViewModels\ChatViewModel.fs" />
         <Compile Include="ViewModels\AboutViewModel.fs" />
         <Compile Include="ViewModels\CounterViewModel.fs" />
@@ -35,6 +36,7 @@
         <Compile Include="ViewModels\DashboardViewModel.fs" />
         <Compile Include="ViewModels\MainViewModel.fs" />
         <Compile Include="Views\AboutView.axaml.fs" />
+        <Compile Include="Views\SettingsView.axaml.fs" />
         <Compile Include="Views\HomeView.axaml.fs" />
         <Compile Include="Views\ZoomView.axaml.fs" />
         <Compile Include="Views\ChatView.axaml.fs" />

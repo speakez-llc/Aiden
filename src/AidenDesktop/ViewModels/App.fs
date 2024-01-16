@@ -18,6 +18,7 @@ and View =
     | FilePickerView
     | DashboardView
     | HomeView
+    | SettingsView
 
 type Msg = 
     | SetView of View

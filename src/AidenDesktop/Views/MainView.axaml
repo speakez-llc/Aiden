@@ -9,6 +9,7 @@
         x:Class="AidenDesktop.Views.MainView"
         Icon="/Assets/SpeakEZ.ico"
         xmlns:vm="using:AidenDesktop.ViewModels"
+        xmlns:common="clr-namespace:FluentIcons.Common;assembly=FluentIcons.Common"
         Design.DataContext="{Binding Source={x:Static vm:MainViewModel.DesignVM}}"
         x:DataType="vm:MainViewModel"
         x:CompileBindings="True"
@@ -16,8 +17,9 @@
     
     <DockPanel LastChildFill="true">
         <con:NavigationView AlwaysShowHeader="False" OpenPaneLength="150" PaneDisplayMode="Left" IsPaneOpen="False" Name="NavView"
-                            IsSettingsVisible="True" IsBackEnabled="False" MenuItemsSource="{Binding NavigationList}"
-                            SelectedItem="{Binding SelectedNavItem}" CompactModeThresholdWidth="100">
+                            IsSettingsVisible="False" IsBackEnabled="False" MenuItemsSource="{Binding NavigationList}"
+                            SelectedItem="{Binding SelectedNavItem}" CompactModeThresholdWidth="100"
+                            FooterMenuItemsSource="{Binding FooterNavigationList}">
             <con:NavigationView.Background>
                 <LinearGradientBrush StartPoint="0,1" EndPoint="0,1200">
                     <GradientStop Color="Black" Offset="0.3" />
@@ -25,20 +27,8 @@
                 </LinearGradientBrush>
             </con:NavigationView.Background>
             <con:NavigationView.Resources>
-                <x:Double x:Key="NavigationViewItemHeight">48.0</x:Double>
-                <!-- NOTE: There was discussion about implementing this, but it currently doesn't work -->
-                <x:Double x:Key="NavigationViewItemIconFontSize">48.0</x:Double>
-                <x:Double x:Key="NavigationViewItemExpandedGlyphFontSize">48.0</x:Double>
-                <x:Double x:Key="NavigationViewItemCollapsedGlyphFontSize">48.0</x:Double>
-                <x:Double x:Key="NavigationViewItemSeparatorHeight">1.0</x:Double>
-                <x:Double x:Key="NavigationViewItemSeparatorVerticalMargin">12.0</x:Double>
-                <x:Double x:Key="NavigationViewItemSeparatorHorizontalMargin">24.0</x:Double>
                 <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#C18E3A"/>
-                <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="#C18E3A"/>
-                <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="#C18E3A"/>
-                <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="#C18E3A"/>
-                <SolidColorBrush x:Key="NavigationViewItemForegroundSelectedPointerOver" Color="#C18E3A"/>
-                <SolidColorBrush x:Key="NavigationViewIconSolidColorBrush" Color="#C18E3A" />
+                <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="Tan"/>
             </con:NavigationView.Resources>
 
             <con:NavigationView.MenuItemTemplate>
@@ -104,6 +94,13 @@
                     </SplitView.Pane>
                 </SplitView>
             </con:NavigationView.Content>
+            <con:NavigationView.FooterMenuItems>
+                <con:NavigationViewItem Content="Settings">
+                    <con:NavigationViewItem.IconSource>
+                        <ic:SymbolIconSource Symbol="Settings" IsFilled="True" Foreground="#C18E3A" />
+                    </con:NavigationViewItem.IconSource>
+                </con:NavigationViewItem>
+            </con:NavigationView.FooterMenuItems>
         </con:NavigationView>
     </DockPanel>
 </Window>

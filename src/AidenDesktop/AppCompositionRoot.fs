@@ -27,5 +27,6 @@ type AppCompositionRoot() =
             VM.Key<FilePickerViewModel>(), View.Singleton<FilePickerView>()
             VM.Key<DashboardViewModel>(), View.Transient<DashboardView>()
             VM.Key<HomeViewModel>(), View.Singleton<HomeView>()
+            VM.Key<SettingsViewModel>(), View.Transient<SettingsView>()
         ]
         
