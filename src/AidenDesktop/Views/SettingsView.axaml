@@ -10,10 +10,8 @@
              x:Class="AidenDesktop.Views.SettingsView">
     <StackPanel HorizontalAlignment="Center" Margin="10">
         <StackPanel Orientation="Horizontal" Margin="10">
-            <TextBlock Text="Settings View "/>
-            <TextBlock Text="Version: " />
-            <TextBlock Text="{Binding Version}" />
+            <TextBlock Text="Settings View " FontSize="32" Margin="32" Foreground="Tan"/>
         </StackPanel>
-        <Button Content="Ok" Command="{Binding Ok}" HorizontalAlignment="Center" />
+
     </StackPanel>
 </UserControl>

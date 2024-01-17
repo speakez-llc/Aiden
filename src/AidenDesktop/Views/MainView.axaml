@@ -16,7 +16,7 @@
         Title="Rower :: Aiden Sample">
 
     <DockPanel LastChildFill="true">
-        <con:NavigationView AlwaysShowHeader="False" OpenPaneLength="150" PaneDisplayMode="Left" IsPaneOpen="False" Name="NavView"
+        <con:NavigationView AlwaysShowHeader="True" OpenPaneLength="150" PaneDisplayMode="Left" IsPaneOpen="False" Name="NavView"
                             IsSettingsVisible="False" IsBackEnabled="False" MenuItemsSource="{Binding NavigationList}"
                             SelectedItem="{Binding SelectedNavItem}" CompactModeThresholdWidth="100"
                             FooterMenuItemsSource="{Binding FooterNavigationList}">
@@ -28,8 +28,6 @@
             </con:NavigationView.Background>
             <con:NavigationView.Resources>
                 <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#C18E3A"/>
-                <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="Tan"/>
-                <SolidColorBrush x:Key="ToolTip.Foreground" Color="Tan"/>
                 <SolidColorBrush x:Key="NavigationViewItemForegroundSelectedPointerOver" Color="Tan"/>
                 <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="Tan"/>
             </con:NavigationView.Resources>
