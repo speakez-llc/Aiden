@@ -6,9 +6,9 @@
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="850"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:vm="using:AidenDesktop.ViewModels"
-             Design.DataContext="{Binding Source={x:Static vm:DoughnutViewModel.DesignVM}}"
-             x:DataType="vm:DoughnutViewModel"
-             x:Class="AidenDesktop.Views.DoughnutView">
+             Design.DataContext="{Binding Source={x:Static vm:GeoMapViewModel.DesignVM}}"
+             x:DataType="vm:GeoMapViewModel"
+             x:Class="AidenDesktop.Views.GeoMapView">
     
     <StackPanel HorizontalAlignment="Center" Margin="10">
         <Grid>
@@ -108,6 +108,9 @@
                     <ic:SymbolIcon Symbol="WeatherSnowflake" IsFilled="True" FontSize="24" /> <!-- Replace with the correct Unicode for Snowflake -->
                 </StackPanel>
             </ToggleButton.Content>
+            <ToolTip.Tip>
+                Freeze [Halt Processing]
+            </ToolTip.Tip>
         </ToggleButton>
         </Grid>
     </StackPanel>

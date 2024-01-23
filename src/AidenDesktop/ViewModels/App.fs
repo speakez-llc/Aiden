@@ -12,12 +12,13 @@ type Model =
 
 and View = 
     | ChartView
-    | DoughnutView
+    | GeoMapView
     | ZoomView
     | AboutView
     | FilePickerView
     | DashboardView
     | HomeView
+    | SettingsView
 
 type Msg = 
     | SetView of View

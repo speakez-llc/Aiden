@@ -3,6 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="325" d:DesignHeight="650"
+             xmlns:i="using:Avalonia.Xaml.Interactivity"       
+             xmlns:ic="using:Avalonia.Xaml.Interactions.Core"
              xmlns:fluent="using:FluentAvalonia.UI.Controls"
              xmlns:converters="using:AidenDesktop.Converters"
              xmlns:vm="using:AidenDesktop.ViewModels"
@@ -11,6 +13,10 @@
              x:Class="AidenDesktop.Views.ChatView">
     <UserControl.Resources>
         <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
+        <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" /><Color x:Key="EnabledIconColor">#C18E3A</Color>
+        <Color x:Key="DisabledIconColor">DarkSlateGray</Color>
+        <SolidColorBrush x:Key="EnabledIconBrush" Color="{StaticResource EnabledIconColor}" />
+        <SolidColorBrush x:Key="DisabledIconBrush" Color="{StaticResource DisabledIconColor}" />
     </UserControl.Resources>
 
     <DockPanel DockPanel.Dock="Top" LastChildFill="True">
@@ -49,9 +55,19 @@
                             Margin="8,0,2,10"
                             CornerRadius="10"
                             IsVisible="{Binding IsProcessing, Converter={StaticResource BooleanNegationConverter}}"
+                            IsEnabled="{Binding MessageText, Converter={StaticResource StringNotEmptyConverter}}"
                             Command="{Binding SendMessage}"
                             CommandParameter="{Binding Text, ElementName=MessageTextBox}">
-                        <fluent:SymbolIcon Symbol="SendFilled" FontSize="20" VerticalAlignment="Center" Foreground="#C18E3A" />
+                        <fluent:SymbolIcon Symbol="SendFilled" FontSize="20" VerticalAlignment="Center" Foreground="{StaticResource EnabledIconBrush}">
+                            <i:Interaction.Behaviors>
+                                <ic:DataTriggerBehavior Binding="{Binding Path=IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}}" Value="False">
+                                    <ChangePropertyAction PropertyName="Foreground" Value="{StaticResource DisabledIconBrush}" />
+                                </ic:DataTriggerBehavior>
+                                <ic:DataTriggerBehavior Binding="{Binding Path=IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}}" Value="True">
+                                    <ChangePropertyAction PropertyName="Foreground" Value="{StaticResource EnabledIconBrush}" />
+                                </ic:DataTriggerBehavior>
+                            </i:Interaction.Behaviors>
+                        </fluent:SymbolIcon>
                         <Button.RenderTransform>
                             <RotateTransform Angle="-90" />
                         </Button.RenderTransform>

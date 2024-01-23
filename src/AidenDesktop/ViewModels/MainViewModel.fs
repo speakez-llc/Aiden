@@ -95,6 +95,7 @@ module MainViewModule =
             ShowChatBadge: bool
             SelectedNavItem: NavItem
             NavigationList: NavItem list
+            FooterNavigationList: NavItem list
             IsDarkThemeEnabled: bool
         }
     
@@ -104,6 +105,8 @@ module MainViewModule =
     | SelectedNavItemChanged of NavItem
     | IsDarkThemeEnabled of bool
     | ToggleTheme of bool
+    | ClearChatCommand
+    | ClearChatBadge
 
     let init() = 
         { 
@@ -113,11 +116,14 @@ module MainViewModule =
             SelectedNavItem = NavItem("Home", FluentIcons.Common.Symbol.Home)
             NavigationList = [ 
                 NavItem("Home", FluentIcons.Common.Symbol.Home)
-                NavItem("Timeline", FluentIcons.Common.Symbol.ChartMultiple)
-                NavItem("Map View", FluentIcons.Common.Symbol.Globe, 2)
-                NavItem("Zoom View", FluentIcons.Common.Symbol.SearchSquare)
+                NavItem("Timeline", FluentIcons.Common.Symbol.ArrowTrendingLines, 2)
+                NavItem("Map View", FluentIcons.Common.Symbol.Globe)
+                NavItem("Zoom View", FluentIcons.Common.Symbol.ZoomIn)
                 NavItem("Load Files", FluentIcons.Common.Symbol.DocumentArrowRight)
                 NavItem("About", FluentIcons.Common.Symbol.BookInformation)
+            ]
+            FooterNavigationList = [ 
+                NavItem("Settings", FluentIcons.Common.Symbol.Settings)
             ]
             IsDarkThemeEnabled = true
         }
@@ -132,6 +138,8 @@ module MainViewModule =
                 { model with ChatOpen = b; ChatAlertCount = 0; ShowChatBadge = false }
             else
                 { model with ChatOpen = b }
+        | ClearChatBadge ->
+            { model with ChatAlertCount = 0; ShowChatBadge = false }
         | SetChatAlertCount count ->
             // Set badge as active
             { model with ChatAlertCount = count }
@@ -139,10 +147,11 @@ module MainViewModule =
             match item.Name with
             | "Home" -> app.Dispatch (SetView HomeView)
             | "Timeline" -> app.Dispatch (SetView ChartView)
-            | "Map View" -> app.Dispatch (SetView DoughnutView)
+            | "Map View" -> app.Dispatch (SetView GeoMapView)
             | "Zoom View" -> app.Dispatch (SetView ZoomView)
             | "Load Files" -> app.Dispatch (SetView FilePickerView)
             | "About" -> app.Dispatch (SetView AboutView)
+            | "Settings" -> app.Dispatch (SetView SettingsView)
             | _ -> ()            
             { model with SelectedNavItem = item }
         | ToggleTheme t ->
@@ -174,7 +183,15 @@ type MainViewModel(root: CompositionRoot) as self =
         else
             Application.Current.RequestedThemeVariant <- ThemeVariant.Light
 
-    // Other code...
+    member this.ClearChatCommand() =
+        let chatView = this.ChatView :> StyledElement
+        let chatVM = chatView.DataContext :?> ChatViewModel
+        for item: NavItem in this.NavigationList do
+                    item.SetBadgeValue(0)
+        this.ChatAlertCount <- 0
+        local.Dispatch ClearChatBadge
+        chatVM.ClearChat()
+        
 
     member self.ChatOpen
         with get() = self.Bind(local, _.ChatOpen)
@@ -193,6 +210,8 @@ type MainViewModel(root: CompositionRoot) as self =
 
     member self.NavigationList = self.Bind(local, _.NavigationList)
     
+    member self.FooterNavigationList = self.Bind(local, _.FooterNavigationList)
+    
     member self.createIcon(iconKey: FluentIcons.Common.Symbol) =
         let fontIcon = SymbolIcon()
         fontIcon.Symbol <- iconKey
@@ -202,13 +221,14 @@ type MainViewModel(root: CompositionRoot) as self =
     member self.ContentView =
         self.BindOnChanged (app, _.View, fun m ->
             match m.View with
-            | DoughnutView -> root.GetView<DoughnutViewModel>()
+            | GeoMapView -> root.GetView<GeoMapViewModel>()
             | ChartView -> root.GetView<TimelineViewModel>()
             | FilePickerView -> root.GetView<FilePickerViewModel>()
             | DashboardView -> root.GetView<DashboardViewModel>()
             | ZoomView -> root.GetView<ZoomViewModel>()
             | AboutView -> root.GetView<AboutViewModel>()
             | HomeView -> root.GetView<HomeViewModel>()
+            | SettingsView -> root.GetView<SettingsViewModel>()
         )
 
     static member DesignVM = new MainViewModel(Design.stub)

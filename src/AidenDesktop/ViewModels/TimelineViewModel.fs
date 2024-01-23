@@ -242,6 +242,7 @@ module Chart =
         let events =
             fetchEventsAsync()
             |> Async.RunSynchronously
+            //|> SourceList.createFrom
             |> ObservableCollection<_>
 
         {
@@ -318,7 +319,7 @@ module Chart =
     let subscriptions (model: Model) : Sub<Msg> =
         let autoUpdateSub (dispatch: Msg -> unit) = 
             Observable
-                .Interval(TimeSpan.FromMilliseconds(250))
+                .Interval(TimeSpan.FromMilliseconds(500))
                 .Subscribe(fun _ ->
                     dispatch UpdateSeries
                     dispatch UpdateDataGrid

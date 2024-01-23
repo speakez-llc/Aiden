@@ -22,10 +22,11 @@ type AppCompositionRoot() =
             VM.Key<CounterViewModel>(), View.Singleton<CounterView>()
             VM.Key<AboutViewModel>(), View.Singleton<AboutView>()
             VM.Key<TimelineViewModel>(), View.Transient<TimelineView>()
-            VM.Key<DoughnutViewModel>(), View.Transient<DoughnutView>()
+            VM.Key<GeoMapViewModel>(), View.Transient<GeoMapView>()
             VM.Key<ZoomViewModel>(), View.Transient<ZoomView>()
             VM.Key<FilePickerViewModel>(), View.Singleton<FilePickerView>()
             VM.Key<DashboardViewModel>(), View.Transient<DashboardView>()
             VM.Key<HomeViewModel>(), View.Singleton<HomeView>()
+            VM.Key<SettingsViewModel>(), View.Transient<SettingsView>()
         ]
         

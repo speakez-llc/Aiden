@@ -14,6 +14,7 @@
         <Compile Include="Models\BaseTypes.fs" />
         <Compile Include="Converters\SeriesBoxConverters.fs" />
         <Compile Include="Converters\BooleanNegationConverter.fs" />
+        <Compile Include="Converters\StringNotEmptyConverter.fs" />
         <Compile Include="Controls\SeriesBox.axaml.fs" />
         <Compile Include="Controls\EZPie.axaml.fs"/>
         <Compile Include="Controls\EZGeo.axaml.fs"/>
@@ -23,22 +24,24 @@
 
     <ItemGroup>
         <Compile Include="ViewModels\App.fs" />
+        <Compile Include="ViewModels\SettingsViewModel.fs" />
         <Compile Include="ViewModels\ChatViewModel.fs" />
         <Compile Include="ViewModels\AboutViewModel.fs" />
         <Compile Include="ViewModels\CounterViewModel.fs" />
         <Compile Include="ViewModels\TimelineViewModel.fs" />
-        <Compile Include="ViewModels\DoughnutViewModel.fs" />
+        <Compile Include="ViewModels\GeoMapViewModel.fs" />
         <Compile Include="ViewModels\ZoomViewModel.fs" />
         <Compile Include="ViewModels\HomeViewModel.fs" />
         <Compile Include="ViewModels\FilePickerViewModel.fs" />
         <Compile Include="ViewModels\DashboardViewModel.fs" />
         <Compile Include="ViewModels\MainViewModel.fs" />
         <Compile Include="Views\AboutView.axaml.fs" />
+        <Compile Include="Views\SettingsView.axaml.fs" />
         <Compile Include="Views\HomeView.axaml.fs" />
         <Compile Include="Views\ZoomView.axaml.fs" />
         <Compile Include="Views\ChatView.axaml.fs" />
         <Compile Include="Views\TimelineView.axaml.fs" />
-        <Compile Include="Views\DoughnutView.axaml.fs" />
+        <Compile Include="Views\GeoMapView.axaml.fs" />
         <Compile Include="Views\CounterView.axaml.fs" />
         <Compile Include="Views\FilePickerView.axaml.fs" /> 
         <Compile Include="Views\DashboardView.axaml.fs" />       
@@ -56,6 +59,8 @@
     <ItemGroup>
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.6" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.6" />
+        <PackageReference Include="Avalonia.Xaml.Interactions" Version="11.0.6" />
+        <PackageReference Include="Avalonia.Xaml.Interactions.Reactive" Version="11.0.6" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
         <PackageReference Include="Avalonia.Desktop" Version="11.0.6" />
         <PackageReference Include="Avalonia.Controls.TreeDataGrid" Version="11.0.2" />
