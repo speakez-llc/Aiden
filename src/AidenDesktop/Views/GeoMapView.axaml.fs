@@ -18,15 +18,15 @@ type GeoMapView () as this =
                     printfn "Initializing DoughnutView"
                     this.InitializeComponent()
                     let geoMap = this.FindControl<GeoMap>("GeoMap")
-                    let handleGeoMapDetachedFromVisualTree (dispatch: Doughnut.Msg -> unit) (sender: Object) (args: VisualTreeAttachmentEventArgs) =
+                    let handleGeoMapDetachedFromVisualTree (dispatch: GeoMap.Msg -> unit) (sender: Object) (args: VisualTreeAttachmentEventArgs) =
                         if sender <> null && sender :? GeoMap then
-                            dispatch (Doughnut.SetFetchDataForCOOChartActive false)
-                    let handleGeoMapAttachedToVisualTree (dispatch: Doughnut.Msg -> unit) (sender: Object) (args: VisualTreeAttachmentEventArgs) =
+                            dispatch (GeoMap.SetFetchDataForCOOChartActive false)
+                    let handleGeoMapAttachedToVisualTree (dispatch: GeoMap.Msg -> unit) (sender: Object) (args: VisualTreeAttachmentEventArgs) =
                         if sender <> null && sender :? GeoMap then
                             // re-initialize the geo map
                             
-                            dispatch (Doughnut.SetFetchDataForCOOChartActive true)
-                    let attachEventHandlers (dispatch: Doughnut.Msg -> unit) (geoMap: GeoMap) =
+                            dispatch (GeoMap.SetFetchDataForCOOChartActive true)
+                    let attachEventHandlers (dispatch: GeoMap.Msg -> unit) (geoMap: GeoMap) =
                         printfn "Attaching event handlers to GeoMap"
                         geoMap.add_DetachedFromVisualTree(EventHandler<VisualTreeAttachmentEventArgs>(handleGeoMapDetachedFromVisualTree dispatch))
                         geoMap.add_AttachedToVisualTree(EventHandler<VisualTreeAttachmentEventArgs>(handleGeoMapAttachedToVisualTree dispatch))

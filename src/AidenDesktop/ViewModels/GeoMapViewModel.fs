@@ -216,7 +216,7 @@ module GeoMap =
             |> List.sortBy (fun data -> data.Count) |> List.rev
         { model with COO_GridData = ObservableCollection<_>(updatedGridData) }
         
-    let init() (model: Model) =
+    let init() : Model =
         async {
             let! vpnSeries = fetchPieDataAsync("vpn") 
             let! torSeries = fetchPieDataAsync("tor") 
@@ -258,9 +258,12 @@ module GeoMap =
                 IsFreezeChecked = false
             }
         } |> Async.RunSynchronously
+        
+    // this is a hack to get the model into functions without changing the signature
 
 
-    let update (msg: Msg)  (updateModel: Model -> Model) (model: Model) =
+    let update (msg: Msg) (model: Model) =
+
         match msg with
         | SetIsFreezeChecked isChecked ->
             { model with 
@@ -415,7 +418,7 @@ module GeoMap =
             // Replace the COO_MapSeries in the model with the new series
             match model.COO_MapSeries, model.currentColorSeries with
             | [| heatLandSeries |] as existingSeries, currentColorSeries ->
-                let updatedLandsAndHeatMaps = chartData |> List.map (fun (name, value) -> updateOrAddLand heatLandSeries (name, value))
+                let updatedLandsAndHeatMaps = chartData |> List.map (updateOrAddLand heatLandSeries)
                 let _, newHeatMaps = List.unzip updatedLandsAndHeatMaps
                 let updatedModel = { model with COO_MapSeries = existingSeries; currentColorSeries = newHeatMaps |> List.last }
                 updateCOOGridData chartData updatedModel
@@ -426,7 +429,7 @@ module GeoMap =
             updateCOOGridData chartData model
         | Terminate -> model
 
-    let subscriptions (updateModel: Model -> Model)  : Sub<Msg>  =
+    let subscriptions model : Sub<Msg>  =
         [
         if not model.IsFreezeChecked then
             [ nameof fetchDataForPXYChart ], fetchDataForPXYChart
@@ -459,16 +462,16 @@ type GeoMapViewModel() as this =
     
     
     member this.IsFreezeChecked 
-        with get () = this.Bind (local, (fun model -> _.IsFreezeChecked))
+        with get () = this.Bind (local, _.IsFreezeChecked)
         and set value = local.Dispatch (SetIsFreezeChecked value)
     member this.Dispatch with get() = dispatch
-    member this.Margin = this.Bind(local, (fun model -> _.Margin))
-    member this.VPN_Series = this.Bind(local, (fun model -> _.VPN_Series))
-    member this.TOR_Series =  this.Bind(local, (fun model -> _.TOR_Series))
-    member this.PXY_Series =  this.Bind(local, (fun model -> _.PXY_Series))
-    member this.COO_MapSeries =  this.Bind(local, (fun model -> _.COO_MapSeries))
-    member this.COO_PieSeries =  this.Bind(local, (fun model -> _.COO_PieSeries))
-    member this.COO_GridData = this.Bind(local, (fun model -> _.COO_GridData))
-    member this.MAL_Series =  this.Bind(local, (fun model -> _.MAL_Series))
+    member this.Margin = this.Bind(local, _.Margin)
+    member this.VPN_Series = this.Bind(local, _.VPN_Series)
+    member this.TOR_Series =  this.Bind(local, _.TOR_Series)
+    member this.PXY_Series =  this.Bind(local, _.PXY_Series)
+    member this.COO_MapSeries =  this.Bind(local, _.COO_MapSeries)
+    member this.COO_PieSeries =  this.Bind(local, _.COO_PieSeries)
+    member this.COO_GridData = this.Bind(local, _.COO_GridData)
+    member this.MAL_Series =  this.Bind(local, _.MAL_Series)
     member this.Ok() = app.Dispatch App.GoHome
     static member DesignVM = new GeoMapViewModel()
