@@ -138,7 +138,7 @@ module GeoMap =
             return results
         }
 
-    let fetchDataForPXYChart (dispatch: Msg -> unit) (model: Model) : Cmd<Msg> =
+    let fetchDataForPXYChart (dispatch: Msg -> unit) model : Sub<Msg> =
         let timer = new System.Timers.Timer(rnd.Next(2998, 3002))
         timer.Elapsed.Add(fun _ ->
             async {
@@ -147,8 +147,8 @@ module GeoMap =
             } |> Async.Start
         )
         timer.Start()
-        Cmd.none
-    let fetchDataForMALChart (dispatch: Msg -> unit) (model: Model)  : Cmd<Msg> =
+        Sub.none
+    let fetchDataForMALChart (dispatch: Msg -> unit) model : Sub<Msg> =
         let timer = new Timer(rnd.Next(2998, 3002)) 
 
         timer.Elapsed.Subscribe(fun _ -> 
@@ -159,8 +159,8 @@ module GeoMap =
         ) |> ignore
         //printfn $"{DateTime.Now} MAL Subscription started"
         timer.Start()
-        Cmd.none
-    let fetchDataForCOOChart (dispatch: Msg -> unit) (model: Model) : Cmd<Msg>  =
+        Sub.none
+    let fetchDataForCOOChart (dispatch: Msg -> unit) model : Sub<Msg>  =
         let timer = new Timer(rnd.Next(2998, 3002)) 
 
         timer.Elapsed.Subscribe(fun _ ->
@@ -170,8 +170,8 @@ module GeoMap =
             } |> Async.Start
         ) |> ignore
         timer.Start()
-        Cmd.none
-    let fetchDataForVPNChart (dispatch: Msg -> unit) (model: Model) : Cmd<Msg>  =
+        Sub.none
+    let fetchDataForVPNChart (dispatch: Msg -> unit) model : Sub<Msg>  =
         let timer = new Timer(rnd.Next(2998, 3002)) 
         timer.Elapsed.Subscribe(fun _ -> 
             async {
@@ -181,8 +181,8 @@ module GeoMap =
         ) |> ignore
         //printfn $"{DateTime.Now} VPN Subscription started"
         timer.Start()
-        Cmd.none
-    let fetchDataForTORChart (dispatch: Msg -> unit) (model: Model) : Cmd<Msg>  =
+        Sub.none
+    let fetchDataForTORChart (dispatch: Msg -> unit) model : Sub<Msg>  =
         let timer = new Timer(rnd.Next(2998, 3002)) 
         timer.Elapsed.Subscribe(fun _ -> 
             async {
@@ -192,7 +192,7 @@ module GeoMap =
         ) |> ignore
         //printfn $"{DateTime.Now} TOR Subscription started"
         timer.Start()
-        Cmd.none
+        Sub.none
     let fetchPieDataAsync (dataType: string) (model: Model) =
         async {
             let! data = fetchDataAsync(dataType) model
@@ -212,6 +212,13 @@ module GeoMap =
             let updatedCardData = data |> List.map (fun (name, count) -> (name.ToUpper(), float count))
             return updatedCardData
         }
+        
+    let updateCOOGridData chartData model =
+        let updatedGridData =
+            chartData
+            |> List.map (fun (name: string, count) -> { Name = name.ToUpper(); Count = count })
+            |> List.sortBy (fun data -> data.Count) |> List.rev
+        { model with COO_GridData = ObservableCollection<_>(updatedGridData) }
         
     let init() (model: Model) =
         async {
@@ -257,7 +264,7 @@ module GeoMap =
         } |> Async.RunSynchronously
 
 
-    let rec update (msg: Msg) (modelUpdate: Model -> Model) (model: Model)  =
+    let rec update (msg: Msg) model =
         match msg with
         | SetIsFreezeChecked isChecked ->
             { model with 
@@ -415,19 +422,15 @@ module GeoMap =
                 let updatedLandsAndHeatMaps = chartData |> List.map (fun (name, value) -> updateOrAddLand heatLandSeries (name, value))
                 let _, newHeatMaps = List.unzip updatedLandsAndHeatMaps
                 let updatedModel = { model with COO_MapSeries = existingSeries; currentColorSeries = newHeatMaps |> List.last }
-                update (UpdateCOOGridData chartData) updatedModel
+                updateCOOGridData chartData updatedModel
             | _ ->
                 // Handle case where COO_MapSeries is not initialized or in an unexpected state
                 model
         | UpdateCOOGridData chartData ->
-            let updatedGridData = 
-                chartData 
-                |> List.map (fun (name, count) -> { Name = name.ToUpper(); Count = count })
-                |> List.sortBy (fun data -> data.Count) |> List.rev
-            { model with COO_GridData = ObservableCollection<_>(updatedGridData) }
+            updateCOOGridData chartData model
         | Terminate -> model
 
-    let subscriptions (model: Model) : Sub<Msg> =
+    let subscriptions model : Sub<Msg> =
         Sub.batch [
             if not model.IsFreezeChecked then
                 Sub.batch [
