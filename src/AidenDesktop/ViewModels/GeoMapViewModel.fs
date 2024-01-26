@@ -94,17 +94,9 @@ module GeoMap =
         availableColorSeries[index]
         
         
-    let andClauseBuilder (model: Model option) =
+    let andClauseBuilder (model: Model) =
         printfn $"{DateTime.Now} Building AND Clauses"
-        let vpnFilter, torFilter, pxyFilter, cooFilter, malFilter = 
-            match model with
-            | Some m -> 
-                m.VPN_Filter, m.TOR_Filter, m.PXY_Filter, m.COO_Filter, m.MAL_Filter
-            | None -> 
-                initPieFilter, initPieFilter, initPieFilter, initCOOFIlter, initMalFilter
-
-        let allFilters = [("vpn", vpnFilter); ("tor", torFilter); ("proxy", pxyFilter); ("cc", cooFilter); ("malware", malFilter)]
-
+        let allFilters = [("vpn", model.VPN_Filter); ("tor", model.TOR_Filter); ("proxy", model.PXY_Filter); ("cc", model.COO_Filter); ("malware", model.MAL_Filter)]
         // For each filter list, create a string that represents the AND clause for that filter
         let andClauses = allFilters |> List.map (fun (column, filter) ->
             sprintf "AND %s IN ('%s')" column (String.Join("', '", filter))
@@ -113,16 +105,15 @@ module GeoMap =
         // Join all the AND clause strings with the AND operator
         String.Join(" ", andClauses)
         
-    let fetchDataAsync(column: string) =
+    let fetchDataAsync(column: string) model =
         printfn $"{DateTime.Now} Fetching Data for {column}"
         async {
             // Connect to the database and execute the query
             use connection = new NpgsqlConnection(connectionString)
             do! connection.OpenAsync() |> Async.AwaitTask
             printfn $"{DateTime.Now} Connected to Database"
-            printfn $"{DateTime.Now} Building Query for {column}"
             // Get the AND clauses from the model
-            let andClauses = andClauseBuilder
+            let andClauses = andClauseBuilder model
             
             // Construct the query string with the column name
             let query =
@@ -146,73 +137,73 @@ module GeoMap =
             return results
         }
 
-    let fetchDataForPXYChart : Subscribe<Msg> = fun dispatch ->
+    let fetchDataForPXYChart model : Subscribe<Msg> = fun dispatch ->
         let timer = new Timer(rnd.Next(2998, 3002))
         timer.Elapsed.Add(fun _ ->
             async {
-                let! fetchedData = fetchDataAsync("proxy")
+                let! fetchedData = fetchDataAsync("proxy") model
                 dispatch (UpdatePXYChartData fetchedData)
             } |> Async.Start
         )
         timer.Start()
         { new IDisposable with member _.Dispose() = timer.Dispose() }
 
-    let fetchDataForMALChart : Subscribe<Msg> = fun dispatch ->
+    let fetchDataForMALChart model : Subscribe<Msg> = fun dispatch ->
         let timer = new Timer(rnd.Next(2998, 3002))
         timer.Elapsed.Add(fun _ ->
             async {
-                let! fetchedData = fetchDataAsync("malware")
-                dispatch (UpdatePXYChartData fetchedData)
+                let! fetchedData = fetchDataAsync("malware") model
+                dispatch (UpdateMALChartData fetchedData)
             } |> Async.Start
         )
         timer.Start()
         { new IDisposable with member _.Dispose() = timer.Dispose() }
-    let fetchDataForCOOChart  : Subscribe<Msg> = fun dispatch ->
+    let fetchDataForCOOChart model : Subscribe<Msg> = fun dispatch ->
         let timer = new Timer(rnd.Next(2998, 3002))
         timer.Elapsed.Add(fun _ ->
             async {
-                let! fetchedData = fetchDataAsync("cc")
-                dispatch (UpdatePXYChartData fetchedData)
+                let! fetchedData = fetchDataAsync("cc") model
+                dispatch (UpdateCOOChartData fetchedData)
             } |> Async.Start
         )
         timer.Start()
         { new IDisposable with member _.Dispose() = timer.Dispose() }
-    let fetchDataForVPNChart  : Subscribe<Msg> = fun dispatch ->
+    let fetchDataForVPNChart model : Subscribe<Msg> = fun dispatch ->
         let timer = new Timer(rnd.Next(2998, 3002))
         timer.Elapsed.Add(fun _ ->
             async {
-                let! fetchedData = fetchDataAsync("vpn")
-                dispatch (UpdatePXYChartData fetchedData)
+                let! fetchedData = fetchDataAsync("vpn") model
+                dispatch (UpdateVPNChartData fetchedData)
             } |> Async.Start
         )
         timer.Start()
         { new IDisposable with member _.Dispose() = timer.Dispose() }
-    let fetchDataForTORChart  : Subscribe<Msg> = fun dispatch ->
+    let fetchDataForTORChart model : Subscribe<Msg> = fun dispatch ->
         let timer = new Timer(rnd.Next(2998, 3002))
         timer.Elapsed.Add(fun _ ->
             async {
-                let! fetchedData = fetchDataAsync("tor")
-                dispatch (UpdatePXYChartData fetchedData)
+                let! fetchedData = fetchDataAsync("tor") model
+                dispatch (UpdateTORChartData fetchedData)
             } |> Async.Start
         )
         timer.Start()
         { new IDisposable with member _.Dispose() = timer.Dispose() }
-    let fetchPieDataAsync (dataType: string) =
+    let fetchPieDataAsync model (dataType: string) =
         async {
-            let! data = fetchDataAsync(dataType) 
+            let! data = fetchDataAsync(dataType) model
             let series = data |> List.map (fun (name, value) -> PieSeries<int>(Values = ObservableCollection<_>([| value |]), InnerRadius = 40.0, Name = name) :> ISeries)
             return ObservableCollection<ISeries>(series)
         }
-    let fetchCOOGridDataAsync (dataType: string) =
+    let fetchCOOGridDataAsync model (dataType: string) =
         async {
-            let! data = fetchDataAsync(dataType)
+            let! data = fetchDataAsync(dataType) model
             let updatedGridData = data |> List.map (fun (name, count) -> { Name = name.ToUpper(); Count = count }) |> List.sortBy (fun data -> data.Count) |> List.rev
             return ObservableCollection<_>(updatedGridData)
         }
         
-    let fetchMALCardDataAsync (dataType: string) =
+    let fetchMALCardDataAsync model (dataType: string) =
         async {
-            let! data = fetchDataAsync(dataType)
+            let! data = fetchDataAsync(dataType) model
             let updatedCardData = data |> List.map (fun (name, count) -> (name.ToUpper(), float count))
             return updatedCardData
         }
@@ -431,13 +422,12 @@ module GeoMap =
     let subscriptions model : Sub<Msg>  =
         [
         if not model.IsFreezeChecked then
-            [ nameof fetchDataForPXYChart ], fetchDataForPXYChart
-            [ nameof fetchDataForMALChart ], fetchDataForMALChart
-            [ nameof fetchDataForVPNChart ], fetchDataForVPNChart
-            [ nameof fetchDataForTORChart ], fetchDataForTORChart
-            [ nameof fetchDataForCOOChart ], fetchDataForCOOChart
+            [ nameof fetchDataForPXYChart ], fetchDataForPXYChart model
+            [ nameof fetchDataForMALChart ], fetchDataForMALChart model
+            [ nameof fetchDataForVPNChart ], fetchDataForVPNChart model
+            [ nameof fetchDataForTORChart ], fetchDataForTORChart model
             if model.IsFetchDataForCOOChartActive then
-                [ nameof fetchDataForCOOChart ], fetchDataForCOOChart
+                [ nameof fetchDataForCOOChart ], fetchDataForCOOChart model
         ]
         
 open GeoMap
