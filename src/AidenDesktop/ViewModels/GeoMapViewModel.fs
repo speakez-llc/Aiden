@@ -5,6 +5,7 @@ open System.IO
 open System.Collections.ObjectModel
 open System.Timers
 open System.Text.Json
+open AidenDesktop.Models
 open ReactiveElmish
 open ReactiveElmish.Avalonia
 open Elmish
@@ -68,7 +69,9 @@ module GeoMap =
         | SetIsFreezeChecked of bool
         | Terminate
      
-
+    let initPieFilter = [ "nord"; "foxyproxy"; "purevpn"; "surfshark"; "proton"; "BLANK" ]
+    let initMalFilter = [ "TRUE"; "FALSE"; "UNKNOWN" ]
+    let initCOOFIlter = [ "usa"; "can"; "ind"; "kor"; "egy"; "rus"; "gbr"; "ukr"; "idn"; "deu"; "UNKNOWN" ]
      
     let blueSeries = [|
         SKColor.Parse("#164B72").AsLvcColor(); // LightBlue
@@ -91,12 +94,14 @@ module GeoMap =
         availableColorSeries[index]
         
         
-    let andClauseBuilder (model: Model) =
-        let vpnFilter = model.VPN_Filter
-        let torFilter = model.TOR_Filter
-        let pxyFilter = model.PXY_Filter
-        let cooFilter = model.COO_Filter
-        let malFilter = model.MAL_Filter
+    let andClauseBuilder (model: Model option) =
+        printfn $"{DateTime.Now} Building AND Clauses"
+        let vpnFilter, torFilter, pxyFilter, cooFilter, malFilter = 
+            match model with
+            | Some m -> 
+                m.VPN_Filter, m.TOR_Filter, m.PXY_Filter, m.COO_Filter, m.MAL_Filter
+            | None -> 
+                initPieFilter, initPieFilter, initPieFilter, initCOOFIlter, initMalFilter
 
         let allFilters = [("vpn", vpnFilter); ("tor", torFilter); ("proxy", pxyFilter); ("cc", cooFilter); ("malware", malFilter)]
 
@@ -104,15 +109,18 @@ module GeoMap =
         let andClauses = allFilters |> List.map (fun (column, filter) ->
             sprintf "AND %s IN ('%s')" column (String.Join("', '", filter))
         )
+        printfn $"{DateTime.Now} AND Clauses: %s{String.Join(' ', andClauses)}"
         // Join all the AND clause strings with the AND operator
         String.Join(" ", andClauses)
         
     let fetchDataAsync(column: string) =
+        printfn $"{DateTime.Now} Fetching Data for {column}"
         async {
             // Connect to the database and execute the query
             use connection = new NpgsqlConnection(connectionString)
             do! connection.OpenAsync() |> Async.AwaitTask
-            
+            printfn $"{DateTime.Now} Connected to Database"
+            printfn $"{DateTime.Now} Building Query for {column}"
             // Get the AND clauses from the model
             let andClauses = andClauseBuilder
             
@@ -217,22 +225,13 @@ module GeoMap =
         { model with COO_GridData = ObservableCollection<_>(updatedGridData) }
         
     let init() : Model =
-        async {
-            let! vpnSeries = fetchPieDataAsync("vpn") 
-            let! torSeries = fetchPieDataAsync("tor") 
-            let! pxySeries = fetchPieDataAsync("proxy") 
-            let! malSeries = fetchPieDataAsync("malware") 
-            let! malCardData = fetchMALCardDataAsync("malware") 
-            let! cooSeries = fetchPieDataAsync("cc") 
-            let! cooGridData = fetchCOOGridDataAsync("cc") 
-
-            return {
-                VPN_Series = vpnSeries
-                VPN_Filter = [ "nord"; "foxyproxy"; "purevpn"; "surfshark"; "proton" ] 
-                TOR_Series = torSeries
-                TOR_Filter = [ "nord"; "foxyproxy"; "purevpn"; "surfshark"; "proton" ]
-                PXY_Series = pxySeries
-                PXY_Filter = [ "nord"; "foxyproxy"; "purevpn"; "surfshark"; "proton" ]
+            {
+                VPN_Series = ObservableCollection<ISeries>()
+                VPN_Filter = [ "nord"; "foxyproxy"; "purevpn"; "surfshark"; "proton"; "BLANK" ] 
+                TOR_Series = ObservableCollection<ISeries>()
+                TOR_Filter = [ "nord"; "foxyproxy"; "purevpn"; "surfshark"; "proton"; "BLANK"  ]
+                PXY_Series = ObservableCollection<ISeries>()
+                PXY_Filter = [ "nord"; "foxyproxy"; "purevpn"; "surfshark"; "proton"; "BLANK"  ]
                 COO_MapSeries = [| HeatLandSeries(HeatMap = blueSeries, Lands = [|
                             HeatLand(Name = "usa", Value = 47.0) :> IWeigthedMapLand
                             HeatLand(Name = "can", Value = 22.0) :> IWeigthedMapLand
@@ -245,11 +244,11 @@ module GeoMap =
                             HeatLand(Name = "idn", Value = 5.0) :> IWeigthedMapLand
                             HeatLand(Name = "deu", Value = 2.0) :> IWeigthedMapLand
                         |]) |]
-                COO_PieSeries = cooSeries
-                COO_GridData = cooGridData
-                COO_Filter = [ "usa"; "can"; "ind"; "kor"; "egy"; "rus"; "gbr"; "ukr"; "idn"; "deu" ]
-                MAL_CardData = malCardData 
-                MAL_Series = malSeries
+                COO_PieSeries = ObservableCollection<ISeries>()
+                COO_GridData = ObservableCollection<CountryData>()
+                COO_Filter = [ "usa"; "can"; "ind"; "kor"; "egy"; "rus"; "gbr"; "ukr"; "idn"; "deu"; "UNKNOWN" ]
+                MAL_CardData = []
+                MAL_Series = ObservableCollection<ISeries>()
                 MAL_Filter = [ "TRUE"; "FALSE"; "UNKNOWN" ]
                 IsFrozen = false
                 Margin = LiveChartsCore.Measure.Margin(50f, 50f, 50f, 50f)
@@ -257,7 +256,7 @@ module GeoMap =
                 IsFetchDataForCOOChartActive = true
                 IsFreezeChecked = false
             }
-        } |> Async.RunSynchronously
+
         
     // this is a hack to get the model into functions without changing the signature
 
