@@ -138,61 +138,64 @@ module GeoMap =
             return results
         }
 
-    let fetchDataForPXYChart (dispatch: Msg -> unit) model : Sub<Msg> =
-        let timer = new System.Timers.Timer(rnd.Next(2998, 3002))
-        timer.Elapsed.Add(fun _ ->
-            async {
-                let! fetchedData = fetchDataAsync("proxy") model
-                dispatch (UpdatePXYChartData fetchedData)
-            } |> Async.Start
-        )
-        timer.Start()
-        Sub.none
-    let fetchDataForMALChart (dispatch: Msg -> unit) model : Sub<Msg> =
-        let timer = new Timer(rnd.Next(2998, 3002)) 
-
-        timer.Elapsed.Subscribe(fun _ -> 
-            async {
-                let! fetchedData = fetchDataAsync("malware") model
-                dispatch (UpdateMALChartData fetchedData)
-            } |> Async.Start
-        ) |> ignore
-        //printfn $"{DateTime.Now} MAL Subscription started"
-        timer.Start()
-        Sub.none
-    let fetchDataForCOOChart (dispatch: Msg -> unit) model : Sub<Msg>  =
-        let timer = new Timer(rnd.Next(2998, 3002)) 
-
-        timer.Elapsed.Subscribe(fun _ ->
-            async {
-                let! fetchedData = fetchDataAsync("cc") model
-                dispatch (UpdateCOOChartData fetchedData)
-            } |> Async.Start
-        ) |> ignore
-        timer.Start()
-        Sub.none
-    let fetchDataForVPNChart (dispatch: Msg -> unit) model : Sub<Msg>  =
-        let timer = new Timer(rnd.Next(2998, 3002)) 
-        timer.Elapsed.Subscribe(fun _ -> 
-            async {
-                let! fetchedData = fetchDataAsync("vpn") model
-                dispatch (UpdateVPNChartData fetchedData)
-            } |> Async.Start
-        ) |> ignore
-        //printfn $"{DateTime.Now} VPN Subscription started"
-        timer.Start()
-        Sub.none
-    let fetchDataForTORChart (dispatch: Msg -> unit) model : Sub<Msg>  =
-        let timer = new Timer(rnd.Next(2998, 3002)) 
-        timer.Elapsed.Subscribe(fun _ -> 
-            async {
-                let! fetchedData = fetchDataAsync("tor") model
-                dispatch (UpdateTORChartData fetchedData)
-            } |> Async.Start
-        ) |> ignore
-        //printfn $"{DateTime.Now} TOR Subscription started"
-        timer.Start()
-        Sub.none
+    let fetchDataForPXYChart model : unit -> Cmd<Msg> =
+        fun () ->
+            let timer = new System.Timers.Timer(rnd.Next(2998, 3002))
+            timer.Elapsed.Add(fun _ ->
+                async {
+                    let! fetchedData = fetchDataAsync("proxy") model
+                    Cmd.ofMsg (UpdatePXYChartData fetchedData) |> ignore
+                } |> Async.Start
+            )
+            timer.Start()
+            Cmd.none
+    let fetchDataForMALChart model : unit -> Cmd<Msg> =
+        fun () ->
+            let timer = new Timer(rnd.Next(2998, 3002)) 
+            timer.Elapsed.Subscribe(fun _ -> 
+                async {
+                    let! fetchedData = fetchDataAsync("malware") model
+                    Cmd.ofMsg (UpdateMALChartData fetchedData) |> ignore
+                } |> Async.Start
+            ) |> ignore
+            //printfn $"{DateTime.Now} MAL Subscription started"
+            timer.Start()
+            Cmd.none
+    let fetchDataForCOOChart model : unit -> Cmd<Msg>  =
+        fun () ->
+            let timer = new Timer(rnd.Next(2998, 3002)) 
+            timer.Elapsed.Subscribe(fun _ ->
+                async {
+                    let! fetchedData = fetchDataAsync("cc") model
+                    Cmd.ofMsg (UpdateCOOChartData fetchedData) |> ignore
+                } |> Async.Start
+            ) |> ignore
+            timer.Start()
+            Cmd.none
+    let fetchDataForVPNChart model : unit -> Cmd<Msg>  =
+        fun () -> 
+            let timer = new Timer(rnd.Next(2998, 3002)) 
+            timer.Elapsed.Subscribe(fun _ -> 
+                async {
+                    let! fetchedData = fetchDataAsync("vpn") model
+                    Cmd.ofMsg (UpdateVPNChartData fetchedData) |> ignore
+                } |> Async.Start
+            ) |> ignore
+            //printfn $"{DateTime.Now} VPN Subscription started"
+            timer.Start()
+            Cmd.none
+    let fetchDataForTORChart model : unit -> Cmd<Msg>  =
+        fun () ->
+            let timer = new Timer(rnd.Next(2998, 3002)) 
+            timer.Elapsed.Subscribe(fun _ -> 
+                async {
+                    let! fetchedData = fetchDataAsync("tor") model
+                    Cmd.ofMsg (UpdateTORChartData fetchedData) |> ignore
+                } |> Async.Start
+            ) |> ignore
+            //printfn $"{DateTime.Now} TOR Subscription started"
+            timer.Start()
+            Cmd.none
     let fetchPieDataAsync (dataType: string) (model: Model) =
         async {
             let! data = fetchDataAsync(dataType) model
@@ -430,22 +433,19 @@ module GeoMap =
             updateCOOGridData chartData model
         | Terminate -> model
 
-    let subscriptions model : Sub<Msg> =
-        Sub.batch [
-            if not model.IsFreezeChecked then
-                Sub.batch [
-                    fetchDataForMALChart model
-                    fetchDataForVPNChart model
-                    fetchDataForPXYChart model
-                    fetchDataForTORChart model
-                    if model.IsFetchDataForCOOChartActive then
-                        fetchDataForCOOChart model
-                    else
-                        Sub.none
-                ]
-            else
-                Sub.none
-        ]
+    let subscriptions (model: Model) : Cmd<Msg> =
+        if not model.IsFreezeChecked then
+            Cmd.batch [
+                fetchDataForPXYChart model ()
+                fetchDataForMALChart model ()
+                fetchDataForVPNChart model ()
+                fetchDataForTORChart model ()
+                fetchDataForCOOChart model ()
+                if model.IsFetchDataForCOOChartActive then
+                    fetchDataForCOOChart model ()
+            ]
+        else
+            Cmd.none
         
 open GeoMap
 
@@ -468,16 +468,16 @@ type GeoMapViewModel() as this =
     
     
     member this.IsFreezeChecked 
-        with get () = this.Bind (local, _.IsFreezeChecked)
+        with get () = this.Bind (local, (fun model -> _.IsFreezeChecked))
         and set value = local.Dispatch (SetIsFreezeChecked value)
     member this.Dispatch with get() = dispatch
-    member this.Margin = this.Bind(local, _.Margin)
-    member this.VPN_Series = this.Bind(local, _.VPN_Series)
-    member this.TOR_Series =  this.Bind(local, _.TOR_Series)
-    member this.PXY_Series =  this.Bind(local, _.PXY_Series)
-    member this.COO_MapSeries =  this.Bind(local, _.COO_MapSeries)
-    member this.COO_PieSeries =  this.Bind(local, _.COO_PieSeries)
-    member this.COO_GridData = this.Bind(local, _.COO_GridData)
-    member this.MAL_Series =  this.Bind(local, _.MAL_Series)
+    member this.Margin = this.Bind(local, (fun model -> _.Margin))
+    member this.VPN_Series = this.Bind(local, (fun model -> _.VPN_Series))
+    member this.TOR_Series =  this.Bind(local, (fun model -> _.TOR_Series))
+    member this.PXY_Series =  this.Bind(local, (fun model -> _.PXY_Series))
+    member this.COO_MapSeries =  this.Bind(local, (fun model -> _.COO_MapSeries))
+    member this.COO_PieSeries =  this.Bind(local, (fun model -> _.COO_PieSeries))
+    member this.COO_GridData = this.Bind(local, (fun model -> _.COO_GridData))
+    member this.MAL_Series =  this.Bind(local, (fun model -> _.MAL_Series))
     member this.Ok() = app.Dispatch App.GoHome
     static member DesignVM = new GeoMapViewModel()
