@@ -319,7 +319,7 @@ module Chart =
     let subscriptions (model: Model) : Sub<Msg> =
         let autoUpdateSub (dispatch: Msg -> unit) = 
             Observable
-                .Interval(TimeSpan.FromSeconds(1))
+                .Interval(TimeSpan.FromMilliseconds(500))
                 .Subscribe(fun _ ->
                     dispatch UpdateSeries
                     dispatch UpdateDataGrid
