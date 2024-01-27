@@ -87,16 +87,26 @@ module Dashboard =
         
         series
 
+    let updateFilterFromData (filter: FilterItem List) (data: ObservableCollection<SeriesData>) =
+        // If the given data contains items not present in the filter, add them with show = true
+        let namesInData = data |> Seq.map (fun sd -> sd.Name) |> Set.ofSeq
+        let itemsToAdd = 
+            data
+            |> Seq.filter (fun sd -> not (Set.contains sd.Name namesInData))
+            |> Seq.map (fun sd -> { Name = sd.Name; Show = true })
+            |> Seq.toList
+        filter
+        |> List.append itemsToAdd
+        
+
     let updateSeriesFilter (seriesFilter : FilterItem List) (args : FilterUpdatedCommandArgs) =
-        // replace the FilterItem in the given series with a new one, if required
+        // replace the FilterItem in the given series with a new one
         //printfn $"UpdateSeriesFilter - Series: {args.SeriesName} - Filter: {args.FilterName} - Status: {args.FilterStatus}"
         seriesFilter 
         |> List.map (fun item -> 
             if item.Name = args.FilterName then { item with Show = args.FilterStatus } 
             else item)
         
-        
-
     let updateFilter (model : Model) (args : FilterUpdatedCommandArgs) =
         // replace the FilterItem in the given series with a new one, if required
         match args.SeriesName with
@@ -231,7 +241,7 @@ module Dashboard =
                 panel.FilterList <- model.MALFilter
             | _ -> ()
 
-        model //{ model with Panels = model.Panels }
+        model
     
     let init() =
         async {
@@ -294,23 +304,28 @@ module Dashboard =
         | UpdateVPNSeries data ->
             // update VPNSeries with new data
             let series = updateSeries model.VPNSeries data
-            { model with VPNSeries = series }, Cmd.none
+            let filter = updateFilterFromData model.VPNFilter series
+            { model with VPNSeries = series; VPNFilter = filter }, Cmd.none
         | UpdateTORSeries data ->
             // update TORSeries with new data
             let series = updateSeries model.TORSeries data
-            { model with TORSeries = series}, Cmd.none
+            let filter = updateFilterFromData model.TORFilter series
+            { model with TORSeries = series; TORFilter = filter }, Cmd.none
         | UpdatePRXSeries data ->
             // update PRXSeries with new data
             let series = updateSeries model.PRXSeries data
-            { model with PRXSeries = series}, Cmd.none
+            let filter = updateFilterFromData model.PRXFilter series
+            { model with PRXSeries = series; PRXFilter = filter }, Cmd.none
         | UpdateCOOSeries data ->
             // update COOSeries with new data
             let series = updateSeries model.COOSeries data
-            { model with COOSeries = series}, Cmd.none
+            let filter = updateFilterFromData model.COOFilter series
+            { model with COOSeries = series; COOFilter = filter }, Cmd.none
         | UpdateMALSeries data ->
             // update MALSeries with new data
             let series = updateSeries model.MALSeries data
-            { model with MALSeries = series}, Cmd.none
+            let filter = updateFilterFromData model.MALFilter series
+            { model with MALSeries = series; MALFilter = filter }, Cmd.none
         | FilterUpdated args ->
             // update given series with new filter item status
             updateFilter model args, Cmd.none
