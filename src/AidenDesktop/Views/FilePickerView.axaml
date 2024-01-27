@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
 			 xmlns:vm="using:AidenDesktop.ViewModels"
+			 xmlns:controls="using:AidenDesktop.Controls"
+			 xmlns:go="using:Northwoods.Go.Avalonia"
 			 Design.DataContext="{Binding Source={x:Static vm:FilePickerViewModel.DesignVM}}"
 			 x:DataType="vm:FilePickerViewModel"
              x:Class="AidenDesktop.Views.FilePickerView">
@@ -14,5 +16,21 @@
 			<Button Content="..." Command="{Binding PickFile}"  />
 		</StackPanel>
 		<Button Content="Ok" Command="{Binding Ok}" HorizontalAlignment="Center" />
+
+		<!-- <Canvas Name="DragZone" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="blue">
+			<controls:DragPanel DragZone="{Binding #DragZone}" 
+								Canvas.Left="100" Canvas.Top="100" 
+								Width="200" Height="200" >
+				<controls:DragPanel.Content>
+					<TextBlock Text="Drag Me" />
+				</controls:DragPanel.Content>
+			</controls:DragPanel>
+		</Canvas> -->
+		<go:DiagramControl
+			Name="diagramControl"
+			Width="800" Height="600"
+			Margin="5"
+			BorderBrush="White" BorderThickness="1"
+			Background="LightGray" />
 	</StackPanel>
 </UserControl>

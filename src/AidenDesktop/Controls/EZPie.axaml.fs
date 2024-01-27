@@ -43,14 +43,14 @@ type EZPie() =
     
 
     member private this.NotifyPropertyChanged(propertyName : string) =
-        printfn $"EZPie NotifyPropertyChanged: {propertyName}"
+        //printfn $"EZPie NotifyPropertyChanged: {propertyName}"
         propertyChanged.Trigger(this, PropertyChangedEventArgs(propertyName))
 
     member this.Value
         with get() = this.GetValue(ValueProperty)
         and set(value) =
             this.SetValue(ValueProperty, value) |> ignore
-            printfn $"Setter: EZPie Value set {value}"
+            //printfn $"Setter: EZPie Value set {value}"
             this.NotifyPropertyChanged("Value")
             
     
@@ -64,7 +64,7 @@ type EZPie() =
         with get() = this.GetValue(SeriesListProperty)
         and set(value) =
             this.SetValue(SeriesListProperty, value) |> ignore
-            printfn "Setting Series List..."
+            //printfn "Setting Series List..."
             
     member this.ChartWidth
         with get() = this.GetValue(ChartWidthProperty)
@@ -123,12 +123,12 @@ type EZPie() =
                     targetCollection.[idx].Values <- [newItem.Count]
                 | _ ->
                     // TODO:  If it isn't there, add it??
-                    printfn $"EZPie:SyncObservables Replace -> index not found for {newItem.Name}"
+                    //printfn $"EZPie:SyncObservables Replace -> index not found for {newItem.Name}"
                     ()
             ()
         | NotifyCollectionChangedAction.Move ->
             // Handle move logic
-            printfn $"Move... {e.NewItems} {e.OldItems}"
+            //printfn $"Move... {e.NewItems} {e.OldItems}"
             // ... change indices??
             ()
         | NotifyCollectionChangedAction.Reset ->
@@ -157,9 +157,9 @@ type EZPie() =
         | "SeriesList" ->
             // This gets called once at initialization, but not when items in the collection change
             this.NotifyPropertyChanged("SeriesList")
-            let value = this.GetValue(SeriesListProperty)
+            (* let value = this.GetValue(SeriesListProperty)
             for item in value do
-                printfn $"EZ PropertyChanged: Item: {item.Name}: {item.Count}"
+                printfn $"EZ PropertyChanged: Item: {item.Name}: {item.Count}" *)
             // Initialize ISeries list
             _seriesValues.Clear()
             let series = this.SeriesList

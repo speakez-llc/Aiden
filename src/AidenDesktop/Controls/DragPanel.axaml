@@ -1,0 +1,42 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="https://github.com/projektanker/icons.avalonia"
+        mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650"
+        xmlns:controls="using:AidenDesktop.Controls"
+        x:CompileBindings="False">
+    
+    <Design.PreviewWith>
+        <controls:SeriesBox />
+    </Design.PreviewWith>
+
+    <Style Selector="FlyoutPresenter">
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+                <GradientStop Color="#12327a" Offset="0" />
+                <GradientStop Color="#dddddd" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="BorderBrush" Value="#ffffff" />
+    </Style>
+
+    <Style Selector="controls|DragPanel">
+        <Setter Property="Template">
+            <ControlTemplate>                
+                <Border CornerRadius="10" BorderThickness="4">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+                            <GradientStop Color="#12327a" Offset="0" />
+                            <GradientStop Color="#dddddd" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+
+                    <ContentPresenter Content="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

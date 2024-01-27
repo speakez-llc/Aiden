@@ -121,6 +121,7 @@ module MainViewModule =
                 NavItem("Zoom View", FluentIcons.Common.Symbol.ZoomIn)
                 NavItem("Load Files", FluentIcons.Common.Symbol.DocumentArrowRight)
                 NavItem("About", FluentIcons.Common.Symbol.BookInformation)
+                NavItem("Dashboard", FluentIcons.Common.Symbol.City)
             ]
             FooterNavigationList = [ 
                 NavItem("Settings", FluentIcons.Common.Symbol.Settings)
@@ -152,6 +153,7 @@ module MainViewModule =
             | "Load Files" -> app.Dispatch (SetView FilePickerView)
             | "About" -> app.Dispatch (SetView AboutView)
             | "Settings" -> app.Dispatch (SetView SettingsView)
+            | "Dashboard" -> app.Dispatch (SetView DashboardView)
             | _ -> ()            
             { model with SelectedNavItem = item }
         | ToggleTheme t ->

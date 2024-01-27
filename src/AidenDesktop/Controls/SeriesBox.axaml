@@ -26,7 +26,7 @@
     <Style Selector="controls|SeriesBox">
         <Setter Property="Template">
             <ControlTemplate>                
-                <Border CornerRadius="10" BorderThickness="4">
+                <!-- <Border CornerRadius="10" BorderThickness="4">
                     <Border.BorderBrush>
                         <ConicGradientBrush>
                             <GradientStop Color="#333333" Offset="0" />
@@ -39,7 +39,7 @@
                             <GradientStop Color="#dddddd" Offset="0" />
                             <GradientStop Color="#333333" Offset="1" />
                         </LinearGradientBrush>
-                    </Border.Background>
+                    </Border.Background> -->
                 <Grid >
                     
                     <Grid.RowDefinitions>
@@ -55,14 +55,14 @@
                             CornerRadius="5"
                             BorderThickness="1"
                             BorderBrush="Black">
-                        <Border.Background>
+                        <!-- <Border.Background>
                             <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
                                 <GradientStop Color="#12327a" Offset="0" />
                                 <GradientStop Color="#dddddd" Offset="1" />
                             </LinearGradientBrush>
-                        </Border.Background>
+                        </Border.Background> -->
                         
-                        <Grid>
+                        <Grid Name="SeriesBox">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
@@ -106,7 +106,9 @@
                             <Button i:Attached.Icon="fa fa-eye" Grid.Column="3" Foreground="#dddddd" Background="Transparent" Margin="2" Padding="2" FontSize="16" CornerRadius="7" />
                             <Button i:Attached.Icon="fa fa-list" Grid.Column="4" Foreground="#dddddd" Background="Transparent" Margin="2" Padding="2" FontSize="16" CornerRadius="7" >
                                 <Button.Flyout><Flyout>
-                                    <ListBox SelectionMode="Multiple,Toggle" ItemsSource="{Binding SeriesList, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <ListBox SelectionMode="Multiple,Toggle" 
+                                             Name="SeriesMaskListbox"
+                                             ItemsSource="{Binding SeriesFilter, RelativeSource={RelativeSource TemplatedParent}}">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding Name}" />
@@ -115,16 +117,21 @@
                                     </ListBox>
                                 </Flyout></Button.Flyout>
                             </Button>
-                            <Button i:Attached.Icon="fa fa-xmark" Grid.Column="5" Foreground="Red" Background="Transparent" Margin="2" Padding="2" FontSize="16" CornerRadius="7" />
+                            <Button i:Attached.Icon="fa fa-xmark" IsVisible="{Binding CanClose, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Grid.Column="5" Foreground="Red" Background="Transparent" 
+                                    Margin="2" Padding="2" FontSize="16" CornerRadius="7" />
                         </Grid>
                     </Border>
 
-                    <Viewbox Grid.Row="1" Grid.Column="0" >
+                    <Viewbox Grid.Row="1" Grid.Column="0" IsVisible="{Binding ShowPie, RelativeSource={RelativeSource TemplatedParent}}">
                         <controls:EZPie SeriesList="{Binding SeriesList, RelativeSource={RelativeSource TemplatedParent}}" />
+                    </Viewbox>
+                    <Viewbox Grid.Row="1" Grid.Column="0" IsVisible="{Binding ShowGeo, RelativeSource={RelativeSource TemplatedParent}}" >
+                        <controls:EZGeo SeriesList="{Binding SeriesList, RelativeSource={RelativeSource TemplatedParent}}" />
                     </Viewbox>
 
                 </Grid>
-                </Border>
+                <!-- </Border> -->
             </ControlTemplate>
         </Setter>
     </Style>

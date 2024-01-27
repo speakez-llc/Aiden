@@ -9,11 +9,9 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <StackPanel>
-
-                    <TextBlock Text="Greetings mortal" />
                     <lvc:GeoMap HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
-                                Height="400" 
+                                Height="300" Width="300"
                                 MaxWidth="750"
                                 MapProjection="Mercator"
                                 Series="{Binding ActualSeries, RelativeSource={RelativeSource TemplatedParent}}"

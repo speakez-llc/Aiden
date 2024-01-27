@@ -13,8 +13,8 @@
              x:Class="AidenDesktop.Views.DashboardView">
 
     <Grid Name="DragZone" >
-        <controls:EZGeo  Width="800" Height="600" />
-        <ItemsControl ItemsSource="{Binding Panels}">
+        <!-- <controls:EZGeo  Width="300" Height="300" SeriesList="{Binding COOSeries}" /> -->
+        <ItemsControl ItemsSource="{Binding Panels, Mode=TwoWay}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Canvas />
@@ -23,8 +23,8 @@
 
             <ItemsControl.Styles>
                 <Style Selector="ItemsControl > ContentPresenter">
-                    <Setter Property="Canvas.Left" Value="{Binding PosX}" />
-                    <Setter Property="Canvas.Top" Value="{Binding PosY}" />
+                    <Setter Property="Canvas.Left" Value="{Binding PosX, Mode=TwoWay}" />
+                    <Setter Property="Canvas.Top" Value="{Binding PosY, Mode=TwoWay}" />
                 </Style>
             </ItemsControl.Styles>
             
@@ -32,9 +32,12 @@
                 <DataTemplate>
                     <StackPanel>
                         <controls:SeriesBox SeriesName="{Binding SeriesName}"
-                                            SeriesList="{Binding SeriesList}" 
-                                            Width="{Binding Width}" 
-                                            Height="{Binding Height}" />
+                                            SeriesList="{Binding SeriesList}"
+                                            SeriesFilter="{Binding FilterList}"
+                                            SelectedChartType="{Binding ChartType}"
+                                            Width="{Binding Width, Mode=TwoWay}" 
+                                            Height="{Binding Height, Mode=TwoWay}" 
+                                            FilterUpdated="{Binding DataContext.FilterUpdatedCommand, RelativeSource={RelativeSource AncestorType=local:DashboardView}}" />
                     </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

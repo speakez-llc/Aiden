@@ -18,6 +18,7 @@
         <Compile Include="Controls\SeriesBox.axaml.fs" />
         <Compile Include="Controls\EZPie.axaml.fs"/>
         <Compile Include="Controls\EZGeo.axaml.fs"/>
+        <Compile Include="Controls\DragPanel.axaml.fs" />
         <Compile Include="Services\FileService.fs" />
         <None Remove=".gitignore" />
     </ItemGroup>
@@ -83,6 +84,7 @@
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
         <PackageReference Include="System.Reactive" Version="6.0.0" />
         <PackageReference Update="FSharp.Core" Version="8.0.101" />
+        <PackageReference Include="Northwoods.GoDiagram.Avalonia" Version="10.0.6" />
 
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     </ItemGroup>

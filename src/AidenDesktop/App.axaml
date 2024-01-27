@@ -14,5 +14,7 @@
         <StyleInclude Source="avares://AidenDesktop/Controls/SeriesBox.axaml" />
         <StyleInclude Source="avares://AidenDesktop/Controls/EZPie.axaml" />
         <StyleInclude Source="avares://AidenDesktop/Controls/EZGeo.axaml" />
+        <StyleInclude Source="avares://AidenDesktop/Controls/DragPanel.axaml" />
+        <StyleInclude Source="avares://Northwoods.GoDiagram.Avalonia/DiagramControl.axaml" />
     </Application.Styles>
 </Application>

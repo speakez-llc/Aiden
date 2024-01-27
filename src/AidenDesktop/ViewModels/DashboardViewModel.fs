@@ -39,6 +39,12 @@ module Dashboard =
             COOSeries : ObservableCollection<SeriesData>
             MALSeries : ObservableCollection<SeriesData>
 
+            VPNFilter : FilterItem List
+            TORFilter : FilterItem List
+            PRXFilter : FilterItem List
+            COOFilter : FilterItem List
+            MALFilter : FilterItem List
+
             IsDragging : bool
 
         }
@@ -53,6 +59,7 @@ module Dashboard =
         | UpdatePRXSeries of (string * int) list
         | UpdateCOOSeries of (string * int) list
         | UpdateMALSeries of (string * int) list
+        | FilterUpdated of FilterUpdatedCommandArgs
 
     let updateSeries (series: ObservableCollection<SeriesData>) (data: (string * int) list) =
 
@@ -79,6 +86,29 @@ module Dashboard =
                 series.Add(newItem))
         
         series
+
+    let updateSeriesFilter (seriesFilter : FilterItem List) (args : FilterUpdatedCommandArgs) =
+        // replace the FilterItem in the given series with a new one, if required
+        //printfn $"UpdateSeriesFilter - Series: {args.SeriesName} - Filter: {args.FilterName} - Status: {args.FilterStatus}"
+        seriesFilter 
+        |> List.map (fun item -> 
+            if item.Name = args.FilterName then { item with Show = args.FilterStatus } 
+            else item)
+        
+        
+
+    let updateFilter (model : Model) (args : FilterUpdatedCommandArgs) =
+        // replace the FilterItem in the given series with a new one, if required
+        match args.SeriesName with
+        | "VPN" -> { model with VPNFilter = updateSeriesFilter model.VPNFilter args }
+        | "TOR" -> { model with TORFilter = updateSeriesFilter model.TORFilter args }
+        | "PRX" -> { model with PRXFilter = updateSeriesFilter model.PRXFilter args }
+        | "COO" -> { model with COOFilter = updateSeriesFilter model.COOFilter args }
+        | "MAL" -> { model with MALFilter = updateSeriesFilter model.MALFilter args }
+        | _ -> model
+            
+        
+    
 
 
     let fetchDataAsync(column: string) =
@@ -181,14 +211,24 @@ module Dashboard =
         }
 
     let setPanelSeries (model : Model) =        
-        printfn "setPanelSeries Called..."
+        // TODO: Abstract the string matching to generalize the solution
         for panel in model.Panels do
             match panel.SeriesName with
-            | "VPN" -> panel.SeriesList <- model.VPNSeries
-            | "TOR" -> panel.SeriesList <- model.TORSeries
-            | "PRX" -> panel.SeriesList <- model.PRXSeries
-            | "COO" -> panel.SeriesList <- model.COOSeries
-            | "MAL" -> panel.SeriesList <- model.MALSeries
+            | "VPN" -> 
+                panel.SeriesList <- model.VPNSeries
+                panel.FilterList <- model.VPNFilter
+            | "TOR" -> 
+                panel.SeriesList <- model.TORSeries
+                panel.FilterList <- model.TORFilter
+            | "PRX" -> 
+                panel.SeriesList <- model.PRXSeries
+                panel.FilterList <- model.PRXFilter
+            | "COO" -> 
+                panel.SeriesList <- model.COOSeries
+                panel.FilterList <- model.COOFilter
+            | "MAL" -> 
+                panel.SeriesList <- model.MALSeries
+                panel.FilterList <- model.MALFilter
             | _ -> ()
 
         model //{ model with Panels = model.Panels }
@@ -210,19 +250,25 @@ module Dashboard =
                             DragPanel(SeriesName="TOR", PosX=220.0, PosY=10.0)
                             DragPanel(SeriesName="PRX", PosX=430.0, PosY=10.0)
                             DragPanel(SeriesName="MAL", PosX=640.0, PosY=10.0)
-                            DragPanel(SeriesName="COO", PosX=10.0, PosY=220.0)
+                            DragPanel(SeriesName="COO", PosX=10.0, PosY=220.0, Width=600, Height=400, ChartType=EZChartType.GeoMap)
                         ]
                 VPNSeries = vpnSeries                
                 TORSeries = torSeries
                 PRXSeries = prxSeries
                 COOSeries = cooSeries
                 MALSeries = malSeries
+                // set default visibility for all series
+                VPNFilter = vpnSeries |> Seq.map (fun sd -> { Name = sd.Name; Show = true }) |> Seq.toList
+                TORFilter = torSeries |> Seq.map (fun sd -> { Name = sd.Name; Show = true }) |> Seq.toList
+                PRXFilter = prxSeries |> Seq.map (fun sd -> { Name = sd.Name; Show = true }) |> Seq.toList
+                COOFilter = cooSeries |> Seq.map (fun sd -> { Name = sd.Name; Show = true }) |> Seq.toList
+                MALFilter = malSeries |> Seq.map (fun sd -> { Name = sd.Name; Show = true }) |> Seq.toList
                 
                 IsDragging = false
             }
         } |> Async.RunSynchronously,
         Cmd.ofEffect (fun dispatch ->
-            printfn "Dashboard init"
+            //printfn "Dashboard init"
             dispatch SetPanelSeries
         )
     
@@ -265,6 +311,11 @@ module Dashboard =
             // update MALSeries with new data
             let series = updateSeries model.MALSeries data
             { model with MALSeries = series}, Cmd.none
+        | FilterUpdated args ->
+            // update given series with new filter item status
+            updateFilter model args, Cmd.none
+        
+        
 
     let subscriptions (model : Model) : Sub<Msg> =
         [
@@ -276,6 +327,7 @@ module Dashboard =
         ]
 
 open Dashboard
+open ReactiveUI
 
 type DashboardViewModel() =
     inherit ReactiveElmishViewModel()
@@ -303,12 +355,18 @@ type DashboardViewModel() =
     member this.PRXSeries
         with get() = this.Bind(local, _.PRXSeries)
     member this.COOSeries
-        with get() = this.Bind(local, _.COOSeries)
+        with get() = this.Bind(local, _.COOSeries)    
+    member this.MALSeries
+        with get() = this.Bind(local, _.MALSeries)
     
 
     member this.IsDragging
         with get() = this.Bind(local, _.IsDragging)
         and set(value) = local.Dispatch (DragStart value)
+    
+    member val FilterUpdatedCommand = ReactiveCommand.Create<FilterUpdatedCommandArgs, unit>(fun args ->  
+        local.Dispatch (FilterUpdated args)
+        ) with get, set
 
     static member DesignVM =
         new DashboardViewModel()
