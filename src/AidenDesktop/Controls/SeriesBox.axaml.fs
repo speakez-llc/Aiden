@@ -93,12 +93,14 @@ type SeriesBox () =
         
         // set Show on FilterItem by Added/Removed items
         for item in args.AddedItems do
-            if this.FilterUpdated <> null then  
-                this.FilterUpdated.Execute({SeriesName=this.SeriesName; FilterName=item.ToString(); FilterStatus=true}) |> ignore
+            if this.FilterUpdated <> null then
+                let filterItem = item :?> FilterItem
+                this.FilterUpdated.Execute({SeriesName=this.SeriesName; FilterName=filterItem.Name; FilterStatus=true}) |> ignore
        
         for item in args.RemovedItems do
             if this.FilterUpdated <> null then
-                this.FilterUpdated.Execute({SeriesName=this.SeriesName; FilterName=item.ToString(); FilterStatus=false}) |> ignore
+                let filterItem = item :?> FilterItem
+                this.FilterUpdated.Execute({SeriesName=this.SeriesName; FilterName=filterItem.Name; FilterStatus=false}) |> ignore
 
 
     member private this.NotifyPropertyChanged(propertyName : string) =

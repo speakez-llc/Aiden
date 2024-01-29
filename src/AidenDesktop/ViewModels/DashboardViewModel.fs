@@ -79,10 +79,12 @@ module Dashboard =
             | Some(i, seriesData) ->
                 // Replace existing item at the same index
                 let updatedItem = { seriesData with Count = count }
+                //printfn $"Updating existing item: {updatedItem.Name}"
                 series.[i] <- updatedItem
             | None ->
                 // Add new item
                 let newItem = { Name = name; Count = count; Geography = "" }
+                //printfn $"Adding new item: {newItem.Name}"
                 series.Add(newItem))
         
         series
@@ -101,11 +103,19 @@ module Dashboard =
 
     let updateSeriesFilter (seriesFilter : FilterItem List) (args : FilterUpdatedCommandArgs) =
         // replace the FilterItem in the given series with a new one
-        //printfn $"UpdateSeriesFilter - Series: {args.SeriesName} - Filter: {args.FilterName} - Status: {args.FilterStatus}"
-        seriesFilter 
-        |> List.map (fun item -> 
-            if item.Name = args.FilterName then { item with Show = args.FilterStatus } 
-            else item)
+        printfn $"UpdateSeriesFilter - Series: {args.SeriesName} - Filter: {args.FilterName} - Status: {args.FilterStatus}"
+        for item in seriesFilter do
+            printfn $"FilterItem: {item.Name} : {item.Show}"
+        let result =
+            seriesFilter 
+            |> List.map (fun item -> 
+                if item.Name = args.FilterName then 
+                    printfn $"Replacing: {item.Name} : {item.Show} with {args.FilterName} : {args.FilterStatus}"
+                    { item with Show = args.FilterStatus } 
+                else item)
+        for item in result do
+            printfn $"FilterItem POST: {item.Name} : {item.Show}"
+        result
         
     let updateFilter (model : Model) (args : FilterUpdatedCommandArgs) =
         // replace the FilterItem in the given series with a new one, if required
@@ -118,19 +128,45 @@ module Dashboard =
         | _ -> model
             
         
-    
+    let andClauseBuilder (model: Model) =
+        printfn $"{DateTime.Now} Building AND Clauses"
+        // Show: true/false is 1-way bound to UI filter selections
+        let vpnNames = model.VPNFilter |> List.filter(fun x -> x.Show = true) |> List.map(fun x -> x.Name)
+        let torNames = model.TORFilter |> List.filter(fun x -> x.Show = true) |> List.map(fun x -> x.Name)
+        let prxNames = model.PRXFilter |> List.filter(fun x -> x.Show = true) |> List.map(fun x -> x.Name)
+        let cooNames = model.COOFilter |> List.filter(fun x -> x.Show = true) |> List.map(fun x -> x.Name)
+        let malNames = model.MALFilter |> List.filter(fun x -> x.Show = true) |> List.map(fun x -> x.Name)
+        printfn "VPN Filter:"
+        for item in model.VPNFilter do
+            printfn $"{item.Name} : {item.Show}"
+        let allFilters = [
+            ("vpn", vpnNames)
+            ("tor", torNames)
+            ("proxy", prxNames)
+            ("cc", cooNames)
+            ("malware", malNames)]
+        // For each filter list, create a string that represents the AND clause for that filter
+        let andClauses = allFilters |> List.map (fun (column, filter) ->
+            sprintf "AND %s IN ('%s')" column (String.Join("', '", filter))
+        )
+        printfn $"{DateTime.Now} AND Clauses: %s{String.Join(' ', andClauses)}"
+        // Join all the AND clause strings with the AND operator
+        String.Join(" ", andClauses)
 
 
-    let fetchDataAsync(column: string) =
+    let fetchDataAsync(column: string) (model : Model) =
         async {
             // Connect to the database and execute the query
             use connection = new NpgsqlConnection(connectionString)
             do! connection.OpenAsync() |> Async.AwaitTask
+            // Get the AND clauses from the model filters
+            let andClauses = andClauseBuilder model
             // Construct the query string with the column name
             let query =
                 $@"SELECT UNNEST(string_to_array({column}, ':')) AS label, COUNT(*) AS count
                    FROM events_hourly
                    WHERE event_time >= now() AT TIME ZONE 'UTC' - INTERVAL '1 minute'
+                   {andClauses}
                    GROUP BY label;"
 
             use cmd = new NpgsqlCommand(query, connection)
@@ -147,65 +183,65 @@ module Dashboard =
             return results
         }
 
-    let fetchDataForVPNChart (dispatch: Msg -> unit) =
+    let fetchDataForVPNChart(model : Model) : Subscribe<Msg> = fun dispatch ->
         let timer = new Timer(Random().Next(2990,3010))
-        let disposable =
-            timer.Elapsed.Subscribe(fun _ ->
-                async {
-                    let! data = fetchDataAsync("vpn")
-                    dispatch (UpdateVPNSeries data)
-                } |> Async.Start
-            )
+        timer.Elapsed.Subscribe(fun _ ->
+            async {
+                let! data = fetchDataAsync "vpn" model
+                printfn "******************** fetchDataForVPNChart ********************"
+                for item in model.VPNFilter do
+                    printfn $"{item.Name} : {item.Show}"
+                printfn "******************** fetchDataForVPNChart ********************"
+                dispatch (UpdateVPNSeries data)
+            } |> Async.Start
+        ) |> ignore
         timer.Start()
-        disposable
+        { new IDisposable with member _.Dispose() = timer.Dispose() }
     
-    let fetchDataForTORChart (dispatch: Msg -> unit) =
+    let fetchDataForTORChart (model : Model) : Subscribe<Msg> = fun dispatch ->
         let timer = new Timer(Random().Next(2990,3010))
-        let disposable =
-            timer.Elapsed.Subscribe(fun _ ->
-                async {
-                    let! data = fetchDataAsync("tor")
-                    dispatch (UpdateTORSeries data)
-                } |> Async.Start
-            )
+        timer.Elapsed.Subscribe(fun _ ->
+            async {
+                let! data = fetchDataAsync "tor" model
+                dispatch (UpdateTORSeries data)
+            } |> Async.Start
+        ) |> ignore
         timer.Start()
-        disposable
+        { new IDisposable with member _.Dispose() = timer.Dispose() }
     
-    let fetchDataForPRXChart (dispatch: Msg -> unit) =
-        let timer = new Timer(Random().Next(2990,3010))
-        let disposable =
-            timer.Elapsed.Subscribe(fun _ ->
-                async {
-                    let! data = fetchDataAsync("proxy")
-                    dispatch (UpdatePRXSeries data)
-                } |> Async.Start
-            )
+    let fetchDataForPRXChart (model : Model) : Subscribe<Msg> = fun dispatch ->
+        let timer = new Timer(Random().Next(2990,3010))        
+        timer.Elapsed.Add(fun _ ->
+            async {
+                let! data = fetchDataAsync "proxy" model
+                dispatch (UpdatePRXSeries data)
+            } |> Async.Start
+        ) |> ignore
         timer.Start()
-        disposable
+        { new IDisposable with member _.Dispose() = timer.Dispose()}
+        
     
-    let fetchDataForCOOChart (dispatch: Msg -> unit) =
+    let fetchDataForCOOChart (model : Model) : Subscribe<Msg> = fun dispatch ->
         let timer = new Timer(Random().Next(2990,3010))
-        let disposable =
-            timer.Elapsed.Subscribe(fun _ ->
-                async {
-                    let! data = fetchDataAsync("cc")
-                    dispatch (UpdateCOOSeries data)
-                } |> Async.Start
-            )
+        timer.Elapsed.Subscribe(fun _ ->
+            async {
+                let! data = fetchDataAsync "cc" model
+                dispatch (UpdateCOOSeries data)
+            } |> Async.Start
+        ) |> ignore
         timer.Start()
-        disposable
+        { new IDisposable with member _.Dispose() = timer.Dispose() }
     
-    let fetchDataForMALChart (dispatch: Msg -> unit) =
+    let fetchDataForMALChart (model : Model) : Subscribe<Msg> = fun dispatch ->
         let timer = new Timer(Random().Next(2990,3010))
-        let disposable =
-            timer.Elapsed.Subscribe(fun _ ->
-                async {
-                    let! data = fetchDataAsync("malware")
-                    dispatch (UpdateMALSeries data)
-                } |> Async.Start
-            )
+        timer.Elapsed.Subscribe(fun _ ->
+            async {
+                let! data = fetchDataAsync "malware" model
+                dispatch (UpdateMALSeries data)
+            } |> Async.Start
+        ) |> ignore
         timer.Start()
-        disposable
+        { new IDisposable with member _.Dispose() = timer.Dispose() }
 
     let mapSourceDataToSeriesData(data: list<string * int>) : ObservableCollection<SeriesData> =
         let seriesData = ObservableCollection<SeriesData>()
@@ -213,9 +249,9 @@ module Dashboard =
             seriesData.Add({Name = fst item; Count = snd item; Geography = ""})
         seriesData
 
-    let fetchPieDataAsync (dataType: string) =
+    let fetchPieDataAsync (dataType: string) (model : Model)=
         async {
-            let! data = fetchDataAsync(dataType)
+            let! data = fetchDataAsync dataType model
             let series = mapSourceDataToSeriesData data
             return series
         }
@@ -244,7 +280,7 @@ module Dashboard =
         model
     
     let init() =
-        async {
+        (* async {
             let! vpnSeries = fetchPieDataAsync("vpn")
             let! torSeries = fetchPieDataAsync("tor")
             let! prxSeries = fetchPieDataAsync("proxy")
@@ -276,9 +312,46 @@ module Dashboard =
                 
                 IsDragging = false
             }
-        } |> Async.RunSynchronously,
+        } |> Async.RunSynchronously, *)
+        {
+            IsLoading = false
+            IsFrozen = false
+            TimeFrame = "todo"
+            IsDragging = false
+            Panels = [ 
+                        DragPanel(SeriesName="VPN", PosX=10.0, PosY=10.0)
+                        DragPanel(SeriesName="TOR", PosX=220.0, PosY=10.0)
+                        DragPanel(SeriesName="PRX", PosX=430.0, PosY=10.0)
+                        DragPanel(SeriesName="MAL", PosX=640.0, PosY=10.0)
+                        DragPanel(SeriesName="COO", PosX=10.0, PosY=220.0, Width=600, Height=400, ChartType=EZChartType.GeoMap)
+                    ]
+            VPNSeries = ObservableCollection<SeriesData>()
+            TORSeries = ObservableCollection<SeriesData>()
+            PRXSeries = ObservableCollection<SeriesData>()
+            COOSeries = ObservableCollection<SeriesData>()
+            MALSeries = ObservableCollection<SeriesData>()
+
+            
+            
+            VPNFilter = [ 
+                {Name = "nord"; Show= true}
+                {Name="foxyproxy"; Show=true}
+                {Name="purevpn";Show=true}
+                {Name="surfshark";Show=true}
+                {Name="proton";Show=true}
+                {Name="BLANK"; Show=true}
+            ] 
+            TORFilter = [ {Name = "nord"; Show= true}; {Name="foxyproxy"; Show=true}; {Name="purevpn";Show=true}; {Name="surfshark";Show=true}; {Name="proton";Show=true};{Name="BLANK"; Show=true} ]
+            PRXFilter = [ {Name = "nord"; Show= true}; {Name="foxyproxy"; Show=true}; {Name="purevpn";Show=true}; {Name="surfshark";Show=true}; {Name="proton";Show=true};{Name="BLANK"; Show=true} ]
+            COOFilter = [ {Name="usa"; Show=true}; {Name="can"; Show=true}; {Name="ind"; Show=true};
+                          {Name="kor"; Show=true}; {Name="eqy"; Show=true}; {Name="rus"; Show=true};
+                          {Name="gbr"; Show=true}; {Name="ukr"; Show=true}; {Name="idn"; Show=true};
+                          {Name="deu"; Show=true} ]
+            MALFilter = [ {Name="TRUE"; Show=true}; {Name="FALSE"; Show=true}; {Name="UNKNOWN"; Show=true}]
+
+        },
         Cmd.ofEffect (fun dispatch ->
-            //printfn "Dashboard init"
+            //printfn "Dashboard init"            
             dispatch SetPanelSeries
         )
     
@@ -292,12 +365,7 @@ module Dashboard =
             model, Cmd.none
         | SetPanelSeries ->
             // Assign correct series to panels by name
-            setPanelSeries model |> ignore
-            for panel in model.Panels do
-                for item in panel.SeriesList do
-                    printfn $"{item.Name} : {item.Count} : {item.Geography}"
-            
-            model, Cmd.none
+            setPanelSeries model, Cmd.none
         | DragStart bDragging ->
             { model with IsDragging = bDragging }, Cmd.none
 
@@ -305,40 +373,54 @@ module Dashboard =
             // update VPNSeries with new data
             let series = updateSeries model.VPNSeries data
             let filter = updateFilterFromData model.VPNFilter series
-            { model with VPNSeries = series; VPNFilter = filter }, Cmd.none
+            { model with VPNSeries = series; VPNFilter = filter }
+            , Cmd.ofEffect (fun dispatch -> dispatch SetPanelSeries)
+        
         | UpdateTORSeries data ->
             // update TORSeries with new data
             let series = updateSeries model.TORSeries data
             let filter = updateFilterFromData model.TORFilter series
-            { model with TORSeries = series; TORFilter = filter }, Cmd.none
+            { model with TORSeries = series; TORFilter = filter }
+            , Cmd.ofEffect (fun dispatch -> dispatch SetPanelSeries)
         | UpdatePRXSeries data ->
             // update PRXSeries with new data
             let series = updateSeries model.PRXSeries data
             let filter = updateFilterFromData model.PRXFilter series
-            { model with PRXSeries = series; PRXFilter = filter }, Cmd.none
+            { model with PRXSeries = series; PRXFilter = filter }
+            , Cmd.ofEffect (fun dispatch -> dispatch SetPanelSeries)
         | UpdateCOOSeries data ->
             // update COOSeries with new data
             let series = updateSeries model.COOSeries data
             let filter = updateFilterFromData model.COOFilter series
-            { model with COOSeries = series; COOFilter = filter }, Cmd.none
+            { model with COOSeries = series; COOFilter = filter }
+            , Cmd.ofEffect (fun dispatch -> dispatch SetPanelSeries)
         | UpdateMALSeries data ->
             // update MALSeries with new data
             let series = updateSeries model.MALSeries data
             let filter = updateFilterFromData model.MALFilter series
-            { model with MALSeries = series; MALFilter = filter }, Cmd.none
+            { model with MALSeries = series; MALFilter = filter }
+            , Cmd.ofEffect (fun dispatch -> dispatch SetPanelSeries)
         | FilterUpdated args ->
             // update given series with new filter item status
-            updateFilter model args, Cmd.none
-        
+            printfn "FilterUpdated Msg received, processing..."
+            //updateFilter model args, Cmd.none
+            match args.SeriesName with
+                | "VPN" -> { model with VPNFilter = updateSeriesFilter model.VPNFilter args }
+                | "TOR" -> { model with TORFilter = updateSeriesFilter model.TORFilter args }
+                | "PRX" -> { model with PRXFilter = updateSeriesFilter model.PRXFilter args }
+                | "COO" -> { model with COOFilter = updateSeriesFilter model.COOFilter args }
+                | "MAL" -> { model with MALFilter = updateSeriesFilter model.MALFilter args }
+                | _ -> model     
+            , Cmd.ofEffect (fun dispatch -> dispatch SetPanelSeries)
         
 
     let subscriptions (model : Model) : Sub<Msg> =
         [
-            [ nameof fetchDataForVPNChart], fetchDataForVPNChart
-            [ nameof fetchDataForTORChart], fetchDataForTORChart
-            [ nameof fetchDataForPRXChart], fetchDataForPRXChart
-            [ nameof fetchDataForCOOChart], fetchDataForCOOChart
-            [ nameof fetchDataForMALChart], fetchDataForMALChart            
+            [ nameof fetchDataForVPNChart], fetchDataForVPNChart model
+            [ nameof fetchDataForTORChart], fetchDataForTORChart model
+            [ nameof fetchDataForPRXChart], fetchDataForPRXChart model
+            [ nameof fetchDataForCOOChart], fetchDataForCOOChart model
+            [ nameof fetchDataForMALChart], fetchDataForMALChart model      
         ]
 
 open Dashboard
