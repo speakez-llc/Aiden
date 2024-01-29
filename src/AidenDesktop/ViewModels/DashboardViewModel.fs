@@ -412,8 +412,9 @@ module Dashboard =
                 | "MAL" -> { model with MALFilter = updateSeriesFilter model.MALFilter args }
                 | _ -> model     
             , Cmd.ofEffect (fun dispatch -> dispatch SetPanelSeries)
-        
 
+    
+    
     let subscriptions (model : Model) : Sub<Msg> =
         [
             [ nameof fetchDataForVPNChart], fetchDataForVPNChart model
